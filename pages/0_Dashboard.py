@@ -53,6 +53,9 @@ if not dados:
 # ── MÉTRICAS ─────────────────────────────────────────────────
 def calcular_metricas(df):
     precos = df["Close"]
+    if isinstance(precos, pd.DataFrame):
+        precos = precos.iloc[:, 0]
+    precos = precos.squeeze()
     retorno_total = float((precos.iloc[-1] / precos.iloc[0] - 1) * 100)
     retornos_diarios = precos.pct_change().dropna()
     volatilidade = float(retornos_diarios.std() * np.sqrt(252) * 100)

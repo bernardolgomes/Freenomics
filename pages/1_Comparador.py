@@ -42,7 +42,11 @@ def retorno_carteira(tickers_str, dias):
     for t in tickers:
         df = carregar(t, dias)
         if not df.empty:
-            series.append(df["Close"] / df["Close"].iloc[0])
+            close = df["Close"]
+            if isinstance(close, pd.DataFrame):
+                close = close.iloc[:, 0]
+            close = close.squeeze()
+            series.append(close / close.iloc[0])
     if not series:
         return None, []
     return pd.concat(series, axis=1).mean(axis=1), tickers
