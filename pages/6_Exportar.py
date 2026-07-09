@@ -294,6 +294,9 @@ def carregar(ticker, dias):
 
 def calc_metricas(df):
     precos = df["Close"]
+    if isinstance(precos, pd.DataFrame):
+        precos = precos.iloc[:, 0]
+    precos = precos.squeeze()
     ret    = float((precos.iloc[-1] / precos.iloc[0] - 1) * 100)
     rd     = precos.pct_change().dropna()
     vol    = float(rd.std() * np.sqrt(252) * 100)
@@ -308,7 +311,11 @@ def retorno_carteira(tickers_str, dias):
     for t in tickers_l:
         df = carregar(t, dias)
         if not df.empty:
-            series.append(df["Close"] / df["Close"].iloc[0])
+            close = df["Close"]
+            if isinstance(close, pd.DataFrame):
+                close = close.iloc[:, 0]
+            close = close.squeeze()
+            series.append(close / close.iloc[0])
     if not series: return None, []
     return pd.concat(series, axis=1).mean(axis=1), tickers_l
 
