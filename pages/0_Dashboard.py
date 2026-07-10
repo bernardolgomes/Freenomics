@@ -158,6 +158,7 @@ fig.update_layout(
 )
 st.plotly_chart(fig, use_container_width=True)
 st.caption(T.get("caption_base100", "💡 **Base 100:** todos os ativos começam no mesmo ponto. Ex: 180 = subiu 80%."))
+st.caption(T.get("caption_benchmark", "📊 **S&P 500 (benchmark):** a linha tracejada representa o S&P 500. Serve para perceber se a tua carteira está a superar ou ficar abaixo do mercado."))
 
 # ── INSIGHTS VIA API ANTHROPIC ───────────────────────────────
 st.subheader(T["insights_titulo"])
