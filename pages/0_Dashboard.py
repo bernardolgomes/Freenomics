@@ -34,6 +34,10 @@ st.sidebar.markdown("#### 💼 Carteira real")
 usar_carteira_real = st.sidebar.checkbox("Introduzir preços de compra", value=False,
     help="Introduz o preço e quantidade de cada ativo para calcular o ganho/perda real em euros.")
 
+mostrar_usd = False
+if usar_carteira_real:
+    mostrar_usd = st.sidebar.toggle("Mostrar em USD ($)", value=False)
+
 compras = {}
 if usar_carteira_real:
     for t in tickers:
@@ -150,11 +154,7 @@ if usar_carteira_real and compras:
     eurusd = get_eurusd()
     usdeur = 1 / eurusd
 
-    # Toggle USD / EUR
-    col_toggle1, col_toggle2 = st.columns([1, 3])
-    with col_toggle1:
-        mostrar_usd = st.toggle("Mostrar em USD ($)", value=False)
-
+    # Toggle USD / EUR já está na sidebar
     simbolo  = "$" if mostrar_usd else "€"
     fator_fx = 1.0 if mostrar_usd else usdeur
 
