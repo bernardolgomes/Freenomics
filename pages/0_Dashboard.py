@@ -80,10 +80,16 @@ cols = st.columns(len(dados))
 for col, (t, m) in zip(cols, metricas.items()):
     with col:
         st.subheader(t)
-        st.metric(T["metrica_retorno"], f"{m['retorno_total']}%")
+        st.metric(T["metrica_retorno"], f"{m['retorno_total']}%",
+                  delta=f"{m['retorno_total']}%",
+                  delta_color="normal")
         st.metric(T["metrica_vol"], f"{m['volatilidade']}%")
-        st.metric(T["metrica_drawdown"], f"{m['max_drawdown']}%")
-        st.metric(T["metrica_sharpe"], f"{m['sharpe']}")
+        st.metric(T["metrica_drawdown"], f"{m['max_drawdown']}%",
+                  delta=f"{m['max_drawdown']}%",
+                  delta_color="inverse")
+        st.metric(T["metrica_sharpe"], f"{m['sharpe']}",
+                  delta=f"{m['sharpe']}",
+                  delta_color="normal")
 
 # ── GRÁFICO ──────────────────────────────────────────────────
 st.subheader(T["grafico_titulo"])

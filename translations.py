@@ -662,7 +662,7 @@ CSS = """
     }
     div[data-testid="stMetric"] label { color: #C8D3DA !important; }
     div[data-testid="stMetricValue"] { color: #FAF8F3 !important; }
-    div[data-testid="stMetricDelta"] { color: #C29A4B !important; }
+    div[data-testid="stMetricDelta"] svg { display: none; }
     .insight-box {
         background-color: #FFFFFF; border: 1px solid #E5DFD0;
         border-left: 4px solid #C29A4B; border-radius: 8px;
