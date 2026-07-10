@@ -120,11 +120,36 @@ for col, (t, m) in zip(cols, metricas.items()):
 st.subheader(T["grafico_titulo"])
 fig = go.Figure()
 for i, (t, df) in enumerate(dados.items()):
-    norm = (df["Close"] / df["Close"].iloc[0]) * 100
+    close = df["Close"]
+    if isinstance(close, pd.DataFrame):
+        close = close.iloc[:, 0]
+    close = close.squeeze()
+    norm = (close / close.iloc[0]) * 100
     fig.add_trace(go.Scatter(
         x=df.index, y=norm.values.flatten(), name=t,
         line=dict(color=PLOT_COLORS[i % len(PLOT_COLORS)], width=2.5)
     ))
+
+# Benchmark SP500 (SPY) — só adiciona se SPY não estiver já na carteira
+if "SPY" not in [t.upper() for t in tickers]:
+    try:
+        df_spy = carregar_dados("SPY", dias)
+        if not df_spy.empty:
+            close_spy = df_spy["Close"]
+            if isinstance(close_spy, pd.DataFrame):
+                close_spy = close_spy.iloc[:, 0]
+            close_spy = close_spy.squeeze()
+            norm_spy = (close_spy / close_spy.iloc[0]) * 100
+            fig.add_trace(go.Scatter(
+                x=df_spy.index,
+                y=norm_spy.values.flatten(),
+                name="S&P 500 (benchmark)",
+                line=dict(color="#888888", width=1.5, dash="dash"),
+                opacity=0.7,
+            ))
+    except Exception:
+        pass
+
 fig.update_layout(
     plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
     yaxis_title=T["grafico_y"], xaxis_title=T["grafico_x"],
