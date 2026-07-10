@@ -109,13 +109,13 @@ for col, nome, m in [(col1, f"{T['carteira_a']} — {nome_a}", ma),
         st.markdown(cartao(T["vol"], f"{m['vol']}%"), unsafe_allow_html=True)
         st.markdown(cartao(
             T["drawdown"], f"{m['dd']}%",
-            euros_str=f"€{perda_dd:,.0f} de queda máxima",
+            euros_str=f"€{perda_dd:,.0f} {T['queda_maxima']}",
             euros_cor="#F44336"
         ), unsafe_allow_html=True)
         st.markdown(cartao(T["sharpe"], f"{m['sharpe']}"), unsafe_allow_html=True)
         st.markdown(cartao(
             T["valor_final"], f"€{val_final:,.0f}",
-            euros_str=f"{'+' if ganho>=0 else ''}€{ganho:,.0f} de ganho",
+            euros_str=f"{'+' if ganho>=0 else ''}€{ganho:,.0f} {T['de_ganho']}",
             euros_cor=cor(ganho)
         ), unsafe_allow_html=True)
 
@@ -221,5 +221,6 @@ else:
         st.markdown(f"<div class='insight-box'>{renderizar(frase)}</div>", unsafe_allow_html=True)
     st.info("💡 Adiciona a tua Anthropic API key na sidebar para análises geradas por IA.")
 
+st.caption(T["caption_base100"])
 st.markdown("---")
 st.caption(T["rodape"])

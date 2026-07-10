@@ -108,7 +108,7 @@ for col, (t, m) in zip(cols, metricas.items()):
         ), unsafe_allow_html=True)
         st.markdown(cartao(
             T["metrica_drawdown"], f"{m['max_drawdown']}%",
-            euros_str=f"€{perda_dd:,.0f} de queda máxima",
+            euros_str=f"€{perda_dd:,.0f} {T['queda_maxima']}",
             euros_cor="#F44336"
         ), unsafe_allow_html=True)
         st.markdown(cartao(
@@ -157,7 +157,7 @@ fig.update_layout(
     legend=dict(orientation="h", yanchor="bottom", y=1.02),
 )
 st.plotly_chart(fig, use_container_width=True)
-st.caption("💡 **Base 100:** todos os ativos começam no mesmo ponto para comparar performance relativa. Ex: um valor de 180 significa que o ativo subiu 80% desde o início do período.")
+st.caption(T["caption_base100"])
 
 # ── INSIGHTS VIA API ANTHROPIC ───────────────────────────────
 st.subheader(T["insights_titulo"])
