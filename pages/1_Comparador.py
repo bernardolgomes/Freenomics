@@ -28,12 +28,14 @@ investimento = st.sidebar.number_input(T["investimento"], value=10000, step=500)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("#### 🤖 Anthropic API")
-api_key = st.sidebar.text_input("API Key", type="password", placeholder="sk-ant-...", help="Obtém a tua key em console.anthropic.com")
+api_key = st.sidebar.text_input("API Key", type="password", placeholder="sk-ant-...",
+                                 help="Obtém a tua key em console.anthropic.com")
 
 # ── DADOS ────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
 def carregar(ticker, dias):
-    end = datetime.today(); start = end - timedelta(days=dias)
+    end = datetime.today()
+    start = end - timedelta(days=dias)
     return yf.download(ticker, start=start, end=end, progress=False)
 
 def retorno_carteira(tickers_str, dias):
@@ -56,15 +58,16 @@ with st.spinner(T["a_carregar"]):
     retorno_b, lista_b = retorno_carteira(tickers_b, dias)
 
 if retorno_a is None or retorno_b is None:
-    st.error(T["a_carregar"]); st.stop()
+    st.error(T["a_carregar"])
+    st.stop()
 
 def metricas_serie(serie):
     d = serie.pct_change().dropna()
     return {
         "retorno": round(float((serie.iloc[-1]-1)*100), 2),
-        "vol": round(float(d.std()*np.sqrt(252)*100), 2),
-        "dd": round(float(((serie-serie.cummax())/serie.cummax()).min()*100), 2),
-        "sharpe": round(float((d.mean()/d.std())*np.sqrt(252)) if d.std().item() != 0 else 0, 2),
+        "vol":     round(float(d.std()*np.sqrt(252)*100), 2),
+        "dd":      round(float(((serie-serie.cummax())/serie.cummax()).min()*100), 2),
+        "sharpe":  round(float((d.mean()/d.std())*np.sqrt(252)) if d.std().item()!=0 else 0, 2),
     }
 
 ma = metricas_serie(retorno_a)
@@ -75,48 +78,70 @@ vencedor = nome_a if ma["retorno"] > mb["retorno"] else nome_b
 
 st.markdown(f"<div class='winner-box'>{T['vencedor']}: {vencedor}</div>", unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
+# ── FUNÇÃO DE CARTÃO ─────────────────────────────────────────
 def cor(valor):
     return "#4CAF50" if valor >= 0 else "#F44336"
 
-def cartao(label, pct_str, cor_hex, euros_str=None):
-    euros_html = f'<p style="color:{cor_hex};font-size:0.95rem;margin:4px 0 0 0;opacity:0.85;">{euros_str}</p>' if euros_str else ""
-    return f"""<div style="background:#0E2A3D;border-radius:10px;padding:16px 18px;
-        border-left:4px solid #C29A4B;margin-bottom:12px;">
-        <p style="color:#C8D3DA;font-size:0.85rem;margin:0 0 4px 0;">{label}</p>
-        <p style="color:{cor_hex};font-size:1.8rem;font-weight:700;margin:0;">{pct_str}</p>
-        {euros_html}
-    </div>"""
+def cartao(label, valor_str, euros_str=None, euros_cor="#4CAF50"):
+    html = '<div style="background:#0E2A3D;border-radius:10px;padding:16px 18px;border-left:4px solid #C29A4B;margin-bottom:12px;">'
+    html += '<p style="color:#C8D3DA;font-size:0.85rem;margin:0 0 4px 0;">' + label + '</p>'
+    html += '<p style="color:#FAF8F3;font-size:1.8rem;font-weight:700;margin:0;">' + valor_str + '</p>'
+    if euros_str:
+        html += '<p style="color:' + euros_cor + ';font-size:0.95rem;margin:4px 0 0 0;">' + euros_str + '</p>'
+    html += '</div>'
+    return html
 
-for col, nome, m in [(col1, f"{T['carteira_a']} — {nome_a}", ma), (col2, f"{T['carteira_b']} — {nome_b}", mb)]:
-    ganho = investimento*(1+m['retorno']/100) - investimento
-    perda_dd = investimento * m['dd'] / 100
+# ── CARTÕES ──────────────────────────────────────────────────
+col1, col2 = st.columns(2)
+for col, nome, m in [(col1, f"{T['carteira_a']} — {nome_a}", ma),
+                      (col2, f"{T['carteira_b']} — {nome_b}", mb)]:
+    ganho = investimento * (1 + m["retorno"]/100) - investimento
+    perda_dd = investimento * m["dd"] / 100
+    val_final = investimento * (1 + m["retorno"]/100)
+
     with col:
         st.subheader(nome)
-        st.markdown(cartao(T["retorno"], f"{m['retorno']}%", cor(m['retorno']),
-                    euros_str=f"{'+' if ganho>=0 else ''}€{ganho:,.0f}"), unsafe_allow_html=True)
-        st.markdown(cartao(T["vol"], f"{m['vol']}%", "#FAF8F3"), unsafe_allow_html=True)
-        st.markdown(cartao(T["drawdown"], f"{m['dd']}%", "#F44336",
-                    euros_str=f"€{perda_dd:,.0f} de queda máxima"), unsafe_allow_html=True)
-        st.markdown(cartao(T["sharpe"], f"{m['sharpe']}", cor(m['sharpe'])), unsafe_allow_html=True)
-        st.markdown(cartao(T["valor_final"], f"€{investimento*(1+m['retorno']/100):,.0f}", cor(ganho),
-                    euros_str=f"{'+' if ganho>=0 else ''}€{ganho:,.0f} de ganho"), unsafe_allow_html=True)
+        st.markdown(cartao(
+            T["retorno"], f"{m['retorno']}%",
+            euros_str=f"{'+' if ganho>=0 else ''}€{ganho:,.0f}",
+            euros_cor=cor(ganho)
+        ), unsafe_allow_html=True)
+        st.markdown(cartao(T["vol"], f"{m['vol']}%"), unsafe_allow_html=True)
+        st.markdown(cartao(
+            T["drawdown"], f"{m['dd']}%",
+            euros_str=f"€{perda_dd:,.0f} de queda máxima",
+            euros_cor="#F44336"
+        ), unsafe_allow_html=True)
+        st.markdown(cartao(T["sharpe"], f"{m['sharpe']}"), unsafe_allow_html=True)
+        st.markdown(cartao(
+            T["valor_final"], f"€{val_final:,.0f}",
+            euros_str=f"{'+' if ganho>=0 else ''}€{ganho:,.0f} de ganho",
+            euros_cor=cor(ganho)
+        ), unsafe_allow_html=True)
 
 # ── GRÁFICO ──────────────────────────────────────────────────
 st.subheader(T["grafico"])
 fig = go.Figure()
-fig.add_trace(go.Scatter(x=retorno_a.index, y=(retorno_a*100).values.flatten(), name=f"A: {nome_a}", line=dict(color=PLOT_COLORS[0], width=2.5)))
-fig.add_trace(go.Scatter(x=retorno_b.index, y=(retorno_b*100).values.flatten(), name=f"B: {nome_b}", line=dict(color=PLOT_COLORS[1], width=2.5)))
-fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3", yaxis_title=T["grafico_y"], xaxis_title=T["grafico_x"], hovermode="x unified", height=420, legend=dict(orientation="h", yanchor="bottom", y=1.02))
+fig.add_trace(go.Scatter(
+    x=retorno_a.index, y=(retorno_a*100).values.flatten(),
+    name=f"A: {nome_a}", line=dict(color=PLOT_COLORS[0], width=2.5)
+))
+fig.add_trace(go.Scatter(
+    x=retorno_b.index, y=(retorno_b*100).values.flatten(),
+    name=f"B: {nome_b}", line=dict(color=PLOT_COLORS[1], width=2.5)
+))
+fig.update_layout(
+    plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
+    yaxis_title=T["grafico_y"], xaxis_title=T["grafico_x"],
+    hovermode="x unified", height=420,
+    legend=dict(orientation="h", yanchor="bottom", y=1.02),
+)
 st.plotly_chart(fig, use_container_width=True)
 
-# ── INSIGHTS VIA API ─────────────────────────────────────────
+# ── INSIGHTS ─────────────────────────────────────────────────
 LINGUA_NOME = {
-    "🇵🇹 Português": "português europeu",
-    "🇬🇧 English": "English",
-    "🇫🇷 Français": "français",
-    "🇩🇪 Deutsch": "Deutsch",
-    "🇪🇸 Español": "español",
+    "🇵🇹 Português": "português europeu", "🇬🇧 English": "English",
+    "🇫🇷 Français": "français", "🇩🇪 Deutsch": "Deutsch", "🇪🇸 Español": "español",
 }
 
 def gerar_insights_comparador(ma, mb, nome_a, nome_b, periodo_label, investimento, lang, api_key):
@@ -134,38 +159,24 @@ Investimento inicial: €{investimento:,.0f}
 Carteira A — {nome_a}:
 - Retorno: {ma['retorno']}% → valor final €{val_a:,.0f}
 - Volatilidade anual: {ma['vol']}%
-- Pior queda desde o pico (drawdown): {ma['dd']}% (perda temporária de €{perda_a:,.0f})
+- Drawdown máximo: {ma['dd']}% (perda temporária de €{perda_a:,.0f})
 - Sharpe ratio: {ma['sharpe']}
 
 Carteira B — {nome_b}:
 - Retorno: {mb['retorno']}% → valor final €{val_b:,.0f}
 - Volatilidade anual: {mb['vol']}%
-- Pior queda desde o pico (drawdown): {mb['dd']}% (perda temporária de €{perda_b:,.0f})
+- Drawdown máximo: {mb['dd']}% (perda temporária de €{perda_b:,.0f})
 - Sharpe ratio: {mb['sharpe']}
 
-Escreve uma análise comparativa em {lingua} com 3-4 parágrafos curtos que:
-1. Compare os retornos em termos concretos (euros ganhos, não só percentagens)
-2. Analise qual carteira exigiu mais "estômago" para aguentar — fala do drawdown em euros e o que isso significa psicologicamente
-3. Dê uma perspetiva sobre qual foi a escolha mais inteligente considerando o risco tomado (Sharpe ratio), não só o retorno bruto
-4. Termine com uma reflexão prática: o retorno extra de uma justificou o risco adicional? Que tipo de investidor escolheria cada uma?
-
-Tom: honesto, direto, como um amigo que percebe de finanças e te diz a verdade.
-Não uses bullet points. Não repitas todos os números — escolhe os que mais importam para a narrativa.
-Não incluas títulos. Apenas parágrafos seguidos."""
+Escreve uma análise comparativa em {lingua} com 3-4 parágrafos curtos. Foca em: retorno em euros reais, risco psicológico (drawdown), e qual foi mais eficiente pelo Sharpe. Tom direto, como um amigo que percebe de finanças. Sem bullet points. Sem títulos."""
 
     try:
         response = requests.post(
             "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 600,
-                "messages": [{"role": "user", "content": prompt}],
-            },
+            headers={"x-api-key": api_key, "anthropic-version": "2023-06-01",
+                     "content-type": "application/json"},
+            json={"model": "claude-haiku-4-5-20251001", "max_tokens": 600,
+                  "messages": [{"role": "user", "content": prompt}]},
             timeout=30,
         )
         if response.status_code == 200:
@@ -174,38 +185,39 @@ Não incluas títulos. Apenas parágrafos seguidos."""
     except Exception:
         return None, False
 
-def fallback_comparador(ma, mb, nome_a, nome_b, periodo_label, investimento, T):
+def fallback_comparador(ma, mb, nome_a, nome_b, investimento):
     val_a = investimento * (1 + ma["retorno"]/100)
     val_b = investimento * (1 + mb["retorno"]/100)
-    vencedor_ret = nome_a if ma["retorno"] > mb["retorno"] else nome_b
-    vencedor_sharpe = nome_a if ma["sharpe"] > mb["sharpe"] else nome_b
+    venc_ret = nome_a if ma["retorno"] > mb["retorno"] else nome_b
+    venc_sharpe = nome_a if ma["sharpe"] > mb["sharpe"] else nome_b
     perda_a = investimento * abs(ma["dd"]) / 100
     perda_b = investimento * abs(mb["dd"]) / 100
     return [
-        f"Em {periodo_label}, **{nome_a}** gerou um retorno de {ma['retorno']}% (€{val_a:,.0f}) e **{nome_b}** de {mb['retorno']}% (€{val_b:,.0f}). O melhor retorno bruto foi de **{vencedor_ret}**.",
+        f"Em {periodo_label}, **{nome_a}** gerou um retorno de {ma['retorno']}% (€{val_a:,.0f}) e **{nome_b}** de {mb['retorno']}% (€{val_b:,.0f}). O melhor retorno bruto foi de **{venc_ret}**.",
         f"Em termos de risco, **{nome_a}** chegou a cair €{perda_a:,.0f} desde o seu pico, enquanto **{nome_b}** chegou a cair €{perda_b:,.0f}. Quanto maior a queda, mais difícil é manter a calma e não vender.",
-        f"Ajustando ao risco (Sharpe ratio), **{vencedor_sharpe}** foi a escolha mais eficiente — ofereceu mais retorno por unidade de risco assumida.",
+        f"Ajustando ao risco (Sharpe ratio), **{venc_sharpe}** foi a escolha mais eficiente — ofereceu mais retorno por unidade de risco assumida.",
     ]
-
-st.subheader("📝 Análise comparativa")
 
 import re
 def renderizar(texto):
     return re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", texto)
 
+st.subheader("📝 Análise comparativa")
+
 if api_key:
     with st.spinner("🤖 A gerar análise comparativa com IA..."):
-        texto_ai, sucesso = gerar_insights_comparador(ma, mb, nome_a, nome_b, periodo_label, investimento, lang, api_key)
+        texto_ai, sucesso = gerar_insights_comparador(
+            ma, mb, nome_a, nome_b, periodo_label, investimento, lang, api_key)
     if sucesso and texto_ai:
         texto_html = renderizar(texto_ai).replace("\n\n", "<br><br>")
         st.markdown(f"<div class='insight-box'>{texto_html}</div>", unsafe_allow_html=True)
         st.caption("✨ Análise gerada por IA · Não constitui aconselhamento financeiro.")
     else:
         st.warning("Não foi possível contactar a API. A usar análise automática.")
-        for frase in fallback_comparador(ma, mb, nome_a, nome_b, periodo_label, investimento, T):
+        for frase in fallback_comparador(ma, mb, nome_a, nome_b, investimento):
             st.markdown(f"<div class='insight-box'>{renderizar(frase)}</div>", unsafe_allow_html=True)
 else:
-    for frase in fallback_comparador(ma, mb, nome_a, nome_b, periodo_label, investimento, T):
+    for frase in fallback_comparador(ma, mb, nome_a, nome_b, investimento):
         st.markdown(f"<div class='insight-box'>{renderizar(frase)}</div>", unsafe_allow_html=True)
     st.info("💡 Adiciona a tua Anthropic API key na sidebar para análises geradas por IA.")
 
