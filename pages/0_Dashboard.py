@@ -81,14 +81,14 @@ for col, (t, m) in zip(cols, metricas.items()):
     with col:
         st.subheader(t)
         st.metric(T["metrica_retorno"], f"{m['retorno_total']}%",
-                  delta=f"{m['retorno_total']}%",
+                  delta="+▲" if m['retorno_total'] >= 0 else "-▼",
                   delta_color="normal")
         st.metric(T["metrica_vol"], f"{m['volatilidade']}%")
         st.metric(T["metrica_drawdown"], f"{m['max_drawdown']}%",
-                  delta=f"{m['max_drawdown']}%",
-                  delta_color="inverse")
+                  delta="-▼",
+                  delta_color="normal")
         st.metric(T["metrica_sharpe"], f"{m['sharpe']}",
-                  delta=f"{m['sharpe']}",
+                  delta="+▲" if m['sharpe'] >= 0 else "-▼",
                   delta_color="normal")
 
 # ── GRÁFICO ──────────────────────────────────────────────────

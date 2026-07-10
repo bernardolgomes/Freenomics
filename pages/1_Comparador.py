@@ -80,15 +80,18 @@ for col, nome, m in [(col1, f"{T['carteira_a']} — {nome_a}", ma), (col2, f"{T[
     with col:
         st.subheader(nome)
         st.metric(T["retorno"], f"{m['retorno']}%",
-                  delta=f"{m['retorno']}%", delta_color="normal")
+                  delta="+▲" if m['retorno'] >= 0 else "-▼",
+                  delta_color="normal")
         st.metric(T["vol"], f"{m['vol']}%")
         st.metric(T["drawdown"], f"{m['dd']}%",
-                  delta=f"{m['dd']}%", delta_color="inverse")
+                  delta="-▼", delta_color="normal")
         st.metric(T["sharpe"], f"{m['sharpe']}",
-                  delta=f"{m['sharpe']}", delta_color="normal")
+                  delta="+▲" if m['sharpe'] >= 0 else "-▼",
+                  delta_color="normal")
         ganho = investimento*(1+m['retorno']/100) - investimento
         st.metric(T["valor_final"], f"€{investimento*(1+m['retorno']/100):,.0f}",
-                  delta=f"€{ganho:,.0f}", delta_color="normal")
+                  delta=f"+€{ganho:,.0f}" if ganho >= 0 else f"-€{abs(ganho):,.0f}",
+                  delta_color="normal")
 
 # ── GRÁFICO ──────────────────────────────────────────────────
 st.subheader(T["grafico"])
