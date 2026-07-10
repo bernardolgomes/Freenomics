@@ -76,20 +76,32 @@ def calcular_metricas(df):
 metricas = {t: calcular_metricas(df) for t, df in dados.items()}
 
 # ── CARTÕES ──────────────────────────────────────────────────
+def cor(valor, inverso=False):
+    positivo = valor >= 0
+    if inverso:
+        positivo = not positivo
+    return "#4CAF50" if positivo else "#F44336"
+
+def cartao(label, valor_str, cor_hex):
+    return f"""
+    <div style="background:#0E2A3D;border-radius:10px;padding:16px 18px;
+                border-left:4px solid #C29A4B;margin-bottom:12px;">
+        <p style="color:#C8D3DA;font-size:0.85rem;margin:0 0 4px 0;">{label}</p>
+        <p style="color:{cor_hex};font-size:1.8rem;font-weight:700;margin:0;">{valor_str}</p>
+    </div>"""
+
 cols = st.columns(len(dados))
 for col, (t, m) in zip(cols, metricas.items()):
     with col:
         st.subheader(t)
-        st.metric(T["metrica_retorno"], f"{m['retorno_total']}%",
-                  delta="+▲" if m['retorno_total'] >= 0 else "-▼",
-                  delta_color="normal")
-        st.metric(T["metrica_vol"], f"{m['volatilidade']}%")
-        st.metric(T["metrica_drawdown"], f"{m['max_drawdown']}%",
-                  delta="-▼",
-                  delta_color="normal")
-        st.metric(T["metrica_sharpe"], f"{m['sharpe']}",
-                  delta="+▲" if m['sharpe'] >= 0 else "-▼",
-                  delta_color="normal")
+        st.markdown(cartao(T["metrica_retorno"], f"{m['retorno_total']}%",
+                           cor(m['retorno_total'])), unsafe_allow_html=True)
+        st.markdown(cartao(T["metrica_vol"], f"{m['volatilidade']}%",
+                           "#FAF8F3"), unsafe_allow_html=True)
+        st.markdown(cartao(T["metrica_drawdown"], f"{m['max_drawdown']}%",
+                           cor(m['max_drawdown'], inverso=True)), unsafe_allow_html=True)
+        st.markdown(cartao(T["metrica_sharpe"], f"{m['sharpe']}",
+                           cor(m['sharpe'])), unsafe_allow_html=True)
 
 # ── GRÁFICO ──────────────────────────────────────────────────
 st.subheader(T["grafico_titulo"])
