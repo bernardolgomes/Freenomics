@@ -76,18 +76,21 @@ def calcular_metricas(df):
 metricas = {t: calcular_metricas(df) for t, df in dados.items()}
 
 # ── CARTÕES ──────────────────────────────────────────────────
+def cartao(label, pct_str, euros_str=None, euros_cor="#4CAF50"):
+    euros_html = ""
+    if euros_str:
+        euros_html = f'<p style="color:{euros_cor};font-size:0.95rem;margin:4px 0 0 0;">'+ euros_str + '</p>'
+    partes = [
+        '<div style="background:#0E2A3D;border-radius:10px;padding:16px 18px;border-left:4px solid #C29A4B;margin-bottom:12px;">',
+        f'<p style="color:#C8D3DA;font-size:0.85rem;margin:0 0 4px 0;">' + label + '</p>',
+        f'<p style="color:#FAF8F3;font-size:1.8rem;font-weight:700;margin:0;">' + pct_str + '</p>',
+        euros_html,
+        '</div>'
+    ]
+    return "".join(partes)
+
 def cor(valor):
     return "#4CAF50" if valor >= 0 else "#F44336"
-
-def cartao(label, pct_str, cor_hex, euros_str=None):
-    euros_html = f'<p style="color:{cor_hex};font-size:0.95rem;margin:4px 0 0 0;opacity:0.85;">{euros_str}</p>' if euros_str else ""
-    return f"""
-    <div style="background:#0E2A3D;border-radius:10px;padding:16px 18px;
-                border-left:4px solid #C29A4B;margin-bottom:12px;">
-        <p style="color:#C8D3DA;font-size:0.85rem;margin:0 0 4px 0;">{label}</p>
-        <p style="color:{cor_hex};font-size:1.8rem;font-weight:700;margin:0;">{pct_str}</p>
-        {euros_html}
-    </div>"""
 
 cols = st.columns(len(dados))
 for col, (t, m) in zip(cols, metricas.items()):
@@ -96,18 +99,21 @@ for col, (t, m) in zip(cols, metricas.items()):
         ganho = investimento_inicial * m['retorno_total'] / 100
         perda_dd = investimento_inicial * m['max_drawdown'] / 100
         st.markdown(cartao(
-            T["metrica_retorno"], f"{m['retorno_total']}%", cor(m['retorno_total']),
-            euros_str=f"{'+' if ganho >= 0 else ''}€{ganho:,.0f}"
+            T["metrica_retorno"], f"{m['retorno_total']}%",
+            euros_str=f"{'+' if ganho >= 0 else ''}€{ganho:,.0f}",
+            euros_cor=cor(m['retorno_total'])
         ), unsafe_allow_html=True)
         st.markdown(cartao(
-            T["metrica_vol"], f"{m['volatilidade']}%", "#FAF8F3"
+            T["metrica_vol"], f"{m['volatilidade']}%"
         ), unsafe_allow_html=True)
         st.markdown(cartao(
-            T["metrica_drawdown"], f"{m['max_drawdown']}%", "#F44336",
-            euros_str=f"€{perda_dd:,.0f} de queda máxima"
+            T["metrica_drawdown"], f"{m['max_drawdown']}%",
+            euros_str=f"€{perda_dd:,.0f} de queda máxima",
+            euros_cor="#F44336"
         ), unsafe_allow_html=True)
         st.markdown(cartao(
-            T["metrica_sharpe"], f"{m['sharpe']}", cor(m['sharpe'])
+            T["metrica_sharpe"], f"{m['sharpe']}",
+            euros_str=None
         ), unsafe_allow_html=True)
 
 # ── GRÁFICO ──────────────────────────────────────────────────
