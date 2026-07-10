@@ -29,6 +29,20 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("#### 🤖 Anthropic API")
 api_key = st.sidebar.text_input("API Key", type="password", placeholder="sk-ant-...", help="Obtém a tua key em console.anthropic.com")
 
+st.sidebar.markdown("---")
+st.sidebar.markdown("#### 💼 Carteira real")
+usar_carteira_real = st.sidebar.checkbox("Introduzir preços de compra", value=False,
+    help="Introduz o preço e quantidade de cada ativo para calcular o ganho/perda real em euros.")
+
+compras = {}
+if usar_carteira_real:
+    for t in tickers:
+        st.sidebar.markdown(f"**{t}**")
+        preco_compra = st.sidebar.number_input(f"Preço de compra ({t})", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=f"pc_{t}")
+        n_acoes = st.sidebar.number_input(f"Nº de ações ({t})", min_value=0.0, value=0.0, step=1.0, format="%.2f", key=f"na_{t}")
+        if preco_compra > 0 and n_acoes > 0:
+            compras[t] = {"preco_compra": preco_compra, "n_acoes": n_acoes}
+
 # ── DADOS ────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
 def carregar_dados(ticker, dias):
@@ -115,6 +129,108 @@ for col, (t, m) in zip(cols, metricas.items()):
             T["metrica_sharpe"], f"{m['sharpe']}",
             euros_str=None
         ), unsafe_allow_html=True)
+
+# ── CARTEIRA REAL ─────────────────────────────────────────────
+if usar_carteira_real and compras:
+    st.markdown("---")
+    st.subheader("💼 A tua carteira real")
+
+    # Buscar taxa de câmbio EUR/USD
+    @st.cache_data(ttl=3600)
+    def get_eurusd():
+        try:
+            fx = yf.download("EURUSD=X", period="1d", progress=False)
+            close = fx["Close"]
+            if isinstance(close, pd.DataFrame):
+                close = close.iloc[:, 0]
+            return float(close.iloc[-1])
+        except Exception:
+            return 1.0
+
+    eurusd = get_eurusd()
+    usdeur = 1 / eurusd
+
+    total_investido_eur = 0
+    total_atual_eur = 0
+    rows = []
+
+    for t, c in compras.items():
+        if t not in metricas:
+            continue
+        preco_atual = metricas[t]["preco_atual"]
+        preco_compra = c["preco_compra"]
+        n_acoes = c["n_acoes"]
+
+        valor_investido_usd = preco_compra * n_acoes
+        valor_atual_usd     = preco_atual  * n_acoes
+        ganho_usd           = valor_atual_usd - valor_investido_usd
+        ganho_pct           = ((preco_atual / preco_compra) - 1) * 100 if preco_compra > 0 else 0
+
+        valor_investido_eur = valor_investido_usd * usdeur
+        valor_atual_eur     = valor_atual_usd     * usdeur
+        ganho_eur           = ganho_usd           * usdeur
+
+        total_investido_eur += valor_investido_eur
+        total_atual_eur     += valor_atual_eur
+
+        rows.append({
+            "ticker": t,
+            "preco_compra": preco_compra,
+            "preco_atual": preco_atual,
+            "n_acoes": n_acoes,
+            "ganho_pct": ganho_pct,
+            "valor_investido_eur": valor_investido_eur,
+            "valor_atual_eur": valor_atual_eur,
+            "ganho_eur": ganho_eur,
+        })
+
+    # Cartões por ativo
+    cols_cr = st.columns(len(rows))
+    for col, r in zip(cols_cr, rows):
+        with col:
+            st.markdown(f"**{r['ticker']}**")
+            st.markdown(cartao(
+                "Preço compra → atual",
+                f"${r['preco_compra']:.2f} → ${r['preco_atual']:.2f}",
+            ), unsafe_allow_html=True)
+            st.markdown(cartao(
+                "Ganho/Perda real (€)",
+                f"€{r['ganho_eur']:+,.0f}",
+                euros_str=f"{r['ganho_pct']:+.1f}%",
+                euros_cor=cor(r['ganho_eur'])
+            ), unsafe_allow_html=True)
+            st.markdown(cartao(
+                "Valor atual",
+                f"€{r['valor_atual_eur']:,.0f}",
+                euros_str=f"investido: €{r['valor_investido_eur']:,.0f}",
+                euros_cor="#C8D3DA"
+            ), unsafe_allow_html=True)
+
+    # Totais
+    ganho_total = total_atual_eur - total_investido_eur
+    ganho_total_pct = (ganho_total / total_investido_eur * 100) if total_investido_eur > 0 else 0
+
+    st.markdown(f"""
+    <div style="background:#0E2A3D;border-radius:10px;padding:20px 24px;
+                border:2px solid #C29A4B;margin-top:12px;">
+        <p style="color:#C8D3DA;font-size:0.85rem;margin:0 0 8px 0;">RESUMO DA CARTEIRA</p>
+        <div style="display:flex;gap:40px;flex-wrap:wrap;">
+            <div>
+                <p style="color:#C8D3DA;font-size:0.8rem;margin:0;">Total investido</p>
+                <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">€{total_investido_eur:,.0f}</p>
+            </div>
+            <div>
+                <p style="color:#C8D3DA;font-size:0.8rem;margin:0;">Valor atual</p>
+                <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">€{total_atual_eur:,.0f}</p>
+            </div>
+            <div>
+                <p style="color:#C8D3DA;font-size:0.8rem;margin:0;">Ganho / Perda total</p>
+                <p style="color:{cor(ganho_total)};font-size:1.4rem;font-weight:700;margin:0;">€{ganho_total:+,.0f} ({ganho_total_pct:+.1f}%)</p>
+            </div>
+        </div>
+        <p style="color:#6B7280;font-size:0.75rem;margin:10px 0 0 0;">Taxa de câmbio utilizada: 1 USD = €{usdeur:.4f} · Fonte: Yahoo Finance</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ── GRÁFICO ──────────────────────────────────────────────────
 st.subheader(T["grafico_titulo"])
