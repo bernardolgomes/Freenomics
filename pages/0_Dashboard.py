@@ -157,6 +157,7 @@ fig.update_layout(
     legend=dict(orientation="h", yanchor="bottom", y=1.02),
 )
 st.plotly_chart(fig, use_container_width=True)
+st.caption("💡 **Base 100:** todos os ativos começam no mesmo ponto para comparar performance relativa. Ex: um valor de 180 significa que o ativo subiu 80% desde o início do período.")
 
 # ── INSIGHTS VIA API ANTHROPIC ───────────────────────────────
 st.subheader(T["insights_titulo"])
