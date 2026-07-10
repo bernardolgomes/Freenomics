@@ -150,38 +150,46 @@ if usar_carteira_real and compras:
     eurusd = get_eurusd()
     usdeur = 1 / eurusd
 
-    total_investido_eur = 0
-    total_atual_eur = 0
+    # Toggle USD / EUR
+    col_toggle1, col_toggle2 = st.columns([1, 3])
+    with col_toggle1:
+        mostrar_usd = st.toggle("Mostrar em USD ($)", value=False)
+
+    simbolo  = "$" if mostrar_usd else "€"
+    fator_fx = 1.0 if mostrar_usd else usdeur
+
+    total_investido = 0
+    total_atual     = 0
     rows = []
 
     for t, c in compras.items():
         if t not in metricas:
             continue
-        preco_atual = metricas[t]["preco_atual"]
+        preco_atual  = metricas[t]["preco_atual"]
         preco_compra = c["preco_compra"]
-        n_acoes = c["n_acoes"]
+        n_acoes      = c["n_acoes"]
 
         valor_investido_usd = preco_compra * n_acoes
         valor_atual_usd     = preco_atual  * n_acoes
         ganho_usd           = valor_atual_usd - valor_investido_usd
         ganho_pct           = ((preco_atual / preco_compra) - 1) * 100 if preco_compra > 0 else 0
 
-        valor_investido_eur = valor_investido_usd * usdeur
-        valor_atual_eur     = valor_atual_usd     * usdeur
-        ganho_eur           = ganho_usd           * usdeur
+        valor_investido = valor_investido_usd * fator_fx
+        valor_atual_v   = valor_atual_usd     * fator_fx
+        ganho           = ganho_usd           * fator_fx
 
-        total_investido_eur += valor_investido_eur
-        total_atual_eur     += valor_atual_eur
+        total_investido += valor_investido
+        total_atual     += valor_atual_v
 
         rows.append({
-            "ticker": t,
-            "preco_compra": preco_compra,
-            "preco_atual": preco_atual,
-            "n_acoes": n_acoes,
-            "ganho_pct": ganho_pct,
-            "valor_investido_eur": valor_investido_eur,
-            "valor_atual_eur": valor_atual_eur,
-            "ganho_eur": ganho_eur,
+            "ticker":          t,
+            "preco_compra":    preco_compra,
+            "preco_atual":     preco_atual,
+            "n_acoes":         n_acoes,
+            "ganho_pct":       ganho_pct,
+            "valor_investido": valor_investido,
+            "valor_atual":     valor_atual_v,
+            "ganho":           ganho,
         })
 
     # Cartões por ativo
@@ -194,21 +202,22 @@ if usar_carteira_real and compras:
                 f"${r['preco_compra']:.2f} → ${r['preco_atual']:.2f}",
             ), unsafe_allow_html=True)
             st.markdown(cartao(
-                "Ganho/Perda real (€)",
-                f"€{r['ganho_eur']:+,.0f}",
+                f"Ganho/Perda real ({simbolo})",
+                f"{simbolo}{r['ganho']:+,.0f}",
                 euros_str=f"{r['ganho_pct']:+.1f}%",
-                euros_cor=cor(r['ganho_eur'])
+                euros_cor=cor(r['ganho'])
             ), unsafe_allow_html=True)
             st.markdown(cartao(
-                "Valor atual",
-                f"€{r['valor_atual_eur']:,.0f}",
-                euros_str=f"investido: €{r['valor_investido_eur']:,.0f}",
+                f"Valor atual ({simbolo})",
+                f"{simbolo}{r['valor_atual']:,.0f}",
+                euros_str=f"investido: {simbolo}{r['valor_investido']:,.0f}",
                 euros_cor="#C8D3DA"
             ), unsafe_allow_html=True)
 
     # Totais
-    ganho_total = total_atual_eur - total_investido_eur
-    ganho_total_pct = (ganho_total / total_investido_eur * 100) if total_investido_eur > 0 else 0
+    ganho_total     = total_atual - total_investido
+    ganho_total_pct = (ganho_total / total_investido * 100) if total_investido > 0 else 0
+    fx_nota         = f"1 USD = {simbolo}{fator_fx:.4f}" if not mostrar_usd else "valores em USD"
 
     st.markdown(f"""
     <div style="background:#0E2A3D;border-radius:10px;padding:20px 24px;
@@ -217,18 +226,18 @@ if usar_carteira_real and compras:
         <div style="display:flex;gap:40px;flex-wrap:wrap;">
             <div>
                 <p style="color:#C8D3DA;font-size:0.8rem;margin:0;">Total investido</p>
-                <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">€{total_investido_eur:,.0f}</p>
+                <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">{simbolo}{total_investido:,.0f}</p>
             </div>
             <div>
                 <p style="color:#C8D3DA;font-size:0.8rem;margin:0;">Valor atual</p>
-                <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">€{total_atual_eur:,.0f}</p>
+                <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">{simbolo}{total_atual:,.0f}</p>
             </div>
             <div>
                 <p style="color:#C8D3DA;font-size:0.8rem;margin:0;">Ganho / Perda total</p>
-                <p style="color:{cor(ganho_total)};font-size:1.4rem;font-weight:700;margin:0;">€{ganho_total:+,.0f} ({ganho_total_pct:+.1f}%)</p>
+                <p style="color:{cor(ganho_total)};font-size:1.4rem;font-weight:700;margin:0;">{simbolo}{ganho_total:+,.0f} ({ganho_total_pct:+.1f}%)</p>
             </div>
         </div>
-        <p style="color:#6B7280;font-size:0.75rem;margin:10px 0 0 0;">Taxa de câmbio utilizada: 1 USD = €{usdeur:.4f} · Fonte: Yahoo Finance</p>
+        <p style="color:#6B7280;font-size:0.75rem;margin:10px 0 0 0;">Taxa de câmbio: {fx_nota} · Fonte: Yahoo Finance</p>
     </div>
     """, unsafe_allow_html=True)
 
