@@ -239,7 +239,7 @@ st.title(T["titulo"])
 st.caption(T["subtitulo"])
 
 # ── CONFIGURAÇÃO GERAL ───────────────────────────────────────
-st.header(T["config_global"])
+st.header(T.get("config_global", "⚙️ Configuration"))
 col1, col2, col3 = st.columns(3)
 with col1:
     tickers_input = st.text_input(T["tickers"], value="SPY, SOFI")
@@ -252,7 +252,7 @@ with col3:
     investimento = st.number_input(T["investimento"], value=10000, step=500)
 
 # ── SECÇÕES ──────────────────────────────────────────────────
-st.header(T["secoes_titulo"])
+st.header(T.get("secoes_titulo", "📋 Sections"))
 col_a, col_b, col_c, col_d, col_e = st.columns(5)
 inc_dashboard  = col_a.checkbox(T["sec_dashboard"],  value=True)
 inc_comparador = col_b.checkbox(T["sec_comparador"], value=True)
@@ -265,14 +265,14 @@ if inc_noticias:
 
 # ── CONFIG COMPARADOR ────────────────────────────────────────
 if inc_comparador:
-    st.subheader(T["config_comparador"])
+    st.subheader(T.get("config_comparador", "🔄 Comparator"))
     cc1, cc2 = st.columns(2)
     tickers_a_str = cc1.text_input(T["tickers_a"], value=tickers_input)
     tickers_b_str = cc2.text_input(T["tickers_b"], value="QQQ, AAPL")
 
 # ── CONFIG SIMULADOR ─────────────────────────────────────────
 if inc_simulador:
-    st.subheader(T["config_simulador"])
+    st.subheader(T.get("config_simulador", "💰 Simulator"))
     cs1, cs2, cs3, cs4 = st.columns(4)
     contrib     = cs1.number_input(T["contrib"], value=200, step=50)
     anos_sim    = cs2.slider(T["anos"], 1, 40, 10)
@@ -280,7 +280,7 @@ if inc_simulador:
     inflacao    = cs4.slider(T["inflacao"], 0.0, 6.0, 2.5, step=0.5)
 
 # ── API KEY ──────────────────────────────────────────────────
-st.header(T["api_titulo"])
+st.header(T.get("api_titulo", "🤖 AI Analysis"))
 api_key = st.text_input(T["api_key"], type="password",
                         placeholder=T["api_placeholder"], help=T["api_help"])
 
