@@ -76,27 +76,31 @@ vencedor = nome_a if ma["retorno"] > mb["retorno"] else nome_b
 st.markdown(f"<div class='winner-box'>{T['vencedor']}: {vencedor}</div>", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
-def cor(valor, inverso=False):
-    positivo = valor >= 0
-    if inverso: positivo = not positivo
-    return "#4CAF50" if positivo else "#F44336"
+def cor(valor):
+    return "#4CAF50" if valor >= 0 else "#F44336"
 
-def cartao(label, valor_str, cor_hex):
+def cartao(label, pct_str, cor_hex, euros_str=None):
+    euros_html = f'<p style="color:{cor_hex};font-size:0.95rem;margin:4px 0 0 0;opacity:0.85;">{euros_str}</p>' if euros_str else ""
     return f"""<div style="background:#0E2A3D;border-radius:10px;padding:16px 18px;
         border-left:4px solid #C29A4B;margin-bottom:12px;">
         <p style="color:#C8D3DA;font-size:0.85rem;margin:0 0 4px 0;">{label}</p>
-        <p style="color:{cor_hex};font-size:1.8rem;font-weight:700;margin:0;">{valor_str}</p>
+        <p style="color:{cor_hex};font-size:1.8rem;font-weight:700;margin:0;">{pct_str}</p>
+        {euros_html}
     </div>"""
 
 for col, nome, m in [(col1, f"{T['carteira_a']} — {nome_a}", ma), (col2, f"{T['carteira_b']} — {nome_b}", mb)]:
     ganho = investimento*(1+m['retorno']/100) - investimento
+    perda_dd = investimento * m['dd'] / 100
     with col:
         st.subheader(nome)
-        st.markdown(cartao(T["retorno"], f"{m['retorno']}%", cor(m['retorno'])), unsafe_allow_html=True)
+        st.markdown(cartao(T["retorno"], f"{m['retorno']}%", cor(m['retorno']),
+                    euros_str=f"{'+' if ganho>=0 else ''}€{ganho:,.0f}"), unsafe_allow_html=True)
         st.markdown(cartao(T["vol"], f"{m['vol']}%", "#FAF8F3"), unsafe_allow_html=True)
-        st.markdown(cartao(T["drawdown"], f"{m['dd']}%", cor(m['dd'], inverso=True)), unsafe_allow_html=True)
+        st.markdown(cartao(T["drawdown"], f"{m['dd']}%", "#F44336",
+                    euros_str=f"€{perda_dd:,.0f} de queda máxima"), unsafe_allow_html=True)
         st.markdown(cartao(T["sharpe"], f"{m['sharpe']}", cor(m['sharpe'])), unsafe_allow_html=True)
-        st.markdown(cartao(T["valor_final"], f"€{investimento*(1+m['retorno']/100):,.0f} ({'+' if ganho>=0 else ''}€{ganho:,.0f})", cor(ganho)), unsafe_allow_html=True)
+        st.markdown(cartao(T["valor_final"], f"€{investimento*(1+m['retorno']/100):,.0f}", cor(ganho),
+                    euros_str=f"{'+' if ganho>=0 else ''}€{ganho:,.0f} de ganho"), unsafe_allow_html=True)
 
 # ── GRÁFICO ──────────────────────────────────────────────────
 st.subheader(T["grafico"])
