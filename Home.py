@@ -3,16 +3,27 @@ from translations import LINGUAS, NOMES_PAGINAS
 
 st.set_page_config(page_title="Freenomics", layout="wide", page_icon="📊")
 
+# Injectar tagline no topo da sidebar via CSS
+st.markdown("""
+<style>
+[data-testid="stSidebarContent"]::before {
+    content: "MONEY · MINDSET · FREEDOM";
+    display: block;
+    text-align: center;
+    color: #C29A4B;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    padding: 14px 0 12px 0;
+    border-bottom: 1px solid #C29A4B;
+    margin-bottom: 16px;
+    font-family: 'Inter', sans-serif;
+}
+</style>
+""", unsafe_allow_html=True)
+
 if "lang" not in st.session_state:
     st.session_state["lang"] = "🇵🇹 Português"
-
-st.sidebar.markdown("""
-<div style="text-align:center;padding:12px 0 8px 0;border-bottom:1px solid #C29A4B;margin-bottom:12px;">
-    <p style="color:#C29A4B;font-size:0.75rem;font-weight:600;letter-spacing:2px;margin:0;">
-        MONEY · MINDSET · FREEDOM
-    </p>
-</div>
-""", unsafe_allow_html=True)
 
 st.sidebar.markdown("### 🌐 Language / Língua")
 lang = st.sidebar.selectbox(
