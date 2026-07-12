@@ -177,28 +177,40 @@ st.title(L["titulo"])
 st.caption(L["subtitulo"])
 
 # ── FORMULÁRIO ────────────────────────────────────────────────
-tipo = st.radio(L["tipo_label"],
+tipo = st.multiselect(L["tipo_label"],
     [L["tipo_acoes"], L["tipo_cripto"], L["tipo_imob"]],
-    horizontal=True)
+    default=[L["tipo_acoes"]])
 
 st.markdown("---")
 
-if tipo in [L["tipo_acoes"], L["tipo_cripto"]]:
-    # Defaults por tipo
-    default_tickers = {
-        L["tipo_acoes"]: "SPY, AAPL, NVDA",
-        L["tipo_cripto"]: "BTC-USD, ETH-USD, SOL-USD",
-    }
-    tickers_input = st.text_input(L["tickers_label"],
-        value=default_tickers.get(tipo, ""),
-        placeholder="ex: AAPL")
-    tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
-    max_n = st.slider(L["max_label"], 3, 10, 5)
+if not tipo:
+    st.info("Seleciona pelo menos um tipo de notícias.")
+    st.stop()
 
-elif tipo == L["tipo_imob"]:
+tickers_acoes = tickers_cripto = []
+pais = query = ""
+max_n_acoes = max_n_cripto = max_n_imob = 5
+
+if L["tipo_acoes"] in tipo:
+    st.markdown(f"**{L['tipo_acoes']}**")
+    tickers_acoes = [t.strip().upper() for t in
+        st.text_input(L["tickers_label"], value="SPY, AAPL, NVDA",
+            key="tick_acoes", placeholder="ex: AAPL").split(",") if t.strip()]
+    max_n_acoes = st.slider(L["max_label"], 3, 20, 5, key="max_acoes")
+
+if L["tipo_cripto"] in tipo:
+    st.markdown(f"**{L['tipo_cripto']}**")
+    tickers_cripto = [t.strip().upper() for t in
+        st.text_input(L["tickers_label"], value="BTC-USD, ETH-USD, SOL-USD",
+            key="tick_cripto", placeholder="ex: BTC-USD").split(",") if t.strip()]
+    max_n_cripto = st.slider(L["max_label"], 3, 20, 5, key="max_cripto")
+
+if L["tipo_imob"] in tipo:
+    st.markdown(f"**{L['tipo_imob']}**")
     paises = L["paises"]
-    pais = st.selectbox(L["pais_label"], list(paises.keys()))
-    max_n = st.slider(L["max_label"], 3, 15, 8)
+    pais = st.selectbox(L["pais_label"], list(paises.keys()), key="pais_sel")
+    query = paises[pais]
+    max_n_imob = st.slider(L["max_label"], 3, 20, 8, key="max_imob")
     st.caption(f"💡 {L['imob_reits_hint']}")
 
 ver = st.button(L["btn_ver"], type="primary", use_container_width=True)
@@ -208,16 +220,24 @@ if not ver and "noticias_resultado" not in st.session_state:
 
 if ver:
     st.session_state["noticias_resultado"] = {
-        "tipo": tipo, "lang": lang,
-        "tickers": tickers if tipo != L["tipo_imob"] else [],
-        "pais": pais if tipo == L["tipo_imob"] else "",
-        "query": paises[pais] if tipo == L["tipo_imob"] else "",
-        "max_n": max_n,
+        "tipo": tipo,
+        "tickers_acoes": tickers_acoes,
+        "tickers_cripto": tickers_cripto,
+        "pais": pais, "query": query,
+        "max_n_acoes": max_n_acoes,
+        "max_n_cripto": max_n_cripto,
+        "max_n_imob": max_n_imob,
     }
 
-cfg    = st.session_state.get("noticias_resultado", {})
-tipo   = cfg.get("tipo", tipo)
-max_n  = cfg.get("max_n", 5)
+cfg            = st.session_state.get("noticias_resultado", {})
+tipo           = cfg.get("tipo", tipo)
+tickers_acoes  = cfg.get("tickers_acoes", [])
+tickers_cripto = cfg.get("tickers_cripto", [])
+pais           = cfg.get("pais", "")
+query          = cfg.get("query", "")
+max_n_acoes    = cfg.get("max_n_acoes", 5)
+max_n_cripto   = cfg.get("max_n_cripto", 5)
+max_n_imob     = cfg.get("max_n_imob", 8)
 
 # ── FUNÇÕES ───────────────────────────────────────────────────
 def card_noticia(badge, fonte, data_str, titulo, resumo, url, badge_cor="#4A9FD4"):
@@ -246,58 +266,81 @@ def formatar_data(data_str):
 
 st.markdown("---")
 
-# ── AÇÕES / CRIPTO ────────────────────────────────────────────
-if tipo in [L.get("tipo_acoes",""), L.get("tipo_cripto","")]:
-    tickers = cfg.get("tickers", [])
-    todas = []
-    badge_cor = "#4A9FD4" if tipo == L.get("tipo_acoes","") else "#F7931A"
-
+# ── AÇÕES ─────────────────────────────────────────────────────
+if L["tipo_acoes"] in tipo and tickers_acoes:
+    st.subheader(L["tipo_acoes"])
+    todas_acoes = []
     with st.spinner(L["a_carregar"]):
-        for t in tickers:
+        for t in tickers_acoes:
             try:
                 noticias = yf.Ticker(t).news
                 if noticias:
-                    for n in noticias[:max_n]:
+                    for n in noticias[:max_n_acoes]:
                         c = n.get("content", {})
-                        todas.append({
-                            "ticker": t,
-                            "titulo": c.get("title", ""),
+                        todas_acoes.append({
+                            "ticker": t, "titulo": c.get("title", ""),
                             "resumo": c.get("summary", ""),
-                            "url":    c.get("canonicalUrl", {}).get("url", "#"),
-                            "fonte":  c.get("provider", {}).get("displayName", ""),
-                            "data":   c.get("pubDate", ""),
+                            "url": c.get("canonicalUrl", {}).get("url", "#"),
+                            "fonte": c.get("provider", {}).get("displayName", ""),
+                            "data": c.get("pubDate", ""),
                         })
             except Exception:
                 st.warning(f"{L['aviso_ticker']} {t}.")
 
-    if not todas:
-        st.warning(L["sem_noticias"]); st.stop()
+    if todas_acoes:
+        opcoes = [L["todos"]] + tickers_acoes
+        filtro = st.selectbox(L["filtro_label"], opcoes, key="filtro_acoes")
+        filtradas = todas_acoes if filtro == L["todos"] else [n for n in todas_acoes if n["ticker"] == filtro]
+        st.caption(f"{len(filtradas)} {L['encontradas']}")
+        for n in filtradas:
+            card_noticia(n["ticker"], n["fonte"], formatar_data(n["data"]),
+                         n["titulo"], n["resumo"], n["url"], "#4A9FD4")
+    else:
+        st.warning(L["sem_noticias"])
 
-    # Filtro
-    opcoes_filtro = [L["todos"]] + tickers
-    filtro = st.selectbox(L["filtro_label"], opcoes_filtro)
-    filtradas = todas if filtro == L["todos"] else [n for n in todas if n["ticker"] == filtro]
-    st.caption(f"{len(filtradas)} {L['encontradas']}")
+# ── CRIPTO ────────────────────────────────────────────────────
+if L["tipo_cripto"] in tipo and tickers_cripto:
+    st.subheader(L["tipo_cripto"])
+    todas_cripto = []
+    with st.spinner(L["a_carregar"]):
+        for t in tickers_cripto:
+            try:
+                noticias = yf.Ticker(t).news
+                if noticias:
+                    for n in noticias[:max_n_cripto]:
+                        c = n.get("content", {})
+                        todas_cripto.append({
+                            "ticker": t, "titulo": c.get("title", ""),
+                            "resumo": c.get("summary", ""),
+                            "url": c.get("canonicalUrl", {}).get("url", "#"),
+                            "fonte": c.get("provider", {}).get("displayName", ""),
+                            "data": c.get("pubDate", ""),
+                        })
+            except Exception:
+                st.warning(f"{L['aviso_ticker']} {t}.")
 
-    for n in filtradas:
-        card_noticia(n["ticker"], n["fonte"], formatar_data(n["data"]),
-                     n["titulo"], n["resumo"], n["url"], badge_cor)
+    if todas_cripto:
+        opcoes = [L["todos"]] + tickers_cripto
+        filtro = st.selectbox(L["filtro_label"], opcoes, key="filtro_cripto")
+        filtradas = todas_cripto if filtro == L["todos"] else [n for n in todas_cripto if n["ticker"] == filtro]
+        st.caption(f"{len(filtradas)} {L['encontradas']}")
+        for n in filtradas:
+            card_noticia(n["ticker"], n["fonte"], formatar_data(n["data"]),
+                         n["titulo"], n["resumo"], n["url"], "#F7931A")
+    else:
+        st.warning(L["sem_noticias"])
 
 # ── IMOBILIÁRIO ───────────────────────────────────────────────
-elif tipo == L.get("tipo_imob",""):
-    query = cfg.get("query", "")
-    pais  = cfg.get("pais", "")
+if L["tipo_imob"] in tipo and query:
+    st.subheader(f"{L['tipo_imob']} — {pais}")
 
     def google_news_rss(query, max_n=10):
-        """Busca notícias via Google News RSS — sem API key."""
         import urllib.parse
         q = urllib.parse.quote(query)
         url = f"https://news.google.com/rss/search?q={q}&hl=pt&gl=PT&ceid=PT:pt"
         try:
-            resp = requests.get(url, timeout=10,
-                headers={"User-Agent": "Mozilla/5.0"})
-            if resp.status_code != 200:
-                return []
+            resp = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.status_code != 200: return []
             root = ET.fromstring(resp.content)
             items = root.findall(".//item")
             noticias = []
@@ -307,36 +350,29 @@ elif tipo == L.get("tipo_imob",""):
                 fonte  = item.findtext("source", "Google News")
                 data   = item.findtext("pubDate", "")
                 if titulo:
-                    noticias.append({
-                        "titulo": titulo, "url": link,
-                        "fonte": fonte, "data": data,
-                        "resumo": "",
-                    })
+                    noticias.append({"titulo": titulo, "url": link,
+                                     "fonte": fonte, "data": data, "resumo": ""})
             return noticias
         except Exception:
             return []
 
     with st.spinner(L["a_carregar"]):
-        noticias_imob = google_news_rss(query, max_n)
+        noticias_imob = google_news_rss(query, max_n_imob)
 
-    if not noticias_imob:
-        st.warning(L["sem_noticias"]); st.stop()
-
-    st.caption(f"{len(noticias_imob)} {L['encontradas']} — {pais}")
-
-    for n in noticias_imob:
-        # Formatar data do RSS (formato diferente)
-        data_str = ""
-        if n["data"]:
-            try:
-                from dateutil import parser as dp
-                data_str = dp.parse(n["data"]).strftime("%d/%m/%Y")
-            except Exception:
-                data_str = ""
-
-        card_noticia("🏠", n["fonte"], data_str,
-                     n["titulo"], n["resumo"], n["url"],
-                     badge_cor="#6B8E7F")
+    if noticias_imob:
+        st.caption(f"{len(noticias_imob)} {L['encontradas']}")
+        for n in noticias_imob:
+            data_str = ""
+            if n["data"]:
+                try:
+                    from dateutil import parser as dp
+                    data_str = dp.parse(n["data"]).strftime("%d/%m/%Y")
+                except Exception:
+                    pass
+            card_noticia("🏠", n["fonte"], data_str,
+                         n["titulo"], n["resumo"], n["url"], "#6B8E7F")
+    else:
+        st.warning(L["sem_noticias"])
 
 st.markdown("---")
 st.caption(L["aviso"])
