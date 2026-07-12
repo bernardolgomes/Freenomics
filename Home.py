@@ -9,14 +9,19 @@ st.markdown("""
     content: "MONEY · MINDSET · FREEDOM";
     display: block;
     text-align: center;
-    color: #C29A4B;
+    color: #FFFFFF;
     font-size: 0.72rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 2.5px;
     padding: 14px 0 12px 0;
     border-bottom: 1px solid #C29A4B;
     margin-bottom: 16px;
     font-family: 'Inter', sans-serif;
+}
+/* Linha dourada no separador da sidebar */
+[data-testid="stSidebarContent"] hr {
+    border-color: #C29A4B !important;
+    opacity: 1 !important;
 }
 </style>
 """, unsafe_allow_html=True)
