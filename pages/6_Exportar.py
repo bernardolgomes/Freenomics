@@ -12,6 +12,9 @@ import io
 import sys
 import os
 from datetime import datetime, timedelta
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(__file__)))
+from utils import show_logo
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
@@ -23,6 +26,7 @@ from reportlab.platypus import (
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from utils import show_logo
 from translations import CSS
 
 st.markdown(CSS, unsafe_allow_html=True)
@@ -234,7 +238,7 @@ T = {
 }[lang]
 
 # ── CABEÇALHO ────────────────────────────────────────────────
-st.markdown("### 📊 Freenomics")
+show_logo()
 st.title(T["titulo"])
 st.caption(T["subtitulo"])
 

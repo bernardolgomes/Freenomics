@@ -9,7 +9,9 @@ st.markdown(CSS, unsafe_allow_html=True)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 T = T_GERAL[lang]
 
-st.markdown("### 📊 Freenomics"); st.title(T["noticias_titulo"]); st.caption(T["noticias_sub"])
+show_logo()
+st.title(T["noticias_titulo"])
+st.caption(T["noticias_sub"])
 st.sidebar.header(T["noticias_carteira"])
 tickers_input = st.sidebar.text_input(T["noticias_tickers"], value="SPY, SOFI, AAPL")
 tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
