@@ -683,9 +683,56 @@ T_GERAL = {
 CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+    /* ── Fontes base ── */
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    h1, h2, h3 { font-family: 'Source Serif 4', serif !important; color: #0E2A3D; }
+
+    /* ── LIGHT MODE ── */
     .stApp { background-color: #FAF8F3; }
+    h1, h2, h3 { font-family: 'Source Serif 4', serif !important; color: #0E2A3D; }
+    p, label, span, div { color: #1A1A1A; }
+    [data-testid="stSidebar"] { background-color: #F0EDE6; }
+    [data-testid="stSidebar"] * { color: #0E2A3D !important; }
+
+    /* ── DARK MODE ── */
+    @media (prefers-color-scheme: dark) {
+        .stApp { background-color: #0A1628 !important; }
+        h1, h2, h3 { color: #FFFFFF !important; }
+        p, label, span { color: #E8EDF2 !important; }
+        [data-testid="stSidebar"] { background-color: #0D1E35 !important; }
+        [data-testid="stSidebar"] * { color: #E8EDF2 !important; }
+        .stSelectbox label, .stTextInput label, .stNumberInput label,
+        .stSlider label, .stFileUploader label, .stCheckbox label,
+        .stToggle label, .stRadio label {
+            color: #E8EDF2 !important;
+        }
+        [data-testid="stMarkdownContainer"] p { color: #E8EDF2 !important; }
+        [data-testid="stCaptionContainer"] { color: #9BAEC8 !important; }
+    }
+
+    /* ── Forçar dark mode quando Streamlit usa tema escuro ── */
+    [data-theme="dark"] .stApp,
+    .st-emotion-cache-dark .stApp { background-color: #0A1628 !important; }
+
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 {
+        color: #FFFFFF !important;
+    }
+    [data-theme="dark"] label,
+    [data-theme="dark"] .stSelectbox label,
+    [data-theme="dark"] .stTextInput label,
+    [data-theme="dark"] .stNumberInput label,
+    [data-theme="dark"] .stSlider label,
+    [data-theme="dark"] p {
+        color: #E8EDF2 !important;
+    }
+    [data-theme="dark"] [data-testid="stSidebar"] {
+        background-color: #0D1E35 !important;
+    }
+    [data-theme="dark"] [data-testid="stSidebar"] * {
+        color: #E8EDF2 !important;
+    }
+
+    /* ── Métricas (sempre dark card) ── */
     div[data-testid="stMetric"] {
         background-color: #0E2A3D; border-radius: 10px;
         padding: 16px 18px; border-left: 4px solid #C29A4B;
@@ -693,38 +740,56 @@ CSS = """
     div[data-testid="stMetric"] label { color: #C8D3DA !important; }
     div[data-testid="stMetricValue"] { color: #FAF8F3 !important; }
     div[data-testid="stMetricDelta"] svg { display: none; }
+
+    /* ── Caixas de insight ── */
     .insight-box {
-        background-color: #FFFFFF; border: 1px solid #E5DFD0;
+        background-color: #0E2A3D; border: 1px solid #1E4060;
         border-left: 4px solid #C29A4B; border-radius: 8px;
         padding: 18px 22px; margin: 12px 0;
-        font-size: 0.95rem; line-height: 1.6; color: #2A2A2A;
+        font-size: 0.95rem; line-height: 1.6; color: #E8EDF2;
     }
+
+    /* ── Winner box ── */
     .winner-box {
         background-color: #0E2A3D; border-radius: 10px;
         padding: 20px; text-align: center; color: #C29A4B;
         font-size: 1.1rem; font-weight: 600; margin: 10px 0;
     }
+
+    /* ── Info box ── */
     .info-box {
-        background-color: #FFFFFF; border: 1px solid #E5DFD0;
+        background-color: #0E2A3D; border: 1px solid #1E4060;
         border-left: 4px solid #C29A4B; border-radius: 8px;
         padding: 14px 18px; margin: 8px 0;
-        font-size: 0.9rem; line-height: 1.5; color: #2A2A2A;
+        font-size: 0.9rem; line-height: 1.5; color: #E8EDF2;
     }
+
+    /* ── Risco ── */
     .risco-box { border-radius: 8px; padding: 16px 20px; margin: 8px 0; font-size: 0.9rem; line-height: 1.5; }
-    .risco-alto  { background:#FEE2E2; border-left: 4px solid #DC2626; color: #7F1D1D; }
-    .risco-medio { background:#FEF9C3; border-left: 4px solid #CA8A04; color: #713F12; }
-    .risco-baixo { background:#DCFCE7; border-left: 4px solid #16A34A; color: #14532D; }
+    .risco-alto  { background:#3D1515; border-left: 4px solid #DC2626; color: #FCA5A5; }
+    .risco-medio { background:#3D2D00; border-left: 4px solid #CA8A04; color: #FDE68A; }
+    .risco-baixo { background:#0F3D1F; border-left: 4px solid #16A34A; color: #86EFAC; }
+
+    /* ── Notícias ── */
     .noticia-card {
-        background-color: #FFFFFF; border: 1px solid #E5DFD0;
+        background-color: #0E2A3D; border: 1px solid #1E4060;
         border-left: 4px solid #C29A4B; border-radius: 8px;
         padding: 16px 20px; margin: 10px 0;
     }
-    .noticia-titulo { font-size: 1rem; font-weight: 600; color: #0E2A3D; margin-bottom: 6px; }
-    .noticia-meta { font-size: 0.8rem; color: #6B7280; margin-bottom: 8px; }
-    .noticia-resumo { font-size: 0.88rem; color: #374151; line-height: 1.5; }
+    .noticia-titulo { font-size: 1rem; font-weight: 600; color: #FFFFFF; margin-bottom: 6px; }
+    .noticia-meta { font-size: 0.8rem; color: #9BAEC8; margin-bottom: 8px; }
+    .noticia-resumo { font-size: 0.88rem; color: #C8D3DA; line-height: 1.5; }
     .ticker-badge {
-        display: inline-block; background: #0E2A3D; color: #C29A4B;
-        border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; margin-right: 6px;
+        display: inline-block; background: #4A9FD4; color: #0A1628;
+        border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; margin-right: 6px;
+    }
+
+    /* ── Botões ── */
+    [data-theme="dark"] .stButton > button {
+        background-color: #1A5FA8; color: #FFFFFF; border: none;
+    }
+    [data-theme="dark"] .stButton > button:hover {
+        background-color: #4A9FD4;
     }
 </style>
 """
