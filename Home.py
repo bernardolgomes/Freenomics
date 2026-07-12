@@ -6,6 +6,14 @@ st.set_page_config(page_title="Freenomics", layout="wide", page_icon="📊")
 if "lang" not in st.session_state:
     st.session_state["lang"] = "🇵🇹 Português"
 
+st.sidebar.markdown("""
+<div style="text-align:center;padding:12px 0 8px 0;border-bottom:1px solid #C29A4B;margin-bottom:12px;">
+    <p style="color:#C29A4B;font-size:0.75rem;font-weight:600;letter-spacing:2px;margin:0;">
+        MONEY · MINDSET · FREEDOM
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
 st.sidebar.markdown("### 🌐 Language / Língua")
 lang = st.sidebar.selectbox(
     "", LINGUAS,
