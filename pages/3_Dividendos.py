@@ -126,7 +126,7 @@ st.caption(L["subtitulo"])
 st.header(L["sec_config"])
 
 if "div_tickers" not in st.session_state:
-    st.session_state.div_tickers = ["SPY", "AAPL", "JNJ", "KO"]
+    st.session_state.div_tickers = [""]
 
 remover = None
 cols_t = st.columns(min(len(st.session_state.div_tickers), 4))

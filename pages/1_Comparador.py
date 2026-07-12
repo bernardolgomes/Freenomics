@@ -186,9 +186,9 @@ st.caption(L["subtitulo"])
 
 # ── INICIALIZAR LISTAS ────────────────────────────────────────
 if "comp_a" not in st.session_state:
-    st.session_state.comp_a = [{"ticker": "SPY",  "moeda": "USD", "preco": 0.0, "acoes": 0.0}]
+    st.session_state.comp_a = [{"ticker": "", "moeda": "USD", "preco": 0.0, "acoes": 0.0}]
 if "comp_b" not in st.session_state:
-    st.session_state.comp_b = [{"ticker": "SOFI", "moeda": "USD", "preco": 0.0, "acoes": 0.0}]
+    st.session_state.comp_b = [{"ticker": "", "moeda": "USD", "preco": 0.0, "acoes": 0.0}]
 
 # ── FORMULÁRIO ────────────────────────────────────────────────
 st.header(L["sec_config"])

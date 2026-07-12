@@ -142,7 +142,7 @@ st.caption(L["subtitulo"])
 st.header(L["sec_config"])
 
 if "risco_tickers" not in st.session_state:
-    st.session_state.risco_tickers = ["SPY", "SOFI", "AAPL", "BTC-USD"]
+    st.session_state.risco_tickers = ["", ""]
 
 remover = None
 cols_t = st.columns(min(len(st.session_state.risco_tickers), 4))

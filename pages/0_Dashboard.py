@@ -194,8 +194,7 @@ st.caption(T["subtitulo"])
 # ── INICIALIZAR LISTA DE ATIVOS ───────────────────────────────
 if "ativos" not in st.session_state:
     st.session_state.ativos = [
-        {"ticker": "SPY",  "moeda": "USD", "preco": 0.0, "acoes": 0.0},
-        {"ticker": "SOFI", "moeda": "USD", "preco": 0.0, "acoes": 0.0},
+        {"ticker": "", "moeda": "USD", "preco": 0.0, "acoes": 0.0},
     ]
 
 # ── FORMULÁRIO ────────────────────────────────────────────────
