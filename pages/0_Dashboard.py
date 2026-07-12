@@ -12,204 +12,243 @@ st.markdown(CSS, unsafe_allow_html=True)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 T = T_DASHBOARD[lang]
 
+TEXTOS = {
+    "🇵🇹 Português": {
+        "sec_carteira": "⚙️ Configura a tua carteira",
+        "periodo_label": "Período de análise",
+        "ticker_label": "Ticker", "moeda_label": "Moeda",
+        "preco_label": "Preço médio de compra", "acoes_label": "Nº de ações",
+        "btn_add": "➕ Adicionar ativo",
+        "btn_analisar": "📊 Analisar carteira",
+        "a_carregar": "A carregar dados de mercado...",
+        "erro": "Não foi possível carregar dados para alguns tickers.",
+        "carteira_real": "💼 A tua carteira real",
+        "preco_arrow": "Preço compra → atual",
+        "ganho_label": "Ganho / Perda", "valor_label": "Valor atual",
+        "investido": "investido", "resumo": "RESUMO DA CARTEIRA",
+        "tot_inv": "Total investido", "tot_atu": "Valor atual",
+        "tot_gan": "Ganho / Perda total", "fx_nota": "Taxa de câmbio",
+        "mostrar_usd": "Mostrar em USD ($)",
+        "grafico_titulo": "Evolução comparada (base 100)",
+        "insights_titulo": "📝 Leitura automática dos resultados",
+        "api_label": "🤖 Anthropic API Key (opcional)",
+        "api_placeholder": "sk-ant-...",
+        "api_info": "Com API key, os insights são gerados por IA.",
+        "aviso": "⚠️ Análise gerada automaticamente — não constitui aconselhamento financeiro.",
+        "rodape": "Freenomics · Dados via Yahoo Finance",
+        "periodos": {"6 meses": 180, "1 ano": 365, "2 anos": 730, "5 anos": 1825},
+        "caption_base100": "💡 **Base 100:** todos os ativos começam no mesmo ponto. Ex: 180 = subiu 80%.",
+        "caption_benchmark": "📊 **S&P 500 (benchmark):** a linha tracejada representa o S&P 500. Serve para perceber se a tua carteira está a superar o mercado.",
+        "insight_melhor": lambda m, p, r: f"Nos últimos **{p.lower()}**, **{m}** teve a melhor performance ({r}%).",
+        "insight_pior_subida": lambda p, r: f"enquanto **{p}** registou a menor subida ({r}%).",
+        "insight_pior_queda": lambda p, r: f"enquanto **{p}** registou uma queda ({r}%).",
+        "insight_unico": lambda t, p, r: f"Nos últimos {p.lower()}, **{t}** registou um retorno de {r}%.",
+        "insight_volatil": lambda t, v: f"Em termos de risco, **{t}** foi o ativo mais instável, com volatilidade de {v}% ao ano.",
+        "insight_drawdown": lambda t, d: f"**{t}** sofreu uma queda máxima de {d}% face ao seu pico — um valor considerável.",
+        "insight_sharpe": lambda t: f"Ajustando ao risco (Sharpe), **{t}** foi quem ofereceu o melhor equilíbrio retorno/risco.",
+    },
+    "🇬🇧 English": {
+        "sec_carteira": "⚙️ Configure your portfolio",
+        "periodo_label": "Analysis period",
+        "ticker_label": "Ticker", "moeda_label": "Currency",
+        "preco_label": "Average purchase price", "acoes_label": "Number of shares",
+        "btn_add": "➕ Add asset",
+        "btn_analisar": "📊 Analyse portfolio",
+        "a_carregar": "Loading market data...",
+        "erro": "Could not load data for some tickers.",
+        "carteira_real": "💼 Your real portfolio",
+        "preco_arrow": "Purchase → current price",
+        "ganho_label": "Gain / Loss", "valor_label": "Current value",
+        "investido": "invested", "resumo": "PORTFOLIO SUMMARY",
+        "tot_inv": "Total invested", "tot_atu": "Current value",
+        "tot_gan": "Total gain / loss", "fx_nota": "Exchange rate",
+        "mostrar_usd": "Show in USD ($)",
+        "grafico_titulo": "Comparative evolution (base 100)",
+        "insights_titulo": "📝 Automatic reading of results",
+        "api_label": "🤖 Anthropic API Key (optional)",
+        "api_placeholder": "sk-ant-...",
+        "api_info": "With an API key, insights are AI-generated.",
+        "aviso": "⚠️ Automatically generated — does not constitute financial advice.",
+        "rodape": "Freenomics · Data via Yahoo Finance",
+        "periodos": {"6 months": 180, "1 year": 365, "2 years": 730, "5 years": 1825},
+        "caption_base100": "💡 **Base 100:** all assets start at the same point. E.g. 180 = rose 80%.",
+        "caption_benchmark": "📊 **S&P 500 (benchmark):** the dashed line represents the S&P 500 — shows if your portfolio beats the market.",
+        "insight_melhor": lambda m, p, r: f"Over the last **{p.lower()}**, **{m}** had the best performance ({r}%).",
+        "insight_pior_subida": lambda p, r: f"while **{p}** recorded the smallest gain ({r}%).",
+        "insight_pior_queda": lambda p, r: f"while **{p}** recorded a decline ({r}%).",
+        "insight_unico": lambda t, p, r: f"Over the last {p.lower()}, **{t}** recorded a return of {r}%.",
+        "insight_volatil": lambda t, v: f"In terms of risk, **{t}** was the most volatile asset, with {v}% annualised volatility.",
+        "insight_drawdown": lambda t, d: f"**{t}** suffered a maximum drawdown of {d}% from its peak.",
+        "insight_sharpe": lambda t: f"Risk-adjusted (Sharpe), **{t}** offered the best balance between return and volatility.",
+    },
+    "🇫🇷 Français": {
+        "sec_carteira": "⚙️ Configurez votre portefeuille",
+        "periodo_label": "Période d'analyse",
+        "ticker_label": "Ticker", "moeda_label": "Devise",
+        "preco_label": "Prix d'achat moyen", "acoes_label": "Nombre d'actions",
+        "btn_add": "➕ Ajouter un actif",
+        "btn_analisar": "📊 Analyser le portefeuille",
+        "a_carregar": "Chargement des données...",
+        "erro": "Impossible de charger les données pour certains tickers.",
+        "carteira_real": "💼 Votre portefeuille réel",
+        "preco_arrow": "Prix achat → actuel",
+        "ganho_label": "Gain / Perte", "valor_label": "Valeur actuelle",
+        "investido": "investi", "resumo": "RÉSUMÉ DU PORTEFEUILLE",
+        "tot_inv": "Total investi", "tot_atu": "Valeur actuelle",
+        "tot_gan": "Gain / Perte total", "fx_nota": "Taux de change",
+        "mostrar_usd": "Afficher en USD ($)",
+        "grafico_titulo": "Évolution comparée (base 100)",
+        "insights_titulo": "📝 Lecture automatique des résultats",
+        "api_label": "🤖 Clé API Anthropic (optionnel)",
+        "api_placeholder": "sk-ant-...",
+        "api_info": "Avec une clé API, les insights sont générés par IA.",
+        "aviso": "⚠️ Analyse automatique — ne constitue pas un conseil financier.",
+        "rodape": "Freenomics · Données via Yahoo Finance",
+        "periodos": {"6 mois": 180, "1 an": 365, "2 ans": 730, "5 ans": 1825},
+        "caption_base100": "💡 **Base 100 :** tous les actifs partent du même point. Ex : 180 = +80%.",
+        "caption_benchmark": "📊 **S&P 500 (benchmark) :** la ligne en pointillés représente le S&P 500.",
+        "insight_melhor": lambda m, p, r: f"Au cours des **{p.lower()}** derniers, **{m}** a eu la meilleure performance ({r}%).",
+        "insight_pior_subida": lambda p, r: f"tandis que **{p}** a enregistré la plus faible hausse ({r}%).",
+        "insight_pior_queda": lambda p, r: f"tandis que **{p}** a enregistré une baisse ({r}%).",
+        "insight_unico": lambda t, p, r: f"Au cours des {p.lower()} derniers, **{t}** a enregistré un rendement de {r}%.",
+        "insight_volatil": lambda t, v: f"**{t}** a été l'actif le plus instable, avec une volatilité de {v}% par an.",
+        "insight_drawdown": lambda t, d: f"**{t}** a subi une baisse maximale de {d}% par rapport à son pic.",
+        "insight_sharpe": lambda t: f"Ajusté au risque (Sharpe), **{t}** a offert le meilleur équilibre rendement/risque.",
+    },
+    "🇩🇪 Deutsch": {
+        "sec_carteira": "⚙️ Portfolio konfigurieren",
+        "periodo_label": "Analysezeitraum",
+        "ticker_label": "Ticker", "moeda_label": "Währung",
+        "preco_label": "Durchschn. Kaufpreis", "acoes_label": "Anzahl Aktien",
+        "btn_add": "➕ Anlage hinzufügen",
+        "btn_analisar": "📊 Portfolio analysieren",
+        "a_carregar": "Marktdaten werden geladen...",
+        "erro": "Daten für einige Ticker konnten nicht geladen werden.",
+        "carteira_real": "💼 Ihr reales Portfolio",
+        "preco_arrow": "Kaufpreis → aktuell",
+        "ganho_label": "Gewinn / Verlust", "valor_label": "Aktueller Wert",
+        "investido": "investiert", "resumo": "PORTFOLIO-ZUSAMMENFASSUNG",
+        "tot_inv": "Gesamt investiert", "tot_atu": "Aktueller Wert",
+        "tot_gan": "Gesamtgewinn / -verlust", "fx_nota": "Wechselkurs",
+        "mostrar_usd": "In USD anzeigen ($)",
+        "grafico_titulo": "Vergleichende Entwicklung (Basis 100)",
+        "insights_titulo": "📝 Automatische Auswertung",
+        "api_label": "🤖 Anthropic API-Schlüssel (optional)",
+        "api_placeholder": "sk-ant-...",
+        "api_info": "Mit API-Schlüssel werden Insights KI-generiert.",
+        "aviso": "⚠️ Automatisch generiert — stellt keine Finanzberatung dar.",
+        "rodape": "Freenomics · Daten via Yahoo Finance",
+        "periodos": {"6 Monate": 180, "1 Jahr": 365, "2 Jahre": 730, "5 Jahre": 1825},
+        "caption_base100": "💡 **Basis 100:** Alle Anlagen starten am selben Punkt. Bsp.: 180 = +80%.",
+        "caption_benchmark": "📊 **S&P 500 (Benchmark):** Die gestrichelte Linie zeigt den S&P 500.",
+        "insight_melhor": lambda m, p, r: f"In den letzten **{p.lower()}** hatte **{m}** die beste Performance ({r}%).",
+        "insight_pior_subida": lambda p, r: f"während **{p}** den geringsten Anstieg verzeichnete ({r}%).",
+        "insight_pior_queda": lambda p, r: f"während **{p}** einen Rückgang verzeichnete ({r}%).",
+        "insight_unico": lambda t, p, r: f"In den letzten {p.lower()} verzeichnete **{t}** eine Rendite von {r}%.",
+        "insight_volatil": lambda t, v: f"**{t}** war die volatilste Anlage mit {v}% jährlicher Volatilität.",
+        "insight_drawdown": lambda t, d: f"**{t}** erlitt einen maximalen Drawdown von {d}% vom Höchststand.",
+        "insight_sharpe": lambda t: f"Risikoadjustiert (Sharpe) bot **{t}** das beste Rendite-Risiko-Verhältnis.",
+    },
+    "🇪🇸 Español": {
+        "sec_carteira": "⚙️ Configura tu cartera",
+        "periodo_label": "Período de análisis",
+        "ticker_label": "Ticker", "moeda_label": "Divisa",
+        "preco_label": "Precio medio de compra", "acoes_label": "Nº de acciones",
+        "btn_add": "➕ Añadir activo",
+        "btn_analisar": "📊 Analizar cartera",
+        "a_carregar": "Cargando datos de mercado...",
+        "erro": "No se pudieron cargar datos para algunos tickers.",
+        "carteira_real": "💼 Tu cartera real",
+        "preco_arrow": "Precio compra → actual",
+        "ganho_label": "Ganancia / Pérdida", "valor_label": "Valor actual",
+        "investido": "invertido", "resumo": "RESUMEN DE CARTERA",
+        "tot_inv": "Total invertido", "tot_atu": "Valor actual",
+        "tot_gan": "Ganancia / Pérdida total", "fx_nota": "Tipo de cambio",
+        "mostrar_usd": "Mostrar en USD ($)",
+        "grafico_titulo": "Evolución comparada (base 100)",
+        "insights_titulo": "📝 Lectura automática de resultados",
+        "api_label": "🤖 Clave API Anthropic (opcional)",
+        "api_placeholder": "sk-ant-...",
+        "api_info": "Con clave API, los insights son generados por IA.",
+        "aviso": "⚠️ Análisis automático — no constituye asesoramiento financiero.",
+        "rodape": "Freenomics · Datos via Yahoo Finance",
+        "periodos": {"6 meses": 180, "1 año": 365, "2 años": 730, "5 años": 1825},
+        "caption_base100": "💡 **Base 100:** todos los activos parten del mismo punto. Ej: 180 = +80%.",
+        "caption_benchmark": "📊 **S&P 500 (benchmark):** la línea discontinua representa el S&P 500.",
+        "insight_melhor": lambda m, p, r: f"En los últimos **{p.lower()}**, **{m}** tuvo el mejor rendimiento ({r}%).",
+        "insight_pior_subida": lambda p, r: f"mientras **{p}** registró la menor subida ({r}%).",
+        "insight_pior_queda": lambda p, r: f"mientras **{p}** registró una caída ({r}%).",
+        "insight_unico": lambda t, p, r: f"En los últimos {p.lower()}, **{t}** registró un rendimiento de {r}%.",
+        "insight_volatil": lambda t, v: f"**{t}** fue el activo más volátil, con una volatilidad de {v}% anual.",
+        "insight_drawdown": lambda t, d: f"**{t}** sufrió una caída máxima de {d}% desde su pico.",
+        "insight_sharpe": lambda t: f"Ajustado al riesgo (Sharpe), **{t}** ofreció el mejor equilibrio rendimiento/riesgo.",
+    },
+}
+L = TEXTOS.get(lang, TEXTOS["🇬🇧 English"])
+
 # ── CABEÇALHO ─────────────────────────────────────────────────
 st.markdown("### 📊 Freenomics")
 st.title(T["titulo"])
 st.caption(T["subtitulo"])
 
-# ── TEXTOS ADICIONAIS POR LÍNGUA ─────────────────────────────
-TEXTOS = {
-    "🇵🇹 Português": {
-        "sec_carteira":    "⚙️ Configura a tua carteira",
-        "tickers_label":   "Tickers (separados por vírgula)",
-        "periodo_label":   "Período de análise",
-        "preco_compra":    "Preço médio de compra ($)",
-        "n_acoes":         "Nº de ações",
-        "btn_analisar":    "📊 Analisar carteira",
-        "a_carregar":      "A carregar dados de mercado...",
-        "erro_tickers":    "Não foi possível carregar dados para alguns tickers.",
-        "carteira_real":   "💼 A tua carteira real",
-        "preco_arrow":     "Preço compra → atual",
-        "ganho_label":     "Ganho / Perda",
-        "valor_label":     "Valor atual",
-        "investido":       "investido",
-        "resumo":          "RESUMO DA CARTEIRA",
-        "tot_investido":   "Total investido",
-        "tot_atual":       "Valor atual",
-        "tot_ganho":       "Ganho / Perda total",
-        "fx_nota":         "Taxa de câmbio",
-        "mostrar_usd":     "Mostrar em USD ($)",
-        "grafico_titulo":  "Evolução comparada (base 100)",
-        "insights_titulo": "📝 Leitura automática dos resultados",
-        "api_label":       "🤖 Anthropic API Key (opcional)",
-        "api_placeholder": "sk-ant-...",
-        "api_info":        "Com API key, os insights são gerados por IA.",
-        "aviso":           "⚠️ Análise gerada automaticamente — não constitui aconselhamento financeiro.",
-        "rodape":          "Freenomics · Dados via Yahoo Finance",
-        "periodos":        {"6 meses": 180, "1 ano": 365, "2 anos": 730, "5 anos": 1825},
-        "queda_maxima":    "de queda máxima",
-        "caption_base100": "💡 **Base 100:** todos os ativos começam no mesmo ponto para comparar performance relativa. Ex: 180 = subiu 80%.",
-        "caption_benchmark": "📊 **S&P 500 (benchmark):** a linha tracejada representa o S&P 500. Serve para perceber se a tua carteira está a superar o mercado.",
-    },
-    "🇬🇧 English": {
-        "sec_carteira":    "⚙️ Configure your portfolio",
-        "tickers_label":   "Tickers (comma-separated)",
-        "periodo_label":   "Analysis period",
-        "preco_compra":    "Average purchase price ($)",
-        "n_acoes":         "Number of shares",
-        "btn_analisar":    "📊 Analyse portfolio",
-        "a_carregar":      "Loading market data...",
-        "erro_tickers":    "Could not load data for some tickers.",
-        "carteira_real":   "💼 Your real portfolio",
-        "preco_arrow":     "Purchase → current price",
-        "ganho_label":     "Gain / Loss",
-        "valor_label":     "Current value",
-        "investido":       "invested",
-        "resumo":          "PORTFOLIO SUMMARY",
-        "tot_investido":   "Total invested",
-        "tot_atual":       "Current value",
-        "tot_ganho":       "Total gain / loss",
-        "fx_nota":         "Exchange rate",
-        "mostrar_usd":     "Show in USD ($)",
-        "grafico_titulo":  "Comparative evolution (base 100)",
-        "insights_titulo": "📝 Automatic reading of results",
-        "api_label":       "🤖 Anthropic API Key (optional)",
-        "api_placeholder": "sk-ant-...",
-        "api_info":        "With an API key, insights are AI-generated.",
-        "aviso":           "⚠️ Automatically generated analysis — does not constitute financial advice.",
-        "rodape":          "Freenomics · Data via Yahoo Finance",
-        "periodos":        {"6 months": 180, "1 year": 365, "2 years": 730, "5 years": 1825},
-        "queda_maxima":    "max drawdown reached",
-        "caption_base100": "💡 **Base 100:** all assets start at the same point to compare relative performance. E.g. 180 = rose 80%.",
-        "caption_benchmark": "📊 **S&P 500 (benchmark):** the dashed line represents the S&P 500. It shows whether your portfolio is outperforming the market.",
-    },
-    "🇫🇷 Français": {
-        "sec_carteira":    "⚙️ Configurez votre portefeuille",
-        "tickers_label":   "Tickers (séparés par virgule)",
-        "periodo_label":   "Période d'analyse",
-        "preco_compra":    "Prix d'achat moyen ($)",
-        "n_acoes":         "Nombre d'actions",
-        "btn_analisar":    "📊 Analyser le portefeuille",
-        "a_carregar":      "Chargement des données...",
-        "erro_tickers":    "Impossible de charger les données pour certains tickers.",
-        "carteira_real":   "💼 Votre portefeuille réel",
-        "preco_arrow":     "Prix achat → actuel",
-        "ganho_label":     "Gain / Perte",
-        "valor_label":     "Valeur actuelle",
-        "investido":       "investi",
-        "resumo":          "RÉSUMÉ DU PORTEFEUILLE",
-        "tot_investido":   "Total investi",
-        "tot_atual":       "Valeur actuelle",
-        "tot_ganho":       "Gain / Perte total",
-        "fx_nota":         "Taux de change",
-        "mostrar_usd":     "Afficher en USD ($)",
-        "grafico_titulo":  "Évolution comparée (base 100)",
-        "insights_titulo": "📝 Lecture automatique des résultats",
-        "api_label":       "🤖 Clé API Anthropic (optionnel)",
-        "api_placeholder": "sk-ant-...",
-        "api_info":        "Avec une clé API, les insights sont générés par IA.",
-        "aviso":           "⚠️ Analyse générée automatiquement — ne constitue pas un conseil financier.",
-        "rodape":          "Freenomics · Données via Yahoo Finance",
-        "periodos":        {"6 mois": 180, "1 an": 365, "2 ans": 730, "5 ans": 1825},
-        "queda_maxima":    "de baisse maximale",
-        "caption_base100": "💡 **Base 100 :** tous les actifs partent du même point. Ex : 180 = +80%.",
-        "caption_benchmark": "📊 **S&P 500 (benchmark) :** la ligne en pointillés représente le S&P 500.",
-    },
-    "🇩🇪 Deutsch": {
-        "sec_carteira":    "⚙️ Portfolio konfigurieren",
-        "tickers_label":   "Ticker (kommagetrennt)",
-        "periodo_label":   "Analysezeitraum",
-        "preco_compra":    "Durchschn. Kaufpreis ($)",
-        "n_acoes":         "Anzahl Aktien",
-        "btn_analisar":    "📊 Portfolio analysieren",
-        "a_carregar":      "Marktdaten werden geladen...",
-        "erro_tickers":    "Daten für einige Ticker konnten nicht geladen werden.",
-        "carteira_real":   "💼 Ihr reales Portfolio",
-        "preco_arrow":     "Kaufpreis → aktuell",
-        "ganho_label":     "Gewinn / Verlust",
-        "valor_label":     "Aktueller Wert",
-        "investido":       "investiert",
-        "resumo":          "PORTFOLIO-ZUSAMMENFASSUNG",
-        "tot_investido":   "Gesamt investiert",
-        "tot_atual":       "Aktueller Wert",
-        "tot_ganho":       "Gesamtgewinn / -verlust",
-        "fx_nota":         "Wechselkurs",
-        "mostrar_usd":     "In USD anzeigen ($)",
-        "grafico_titulo":  "Vergleichende Entwicklung (Basis 100)",
-        "insights_titulo": "📝 Automatische Auswertung",
-        "api_label":       "🤖 Anthropic API-Schlüssel (optional)",
-        "api_placeholder": "sk-ant-...",
-        "api_info":        "Mit API-Schlüssel werden Insights KI-generiert.",
-        "aviso":           "⚠️ Automatisch generierte Analyse — stellt keine Finanzberatung dar.",
-        "rodape":          "Freenomics · Daten via Yahoo Finance",
-        "periodos":        {"6 Monate": 180, "1 Jahr": 365, "2 Jahre": 730, "5 Jahre": 1825},
-        "queda_maxima":    "maximaler Rückgang",
-        "caption_base100": "💡 **Basis 100:** Alle Anlagen starten am selben Punkt. Bsp.: 180 = +80%.",
-        "caption_benchmark": "📊 **S&P 500 (Benchmark):** Die gestrichelte Linie zeigt den S&P 500.",
-    },
-    "🇪🇸 Español": {
-        "sec_carteira":    "⚙️ Configura tu cartera",
-        "tickers_label":   "Tickers (separados por coma)",
-        "periodo_label":   "Período de análisis",
-        "preco_compra":    "Precio medio de compra ($)",
-        "n_acoes":         "Nº de acciones",
-        "btn_analisar":    "📊 Analizar cartera",
-        "a_carregar":      "Cargando datos de mercado...",
-        "erro_tickers":    "No se pudieron cargar datos para algunos tickers.",
-        "carteira_real":   "💼 Tu cartera real",
-        "preco_arrow":     "Precio compra → actual",
-        "ganho_label":     "Ganancia / Pérdida",
-        "valor_label":     "Valor actual",
-        "investido":       "invertido",
-        "resumo":          "RESUMEN DE CARTERA",
-        "tot_investido":   "Total invertido",
-        "tot_atual":       "Valor actual",
-        "tot_ganho":       "Ganancia / Pérdida total",
-        "fx_nota":         "Tipo de cambio",
-        "mostrar_usd":     "Mostrar en USD ($)",
-        "grafico_titulo":  "Evolución comparada (base 100)",
-        "insights_titulo": "📝 Lectura automática de resultados",
-        "api_label":       "🤖 Clave API Anthropic (opcional)",
-        "api_placeholder": "sk-ant-...",
-        "api_info":        "Con clave API, los insights son generados por IA.",
-        "aviso":           "⚠️ Análisis generado automáticamente — no constituye asesoramiento financiero.",
-        "rodape":          "Freenomics · Datos via Yahoo Finance",
-        "periodos":        {"6 meses": 180, "1 año": 365, "2 años": 730, "5 años": 1825},
-        "queda_maxima":    "de caída máxima",
-        "caption_base100": "💡 **Base 100:** todos los activos parten del mismo punto. Ej: 180 = +80%.",
-        "caption_benchmark": "📊 **S&P 500 (benchmark):** la línea discontinua representa el S&P 500.",
-    },
-}
-L = TEXTOS.get(lang, TEXTOS["🇬🇧 English"])
+# ── INICIALIZAR LISTA DE ATIVOS ───────────────────────────────
+if "ativos" not in st.session_state:
+    st.session_state.ativos = [
+        {"ticker": "SPY",  "moeda": "USD", "preco": 0.0, "acoes": 0.0},
+        {"ticker": "SOFI", "moeda": "USD", "preco": 0.0, "acoes": 0.0},
+    ]
 
-# ── FORMULÁRIO PRINCIPAL ──────────────────────────────────────
+# ── FORMULÁRIO ────────────────────────────────────────────────
 st.header(L["sec_carteira"])
 
-col_t, col_p = st.columns([2, 1])
-with col_t:
-    tickers_input = st.text_input(L["tickers_label"], value="SPY, SOFI",
-                                   placeholder="Ex: AAPL, TSLA, NVDA")
-    tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
-with col_p:
-    periodo_opcoes = L["periodos"]
-    periodo_label = st.selectbox(L["periodo_label"], list(periodo_opcoes.keys()), index=2)
-    dias = periodo_opcoes[periodo_label]
+# Período
+periodo_opcoes = L["periodos"]
+periodo_label = st.selectbox(L["periodo_label"], list(periodo_opcoes.keys()), index=2)
+dias = periodo_opcoes[periodo_label]
 
-# Inputs de compra por ticker
-st.markdown("**Detalhe por ativo:**" if lang == "🇵🇹 Português" else "**Asset detail:**")
-compras = {}
-if tickers:
-    cols_form = st.columns(len(tickers))
-    for col, t in zip(cols_form, tickers):
-        with col:
-            st.markdown(f"**{t}**")
-            pc = st.number_input(L["preco_compra"], min_value=0.0, value=0.0,
-                                  step=0.01, format="%.2f", key=f"pc_{t}")
-            na = st.number_input(L["n_acoes"], min_value=0.0, value=0.0,
-                                  step=1.0, format="%.0f", key=f"na_{t}")
-            if pc > 0 and na > 0:
-                compras[t] = {"preco_compra": pc, "n_acoes": na}
+st.markdown("---")
 
+# Lista dinâmica de ativos
+ativos_para_remover = None
+for i, ativo in enumerate(st.session_state.ativos):
+    c1, c2, c3, c4, c5 = st.columns([2, 1, 2, 2, 0.4])
+    with c1:
+        st.session_state.ativos[i]["ticker"] = st.text_input(
+            L["ticker_label"], value=ativo["ticker"],
+            key=f"tk_{i}", placeholder="ex: AAPL").upper().strip()
+    with c2:
+        st.session_state.ativos[i]["moeda"] = st.selectbox(
+            L["moeda_label"], ["USD", "EUR"],
+            index=0 if ativo["moeda"] == "USD" else 1,
+            key=f"mo_{i}")
+    with c3:
+        simbolo_input = "$" if ativo["moeda"] == "USD" else "€"
+        st.session_state.ativos[i]["preco"] = st.number_input(
+            f"{L['preco_label']} ({simbolo_input})",
+            min_value=0.0, value=float(ativo["preco"]),
+            step=0.01, format="%.2f", key=f"pc_{i}")
+    with c4:
+        st.session_state.ativos[i]["acoes"] = st.number_input(
+            L["acoes_label"], min_value=0.0, value=float(ativo["acoes"]),
+            step=1.0, format="%.0f", key=f"na_{i}")
+    with c5:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if len(st.session_state.ativos) > 1:
+            if st.button("🗑️", key=f"rm_{i}", help="Remover"):
+                ativos_para_remover = i
+
+if ativos_para_remover is not None:
+    st.session_state.ativos.pop(ativos_para_remover)
+    st.rerun()
+
+if st.button(L["btn_add"], use_container_width=False):
+    st.session_state.ativos.append(
+        {"ticker": "", "moeda": "USD", "preco": 0.0, "acoes": 0.0})
+    st.rerun()
+
+st.markdown("---")
+
+# API e toggle
 col_api, col_usd = st.columns([3, 1])
 with col_api:
     api_key = st.text_input(L["api_label"], type="password",
@@ -221,14 +260,13 @@ with col_usd:
 
 analisar = st.button(L["btn_analisar"], type="primary", use_container_width=True)
 
-if not analisar and "freenomics_dados" not in st.session_state:
+if not analisar and "freenomics_resultado" not in st.session_state:
     st.stop()
 
 # ── DADOS ─────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
 def carregar_dados(ticker, dias):
-    end = datetime.today()
-    start = end - timedelta(days=dias)
+    end = datetime.today(); start = end - timedelta(days=dias)
     return yf.download(ticker, start=start, end=end, progress=False)
 
 @st.cache_data(ttl=3600)
@@ -236,48 +274,45 @@ def get_eurusd():
     try:
         fx = yf.download("EURUSD=X", period="1d", progress=False)
         close = fx["Close"]
-        if isinstance(close, pd.DataFrame):
-            close = close.iloc[:, 0]
+        if isinstance(close, pd.DataFrame): close = close.iloc[:, 0]
         return float(close.iloc[-1])
     except Exception:
         return 1.08
 
 if analisar:
-    st.session_state["freenomics_dados"] = {
-        "tickers": tickers, "dias": dias,
-        "periodo_label": periodo_label, "compras": compras
+    st.session_state["freenomics_resultado"] = {
+        "ativos": [a.copy() for a in st.session_state.ativos],
+        "dias": dias, "periodo_label": periodo_label,
     }
 
-cfg = st.session_state.get("freenomics_dados", {})
-tickers      = cfg.get("tickers", tickers)
-dias         = cfg.get("dias", dias)
+cfg      = st.session_state.get("freenomics_resultado", {})
+ativos_r = cfg.get("ativos", st.session_state.ativos)
+dias     = cfg.get("dias", dias)
 periodo_label = cfg.get("periodo_label", periodo_label)
-compras      = cfg.get("compras", compras)
 
-dados = {}
+tickers = [a["ticker"] for a in ativos_r if a["ticker"]]
+dados   = {}
 with st.spinner(L["a_carregar"]):
     for t in tickers:
         try:
             df = carregar_dados(t, dias)
-            if not df.empty:
-                dados[t] = df
+            if not df.empty: dados[t] = df
         except Exception:
             pass
 
 if not dados:
-    st.error(L["erro_tickers"])
-    st.stop()
+    st.error(L["erro"]); st.stop()
 
-eurusd  = get_eurusd()
-usdeur  = 1 / eurusd
-simbolo = "$" if mostrar_usd else "€"
-fator   = 1.0 if mostrar_usd else usdeur
+eurusd = get_eurusd()
+usdeur = 1 / eurusd
+simbolo_display = "$" if mostrar_usd else "€"
 
-# ── MÉTRICAS E PREÇOS ATUAIS ──────────────────────────────────
-def calcular_metricas(df):
+def to_display(valor_eur):
+    return valor_eur * eurusd if mostrar_usd else valor_eur
+
+def calc_metricas(df):
     precos = df["Close"]
-    if isinstance(precos, pd.DataFrame):
-        precos = precos.iloc[:, 0]
+    if isinstance(precos, pd.DataFrame): precos = precos.iloc[:, 0]
     precos = precos.squeeze()
     ret  = float((precos.iloc[-1] / precos.iloc[0] - 1) * 100)
     rd   = precos.pct_change().dropna()
@@ -285,16 +320,13 @@ def calcular_metricas(df):
     pico = precos.cummax()
     dd   = float(((precos - pico) / pico).min() * 100)
     sh   = float((rd.mean() / rd.std()) * np.sqrt(252)) if rd.std().item() != 0 else 0.0
-    preco_atual = float(precos.iloc[-1])
+    pa   = float(precos.iloc[-1])
     return {"retorno_total": round(ret,2), "volatilidade": round(vol,2),
-            "max_drawdown": round(dd,2), "sharpe": round(sh,2),
-            "preco_atual": round(preco_atual, 2)}
+            "max_drawdown": round(dd,2), "sharpe": round(sh,2), "preco_atual": round(pa,2)}
 
-metricas = {t: calcular_metricas(df) for t, df in dados.items()}
+metricas = {t: calc_metricas(df) for t, df in dados.items()}
 
-# ── FUNÇÕES DE CARTÃO ─────────────────────────────────────────
-def cor(valor):
-    return "#4CAF50" if valor >= 0 else "#F44336"
+def cor(v): return "#4CAF50" if v >= 0 else "#F44336"
 
 def cartao(label, valor_str, euros_str=None, euros_cor="#4CAF50"):
     html  = '<div style="background:#0E2A3D;border-radius:10px;padding:16px 18px;'
@@ -308,59 +340,72 @@ def cartao(label, valor_str, euros_str=None, euros_cor="#4CAF50"):
 
 st.markdown("---")
 
-# ── CARTEIRA REAL (se preços introduzidos) ────────────────────
-if compras:
+# ── CARTEIRA REAL ─────────────────────────────────────────────
+ativos_com_dados = [a for a in ativos_r if a["ticker"] in metricas and a["preco"] > 0 and a["acoes"] > 0]
+
+if ativos_com_dados:
     st.subheader(L["carteira_real"])
-    total_inv = 0
-    total_atu = 0
+    total_inv_eur = 0
+    total_atu_eur = 0
     rows = []
 
-    for t, c in compras.items():
-        if t not in metricas:
-            continue
+    for a in ativos_com_dados:
+        t   = a["ticker"]
+        mo  = a["moeda"]
+        pc  = a["preco"]
+        na  = a["acoes"]
         pa  = metricas[t]["preco_atual"]
-        pc  = c["preco_compra"]
-        na  = c["n_acoes"]
-        inv_usd = pc * na
-        atu_usd = pa * na
-        gan_usd = atu_usd - inv_usd
-        pct     = ((pa / pc) - 1) * 100 if pc > 0 else 0
-        rows.append({"ticker": t, "pc": pc, "pa": pa,
-                     "inv": inv_usd * fator, "atu": atu_usd * fator,
-                     "gan": gan_usd * fator, "pct": pct})
-        total_inv += inv_usd * fator
-        total_atu += atu_usd * fator
 
-    cols_r = st.columns(len(rows))
+        # Converter tudo para EUR internamente
+        if mo == "USD":
+            inv_eur = pc * na * usdeur
+            atu_eur = pa * na * usdeur
+        else:  # EUR
+            inv_eur = pc * na
+            atu_eur = pa * na * usdeur  # preço atual de yfinance é sempre USD
+
+        gan_eur = atu_eur - inv_eur
+        pct     = ((atu_eur / inv_eur) - 1) * 100 if inv_eur > 0 else 0
+
+        total_inv_eur += inv_eur
+        total_atu_eur += atu_eur
+
+        rows.append({"ticker": t, "moeda": mo, "pc": pc, "pa": pa,
+                     "inv": to_display(inv_eur), "atu": to_display(atu_eur),
+                     "gan": to_display(gan_eur), "pct": pct})
+
+    cols_r = st.columns(max(len(rows), 1))
     for col, r in zip(cols_r, rows):
         with col:
-            st.markdown(f"**{r['ticker']}**")
+            simbolo_compra = "$" if r["moeda"] == "USD" else "€"
+            st.markdown(f"**{r['ticker']}** ({r['moeda']})")
             st.markdown(cartao(L["preco_arrow"],
-                f"${r['pc']:.2f} → ${r['pa']:.2f}"), unsafe_allow_html=True)
-            st.markdown(cartao(f"{L['ganho_label']} ({simbolo})",
-                f"{simbolo}{r['gan']:+,.0f}",
+                f"{simbolo_compra}{r['pc']:.2f} → ${r['pa']:.2f}"),
+                unsafe_allow_html=True)
+            st.markdown(cartao(f"{L['ganho_label']} ({simbolo_display})",
+                f"{simbolo_display}{r['gan']:+,.0f}",
                 euros_str=f"{r['pct']:+.1f}%",
                 euros_cor=cor(r['gan'])), unsafe_allow_html=True)
-            st.markdown(cartao(f"{L['valor_label']} ({simbolo})",
-                f"{simbolo}{r['atu']:,.0f}",
-                euros_str=f"{L['investido']}: {simbolo}{r['inv']:,.0f}",
+            st.markdown(cartao(f"{L['valor_label']} ({simbolo_display})",
+                f"{simbolo_display}{r['atu']:,.0f}",
+                euros_str=f"{L['investido']}: {simbolo_display}{r['inv']:,.0f}",
                 euros_cor="#C8D3DA"), unsafe_allow_html=True)
 
-    gan_total = total_atu - total_inv
-    gan_pct   = (gan_total / total_inv * 100) if total_inv > 0 else 0
-    fx_str    = f"1 USD = {simbolo}{fator:.4f}" if not mostrar_usd else "USD"
+    gan_total = total_atu_eur - total_inv_eur
+    gan_pct   = (gan_total / total_inv_eur * 100) if total_inv_eur > 0 else 0
+    fx_str    = f"1 USD = €{usdeur:.4f}" if not mostrar_usd else f"1 EUR = ${eurusd:.4f}"
 
     st.markdown(f"""
     <div style="background:#0E2A3D;border-radius:10px;padding:20px 24px;
                 border:2px solid #C29A4B;margin:12px 0;">
         <p style="color:#C8D3DA;font-size:0.85rem;margin:0 0 12px 0;">{L['resumo']}</p>
         <div style="display:flex;gap:40px;flex-wrap:wrap;">
-            <div><p style="color:#C8D3DA;font-size:0.8rem;margin:0;">{L['tot_investido']}</p>
-                 <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">{simbolo}{total_inv:,.0f}</p></div>
-            <div><p style="color:#C8D3DA;font-size:0.8rem;margin:0;">{L['tot_atual']}</p>
-                 <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">{simbolo}{total_atu:,.0f}</p></div>
-            <div><p style="color:#C8D3DA;font-size:0.8rem;margin:0;">{L['tot_ganho']}</p>
-                 <p style="color:{cor(gan_total)};font-size:1.4rem;font-weight:700;margin:0;">{simbolo}{gan_total:+,.0f} ({gan_pct:+.1f}%)</p></div>
+            <div><p style="color:#C8D3DA;font-size:0.8rem;margin:0;">{L['tot_inv']}</p>
+                 <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">{simbolo_display}{to_display(total_inv_eur):,.0f}</p></div>
+            <div><p style="color:#C8D3DA;font-size:0.8rem;margin:0;">{L['tot_atu']}</p>
+                 <p style="color:#FAF8F3;font-size:1.4rem;font-weight:700;margin:0;">{simbolo_display}{to_display(total_atu_eur):,.0f}</p></div>
+            <div><p style="color:#C8D3DA;font-size:0.8rem;margin:0;">{L['tot_gan']}</p>
+                 <p style="color:{cor(gan_total)};font-size:1.4rem;font-weight:700;margin:0;">{simbolo_display}{to_display(gan_total):+,.0f} ({gan_pct:+.1f}%)</p></div>
         </div>
         <p style="color:#6B7280;font-size:0.75rem;margin:10px 0 0 0;">{L['fx_nota']}: {fx_str} · Yahoo Finance</p>
     </div>
@@ -370,10 +415,11 @@ if compras:
 # ── GRÁFICO ───────────────────────────────────────────────────
 st.subheader(L["grafico_titulo"])
 fig = go.Figure()
-for i, (t, df) in enumerate(dados.items()):
+for i, t in enumerate(tickers):
+    if t not in dados: continue
+    df = dados[t]
     close = df["Close"]
-    if isinstance(close, pd.DataFrame):
-        close = close.iloc[:, 0]
+    if isinstance(close, pd.DataFrame): close = close.iloc[:, 0]
     close = close.squeeze()
     norm = (close / close.iloc[0]) * 100
     fig.add_trace(go.Scatter(x=df.index, y=norm.values.flatten(),
@@ -386,8 +432,7 @@ if "SPY" not in tickers:
             c = df_spy["Close"]
             if isinstance(c, pd.DataFrame): c = c.iloc[:, 0]
             c = c.squeeze()
-            norm_spy = (c / c.iloc[0]) * 100
-            fig.add_trace(go.Scatter(x=df_spy.index, y=norm_spy.values.flatten(),
+            fig.add_trace(go.Scatter(x=df_spy.index, y=((c/c.iloc[0])*100).values.flatten(),
                 name="S&P 500 (benchmark)",
                 line=dict(color="#888888", width=1.5, dash="dash"), opacity=0.7))
     except Exception:
@@ -409,33 +454,15 @@ LINGUA_NOME = {
     "🇫🇷 Français": "français", "🇩🇪 Deutsch": "Deutsch", "🇪🇸 Español": "español",
 }
 
-def gerar_insights_api(metricas, periodo_label, lang, api_key, compras, fator, simbolo):
+def gerar_ai(metricas, periodo_label, lang, api_key):
     lingua = LINGUA_NOME.get(lang, "português")
-    linhas = []
-    for t, m in metricas.items():
-        linha = f"- {t}: retorno {m['retorno_total']}%, volatilidade {m['volatilidade']}%, drawdown {m['max_drawdown']}%, Sharpe {m['sharpe']}"
-        if t in compras:
-            pc = compras[t]["preco_compra"]
-            na = compras[t]["n_acoes"]
-            gan = (m["preco_atual"] - pc) * na * fator
-            pct = ((m["preco_atual"] / pc) - 1) * 100 if pc > 0 else 0
-            linha += f", ganho real: {simbolo}{gan:+,.0f} ({pct:+.1f}%)"
-        linhas.append(linha)
-
-    prompt = f"""És um consultor financeiro a analisar uma carteira de investimentos para um investidor individual.
-
+    linhas = [f"- {t}: retorno {m['retorno_total']}%, volatilidade {m['volatilidade']}%, drawdown {m['max_drawdown']}%, Sharpe {m['sharpe']}"
+              for t, m in metricas.items()]
+    prompt = f"""Analisa esta carteira em {lingua} em 3-4 parágrafos curtos para um investidor individual.
 Período: {periodo_label}
-Dados:
 {chr(10).join(linhas)}
-
-Escreve uma análise em {lingua} com 3-4 parágrafos curtos que:
-1. Contextualiza a performance dos ativos de forma clara
-2. Comenta o risco (volatilidade e drawdown) em linguagem acessível
-3. Se houver dados reais de compra, comenta o ganho/perda em termos concretos
-4. Termina com uma reflexão prática para o investidor
-
+Foca: melhor/pior performance, risco em linguagem acessível, conclusão prática.
 Tom direto, como um amigo que percebe de finanças. Sem bullet points. Sem títulos."""
-
     try:
         r = requests.post("https://api.anthropic.com/v1/messages",
             headers={"x-api-key": api_key, "anthropic-version": "2023-06-01",
@@ -449,46 +476,44 @@ Tom direto, como um amigo que percebe de finanças. Sem bullet points. Sem títu
         pass
     return None, False
 
-def fallback_insights(metricas, periodo_label, T):
+def fallback(metricas, periodo_label, L):
     frases = []
     ordenado = sorted(metricas.items(), key=lambda x: x[1]["retorno_total"], reverse=True)
     melhor, pior = ordenado[0], ordenado[-1]
     if len(metricas) > 1:
-        frase = T["insight_melhor"](melhor[0], periodo_label, melhor[1]["retorno_total"]) + " "
-        frase += T["insight_pior_subida"](pior[0], pior[1]["retorno_total"]) if pior[1]["retorno_total"] >= 0 else T["insight_pior_queda"](pior[0], pior[1]["retorno_total"])
-        frases.append(frase)
+        f = L["insight_melhor"](melhor[0], periodo_label, melhor[1]["retorno_total"]) + " "
+        f += L["insight_pior_subida"](pior[0], pior[1]["retorno_total"]) if pior[1]["retorno_total"] >= 0 else L["insight_pior_queda"](pior[0], pior[1]["retorno_total"])
+        frases.append(f)
     else:
         t, m = list(metricas.items())[0]
-        frases.append(T["insight_unico"](t, periodo_label, m["retorno_total"]))
+        frases.append(L["insight_unico"](t, periodo_label, m["retorno_total"]))
     if len(metricas) > 1:
         mv = sorted(metricas.items(), key=lambda x: x[1]["volatilidade"], reverse=True)[0]
-        frases.append(T["insight_volatil"](mv[0], mv[1]["volatilidade"]))
+        frases.append(L["insight_volatil"](mv[0], mv[1]["volatilidade"]))
     for t, m in metricas.items():
         if m["max_drawdown"] < -20:
-            frases.append(T["insight_drawdown"](t, m["max_drawdown"]))
+            frases.append(L["insight_drawdown"](t, m["max_drawdown"]))
     ms = sorted(metricas.items(), key=lambda x: x[1]["sharpe"], reverse=True)[0]
     if ms[1]["sharpe"] > 0:
-        frases.append(T["insight_sharpe"](ms[0]))
+        frases.append(L["insight_sharpe"](ms[0]))
     return frases
 
-def renderizar(texto):
+def render(texto):
     return re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", texto)
 
 if api_key:
     with st.spinner("🤖 A gerar análise com IA..."):
-        texto_ai, sucesso = gerar_insights_api(
-            metricas, periodo_label, lang, api_key, compras, fator, simbolo)
-    if sucesso and texto_ai:
-        html = renderizar(texto_ai).replace("\n\n", "<br><br>")
-        st.markdown(f"<div class='insight-box'>{html}</div>", unsafe_allow_html=True)
+        texto_ai, ok = gerar_ai(metricas, periodo_label, lang, api_key)
+    if ok and texto_ai:
+        st.markdown(f"<div class='insight-box'>{render(texto_ai).replace(chr(10)+chr(10), '<br><br>')}</div>", unsafe_allow_html=True)
         st.caption("✨ " + L["aviso"])
     else:
         st.warning("API indisponível. A usar análise automática.")
-        for f in fallback_insights(metricas, periodo_label, T):
-            st.markdown(f"<div class='insight-box'>{renderizar(f)}</div>", unsafe_allow_html=True)
+        for f in fallback(metricas, periodo_label, L):
+            st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
 else:
-    for f in fallback_insights(metricas, periodo_label, T):
-        st.markdown(f"<div class='insight-box'>{renderizar(f)}</div>", unsafe_allow_html=True)
+    for f in fallback(metricas, periodo_label, L):
+        st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
     st.info(f"💡 {L['api_info']}")
 
 st.caption(L["aviso"])
