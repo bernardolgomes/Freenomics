@@ -784,12 +784,57 @@ CSS = """
         border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; margin-right: 6px;
     }
 
+    /* ── Dropdowns / Selectbox em dark mode ── */
+    [data-theme="dark"] [data-baseweb="select"] > div,
+    [data-theme="dark"] [data-baseweb="select"] input {
+        background-color: #1A2F4A !important;
+        color: #FFFFFF !important;
+        border-color: #2B5F8E !important;
+    }
+    [data-theme="dark"] [data-baseweb="popover"],
+    [data-theme="dark"] [data-baseweb="menu"],
+    [data-theme="dark"] [role="listbox"] {
+        background-color: #1A2F4A !important;
+    }
+    [data-theme="dark"] [data-baseweb="option"],
+    [data-theme="dark"] [role="option"] {
+        background-color: #1A2F4A !important;
+        color: #FFFFFF !important;
+    }
+    [data-theme="dark"] [data-baseweb="option"]:hover,
+    [data-theme="dark"] [role="option"]:hover {
+        background-color: #2B5F8E !important;
+    }
+    [data-theme="dark"] [data-baseweb="tag"] {
+        background-color: #2B5F8E !important;
+        color: #FFFFFF !important;
+    }
+    /* Inputs de texto em dark mode */
+    [data-theme="dark"] input,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] [data-baseweb="input"] input {
+        background-color: #1A2F4A !important;
+        color: #FFFFFF !important;
+        border-color: #2B5F8E !important;
+    }
+    [data-theme="dark"] input::placeholder {
+        color: #6B8FAD !important;
+    }
+    /* Number inputs */
+    [data-theme="dark"] [data-testid="stNumberInput"] input {
+        background-color: #1A2F4A !important;
+        color: #FFFFFF !important;
+    }
+
     /* ── Botões ── */
     [data-theme="dark"] .stButton > button {
-        background-color: #1A5FA8; color: #FFFFFF; border: none;
+        background-color: #2B5F8E; color: #FFFFFF; border: none;
     }
     [data-theme="dark"] .stButton > button:hover {
-        background-color: #4A9FD4;
+        background-color: #3B8FC4;
+    }
+    [data-theme="dark"] .stButton > button[kind="primary"] {
+        background-color: #3B8FC4 !important;
     }
 </style>
 """

@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import requests, sys, os, re
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from utils import show_logo
 from translations import CSS, PLOT_COLORS
 
 st.markdown(CSS, unsafe_allow_html=True)
@@ -180,7 +181,7 @@ L = {
 }.get(lang, {})
 
 # ── CABEÇALHO ─────────────────────────────────────────────────
-st.markdown("### 📊 Freenomics")
+show_logo()
 st.title(L["titulo"])
 st.caption(L["subtitulo"])
 

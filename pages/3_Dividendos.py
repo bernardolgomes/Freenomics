@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from datetime import datetime
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from utils import show_logo
 from translations import CSS, PLOT_COLORS
 
 st.markdown(CSS, unsafe_allow_html=True)
@@ -118,7 +119,7 @@ L = {
     },
 }.get(lang, {})
 
-st.markdown("### 📊 Freenomics")
+show_logo()
 st.title(L["titulo"])
 st.caption(L["subtitulo"])
 
@@ -136,6 +137,7 @@ for i, t in enumerate(st.session_state.div_tickers):
         with c1:
             st.session_state.div_tickers[i] = st.text_input(
                 L["ticker_label"], value=t, key=f"div_t_{i}",
+                placeholder="ex: AAPL",
                 label_visibility="collapsed" if i > 0 else "visible").upper().strip()
         with c2:
             if len(st.session_state.div_tickers) > 1:

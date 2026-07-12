@@ -2,6 +2,7 @@ import streamlit as st, yfinance as yf
 from datetime import datetime
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from utils import show_logo
 from translations import T_GERAL, CSS
 
 st.markdown(CSS, unsafe_allow_html=True)
