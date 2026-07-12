@@ -42,7 +42,7 @@ L = {
         "aviso": "⚠️ Análise gerada automaticamente — não constitui aconselhamento financeiro.",
         "rodape": "Freenomics · Dados via Yahoo Finance",
         "caption_base100": "💡 **Base 100:** todos os ativos começam no mesmo ponto para comparar performance relativa.",
-        "periodos": {"6 meses": 180, "1 ano": 365, "2 anos": 730, "5 anos": 1825},
+        "periodos": {"1 mês": 30, "3 meses": 90, "6 meses": 180, "1 ano": 365, "2 anos": 730, "5 anos": 1825, "10 anos": 3650, "20 anos": 7300},
         "de_ganho": "de ganho", "queda_maxima": "de queda máxima",
     },
     "🇬🇧 English": {
@@ -75,7 +75,7 @@ L = {
         "aviso": "⚠️ Automatically generated — does not constitute financial advice.",
         "rodape": "Freenomics · Data via Yahoo Finance",
         "caption_base100": "💡 **Base 100:** all assets start at the same point to compare relative performance.",
-        "periodos": {"6 months": 180, "1 year": 365, "2 years": 730, "5 years": 1825},
+        "periodos": {"1 month": 30, "3 months": 90, "6 months": 180, "1 year": 365, "2 years": 730, "5 years": 1825, "10 years": 3650, "20 years": 7300},
         "de_ganho": "gain", "queda_maxima": "max drawdown reached",
     },
     "🇫🇷 Français": {
@@ -108,7 +108,7 @@ L = {
         "aviso": "⚠️ Analyse automatique — ne constitue pas un conseil financier.",
         "rodape": "Freenomics · Données via Yahoo Finance",
         "caption_base100": "💡 **Base 100 :** tous les actifs partent du même point.",
-        "periodos": {"6 mois": 180, "1 an": 365, "2 ans": 730, "5 ans": 1825},
+        "periodos": {"1 mois": 30, "3 mois": 90, "6 mois": 180, "1 an": 365, "2 ans": 730, "5 ans": 1825, "10 ans": 3650, "20 ans": 7300},
         "de_ganho": "de gain", "queda_maxima": "de baisse maximale",
     },
     "🇩🇪 Deutsch": {
@@ -141,7 +141,7 @@ L = {
         "aviso": "⚠️ Automatisch generiert — stellt keine Finanzberatung dar.",
         "rodape": "Freenomics · Daten via Yahoo Finance",
         "caption_base100": "💡 **Basis 100:** Alle Anlagen starten am selben Punkt.",
-        "periodos": {"6 Monate": 180, "1 Jahr": 365, "2 Jahre": 730, "5 Jahre": 1825},
+        "periodos": {"1 Monat": 30, "3 Monate": 90, "6 Monate": 180, "1 Jahr": 365, "2 Jahre": 730, "5 Jahre": 1825, "10 Jahre": 3650, "20 Jahre": 7300},
         "de_ganho": "Gewinn", "queda_maxima": "maximaler Rückgang",
     },
     "🇪🇸 Español": {
@@ -174,7 +174,7 @@ L = {
         "aviso": "⚠️ Análisis automático — no constituye asesoramiento financiero.",
         "rodape": "Freenomics · Datos via Yahoo Finance",
         "caption_base100": "💡 **Base 100:** todos los activos parten del mismo punto.",
-        "periodos": {"6 meses": 180, "1 año": 365, "2 años": 730, "5 años": 1825},
+        "periodos": {"1 mes": 30, "3 meses": 90, "6 meses": 180, "1 año": 365, "2 años": 730, "5 años": 1825, "10 años": 3650, "20 años": 7300},
         "de_ganho": "de ganancia", "queda_maxima": "de caída máxima",
     },
 }.get(lang, {})
