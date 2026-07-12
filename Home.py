@@ -3,10 +3,9 @@ from translations import LINGUAS, NOMES_PAGINAS
 
 st.set_page_config(page_title="Freenomics", layout="wide", page_icon="📊")
 
-# Injectar tagline no topo da sidebar via CSS
 st.markdown("""
 <style>
-[data-testid="stSidebarContent"]::before {
+[data-testid="stSidebarNav"]::before {
     content: "MONEY · MINDSET · FREEDOM";
     display: block;
     text-align: center;
