@@ -179,9 +179,9 @@ st.caption(L["subtitulo"])
 # ── FORMULÁRIO ────────────────────────────────────────────────
 st.markdown("#### " + L["tipo_label"])
 col_a, col_c, col_i = st.columns(3)
-inc_acoes = col_a.checkbox(L["tipo_acoes"],  value=L["tipo_acoes"]  in tipo)
-inc_cripto= col_c.checkbox(L["tipo_cripto"], value=L["tipo_cripto"] in tipo)
-inc_imob  = col_i.checkbox(L["tipo_imob"],   value=L["tipo_imob"]   in tipo)
+inc_acoes  = col_a.checkbox(L["tipo_acoes"],  value=True)
+inc_cripto = col_c.checkbox(L["tipo_cripto"], value=False)
+inc_imob   = col_i.checkbox(L["tipo_imob"],   value=False)
 
 st.markdown("---")
 
