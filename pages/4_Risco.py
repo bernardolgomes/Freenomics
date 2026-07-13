@@ -216,6 +216,7 @@ retornos = precos.pct_change().dropna()
 
 # ── VOLATILIDADE E VAR ────────────────────────────────────────
 st.subheader(L["vol_titulo"])
+metricas_r = {}
 cols = st.columns(len(dados))
 for col, t in zip(cols, dados.keys()):
     if t not in retornos.columns: continue
@@ -223,6 +224,7 @@ for col, t in zip(cols, dados.keys()):
     var  = float(np.percentile(retornos[t], 5) * 100)
     perda = capital * abs(var) / 100
     nivel = "alto" if vol > 40 else ("medio" if vol > 20 else "baixo")
+    metricas_r[t] = {"vol": round(vol, 1), "var": round(var, 2)}
     with col:
         def cartao_r(label, val, sub=None, sub_cor="#FAF8F3"):
             h  = '<div style="background:#0E2A3D;border-radius:10px;padding:14px 16px;border-left:4px solid #C29A4B;margin-bottom:10px;">'
@@ -273,6 +275,17 @@ cols2 = st.columns(len(cenarios))
 for col, (nome, pct) in zip(cols2, cenarios.items()):
     perda = capital * pct
     col.metric(nome, f"€{capital+perda:,.0f}", f"€{perda:,.0f}", delta_color="inverse")
+
+if metricas_r:
+    mais_vol = max(metricas_r.items(), key=lambda x: x[1]["vol"])
+    insight_risco = (
+        f"{mais_vol[0]} é o ativo com maior volatilidade ({mais_vol[1]['vol']}%). "
+        f"Num cenário de crash severo (-50%), o capital de €{capital:,.0f} reduziria para €{capital*0.5:,.0f}."
+    )
+    # Guarda o estado atual desta página para a página de Exportar reutilizar
+    st.session_state["export_risco"] = {
+        "metricas": metricas_r, "capital": capital, "insight": insight_risco,
+    }
 
 st.caption(L["aviso"])
 st.markdown("---")

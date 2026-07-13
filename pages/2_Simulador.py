@@ -195,6 +195,15 @@ if marcos:
 def render(t): return re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", t)
 txt = L["insight"](contrib, anos, retorno, tinv, vf, ganho, inflacao, vreal)
 st.markdown(f"<div class='insight-box'>{render(txt)}</div>", unsafe_allow_html=True)
+
+# Guarda o estado atual desta página para a página de Exportar reutilizar
+st.session_state["export_simulador"] = {
+    "inv_inicial": inv_ini, "contrib": contrib, "anos": anos,
+    "retorno": retorno, "inflacao": inflacao, "total_inv": tinv,
+    "valor_final": vf, "valor_real": vreal, "ganho": ganho,
+    "multiplicador": mult, "insight": txt,
+}
+
 st.caption(L["aviso"])
 st.markdown("---")
 st.caption(L["rodape"])

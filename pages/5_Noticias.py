@@ -301,6 +301,17 @@ if inc_acoes and tickers_acoes:
         for n in filtradas:
             card_noticia(n["ticker"], n["fonte"], formatar_data(n["data"]),
                          n["titulo"], n["resumo"], n["url"], "#4A9FD4")
+
+        # Guarda o estado atual desta página para a página de Exportar reutilizar
+        grouped = {}
+        for n in todas_acoes:
+            grouped.setdefault(n["ticker"], []).append({
+                "titulo": n["titulo"],
+                "resumo": (n["resumo"][:200] if n["resumo"] else ""),
+                "fonte": n["fonte"],
+                "data": (n["data"][:10] if n["data"] else ""),
+            })
+        st.session_state["export_noticias"] = grouped
     else:
         st.warning(L["sem_noticias"])
 

@@ -501,20 +501,33 @@ def fallback(metricas, periodo_label, L):
 def render(texto):
     return re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", texto)
 
+insight_texto_final = None
 if api_key:
     with st.spinner("🤖 A gerar análise com IA..."):
         texto_ai, ok = gerar_ai(metricas, periodo_label, lang, api_key)
     if ok and texto_ai:
         st.markdown(f"<div class='insight-box'>{render(texto_ai).replace(chr(10)+chr(10), '<br><br>')}</div>", unsafe_allow_html=True)
         st.caption("✨ " + L["aviso"])
+        insight_texto_final = texto_ai
     else:
         st.warning("API indisponível. A usar análise automática.")
-        for f in fallback(metricas, periodo_label, L):
+        frases = fallback(metricas, periodo_label, L)
+        for f in frases:
             st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
+        insight_texto_final = "\n\n".join(frases)
 else:
-    for f in fallback(metricas, periodo_label, L):
+    frases = fallback(metricas, periodo_label, L)
+    for f in frases:
         st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
     st.info(f"💡 {L['api_info']}")
+    insight_texto_final = "\n\n".join(frases)
+
+# Guarda o estado atual desta página para a página de Exportar reutilizar
+st.session_state["export_dashboard"] = {
+    "metricas": metricas,
+    "insight": insight_texto_final,
+    "periodo_label": periodo_label,
+}
 
 st.caption(L["aviso"])
 st.markdown("---")

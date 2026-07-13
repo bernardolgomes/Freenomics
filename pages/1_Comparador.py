@@ -474,12 +474,14 @@ def render(t): return re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", t)
 
 melhor_sharpe = max(resultados, key=lambda x: x["metricas"]["sharpe"])
 
+insight_final = None
 if api_key:
     with st.spinner("🤖 A gerar análise com IA..."):
         txt, ok = gerar_ai(resultados, periodo_label, lang, api_key)
     if ok and txt:
         st.markdown(f"<div class='insight-box'>{render(txt).replace(chr(10)+chr(10),'<br><br>')}</div>",
                     unsafe_allow_html=True)
+        insight_final = txt
     else:
         st.warning("API indisponível.")
         fb = [
@@ -488,6 +490,7 @@ if api_key:
         ]
         for f in fb:
             st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
+        insight_final = "\n\n".join(fb)
 else:
     fb = [
         f"Em {periodo_label}, **{melhor['nome_curto']}** liderou com {melhor['metricas']['retorno']}%.",
@@ -496,6 +499,15 @@ else:
     for f in fb:
         st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
     st.info(f"💡 {L['api_info']}")
+    insight_final = "\n\n".join(fb)
+
+# Guarda o estado atual (as duas primeiras carteiras) para a página de Exportar reutilizar
+if len(resultados) >= 2:
+    st.session_state["export_comparador"] = {
+        "ma": resultados[0]["metricas"], "mb": resultados[1]["metricas"],
+        "nome_a": resultados[0]["nome_curto"], "nome_b": resultados[1]["nome_curto"],
+        "insight": insight_final, "periodo_label": periodo_label,
+    }
 
 st.caption(L["aviso"])
 st.markdown("---")
