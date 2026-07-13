@@ -3,6 +3,45 @@ from translations import LINGUAS, NOMES_PAGINAS
 
 st.set_page_config(page_title="Freenomics", layout="wide", page_icon="📊")
 
+# Fix dropdown colors via JavaScript MutationObserver
+st.markdown("""
+<script>
+(function() {
+    function fixDropdowns() {
+        // Opções da lista
+        document.querySelectorAll(
+            'li[role="option"], [data-baseweb="option"]'
+        ).forEach(el => {
+            el.style.setProperty('color', '#FFFFFF', 'important');
+            el.style.setProperty('background-color', '#1A2F4A', 'important');
+        });
+        // Container do popup
+        document.querySelectorAll(
+            '[data-baseweb="popover"], [data-baseweb="menu"], ul[role="listbox"]'
+        ).forEach(el => {
+            el.style.setProperty('background-color', '#1A2F4A', 'important');
+            el.style.setProperty('color', '#FFFFFF', 'important');
+        });
+        // Texto dentro de todos os filhos do popover
+        document.querySelectorAll('[data-baseweb="popover"] *').forEach(el => {
+            if (el.tagName !== 'INPUT') {
+                el.style.setProperty('color', '#FFFFFF', 'important');
+            }
+        });
+    }
+
+    // Correr quando o DOM muda (dropdowns abrem dinamicamente)
+    const observer = new MutationObserver(fixDropdowns);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Correr também ao carregar
+    document.addEventListener('DOMContentLoaded', fixDropdowns);
+    setTimeout(fixDropdowns, 500);
+    setTimeout(fixDropdowns, 1500);
+})();
+</script>
+""", unsafe_allow_html=True)
+
 st.markdown("""
 <style>
 [data-testid="stSidebarNav"]::before {
