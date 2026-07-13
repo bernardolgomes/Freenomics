@@ -784,6 +784,46 @@ CSS = """
         border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; margin-right: 6px;
     }
 
+    /* ── Dropdowns — texto branco em todos os estados ── */
+    /* Streamlit usa #31333F como cor de texto para itens não-activos */
+    /* Forçar branco em todos os estados possíveis */
+    [data-baseweb="option"] [data-testid="stText"],
+    [data-baseweb="option"] span,
+    [data-baseweb="option"] div,
+    [data-baseweb="option"] p,
+    [data-baseweb="option"],
+    li[role="option"] span,
+    li[role="option"] div,
+    li[role="option"] p,
+    li[role="option"],
+    [data-baseweb="menu"] li,
+    [data-baseweb="menu"] span,
+    [data-baseweb="popover"] li,
+    [data-baseweb="popover"] span,
+    [data-baseweb="popover"] div:not([data-baseweb="input"]) {
+        color: #FFFFFF !important;
+        fill: #FFFFFF !important;
+    }
+    /* Background dos itens */
+    li[role="option"],
+    [data-baseweb="option"] {
+        background-color: #1A2F4A !important;
+    }
+    li[role="option"]:hover,
+    [data-baseweb="option"]:hover {
+        background-color: #2B5F8E !important;
+    }
+    li[aria-selected="true"],
+    [data-baseweb="option"][aria-selected="true"] {
+        background-color: #0E2A3D !important;
+        color: #C29A4B !important;
+    }
+    /* Popover container */
+    [data-baseweb="popover"],
+    [data-baseweb="menu"],
+    ul[role="listbox"] {
+        background-color: #1A2F4A !important;
+    }
     /* ── Dropdowns — forçar branco em TODOS os contextos ── */
     /* Container da lista (portaled para o body) */
     [data-baseweb="popover"],
