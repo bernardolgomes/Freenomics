@@ -784,31 +784,48 @@ CSS = """
         border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; margin-right: 6px;
     }
 
-    /* ── Dropdowns / Selectbox — funciona em dark e light ── */
-    /* Lista de opções do dropdown */
-    [data-baseweb="popover"] [role="listbox"],
+    /* ── Dropdowns — forçar branco em TODOS os contextos ── */
+    /* Container da lista (portaled para o body) */
+    [data-baseweb="popover"],
+    [data-baseweb="popover"] *,
     [data-baseweb="menu"],
-    ul[role="listbox"] {
+    [data-baseweb="menu"] * {
         background-color: #1A2F4A !important;
+        color: #FFFFFF !important;
     }
-    /* Cada opção individual */
-    li[role="option"],
-    [data-baseweb="option"] {
+    /* Opções individuais */
+    li[role="option"] {
         background-color: #1A2F4A !important;
         color: #FFFFFF !important;
     }
     li[role="option"]:hover,
-    [data-baseweb="option"]:hover,
-    li[aria-selected="true"],
-    [data-baseweb="option"][aria-selected="true"] {
+    li[role="option"][aria-selected="true"] {
         background-color: #2B5F8E !important;
         color: #FFFFFF !important;
     }
-    /* Texto visível dentro do selectbox seleccionado */
-    [data-baseweb="select"] [data-testid="stMarkdownContainer"],
+    /* Texto dentro do selectbox fechado */
     [data-baseweb="select"] span,
-    [data-baseweb="select"] div[class*="ValueContainer"] {
+    [data-baseweb="select"] div,
+    [data-baseweb="select"] p {
         color: #FFFFFF !important;
+    }
+    /* Selectbox container */
+    [data-baseweb="select"] > div {
+        background-color: #1A2F4A !important;
+        border-color: #2B5F8E !important;
+    }
+    /* Input de pesquisa dentro do dropdown */
+    [data-baseweb="popover"] input {
+        background-color: #1A2F4A !important;
+        color: #FFFFFF !important;
+    }
+    /* Garantir que texto não fica preto em nenhum estado */
+    [class*="option"],
+    [class*="Option"],
+    [class*="menu"],
+    [class*="Menu"] {
+        color: #FFFFFF !important;
+        background-color: #1A2F4A !important;
     }
 </style>
 """
