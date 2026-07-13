@@ -203,7 +203,7 @@ st.header(L["sec_carteira"])
 
 # Período
 periodo_opcoes = L["periodos"]
-periodo_label = st.selectbox(L["periodo_label"], list(periodo_opcoes.keys()), index=2)
+periodo_label = st.radio(L["periodo_label"], list(periodo_opcoes.keys()), index=2, horizontal=True)
 dias = periodo_opcoes[periodo_label]
 
 st.markdown("---")
