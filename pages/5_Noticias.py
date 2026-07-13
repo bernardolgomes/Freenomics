@@ -187,31 +187,43 @@ if not tipo:
     st.info("Seleciona pelo menos um tipo de notícias.")
     st.stop()
 
+# ── SECÇÕES A INCLUIR (estilo Export) ────────────────────────
+st.markdown("#### " + L["tipo_label"])
+col_a, col_c, col_i = st.columns(3)
+inc_acoes = col_a.checkbox(L["tipo_acoes"],  value=L["tipo_acoes"]  in tipo)
+inc_cripto= col_c.checkbox(L["tipo_cripto"], value=L["tipo_cripto"] in tipo)
+inc_imob  = col_i.checkbox(L["tipo_imob"],   value=L["tipo_imob"]   in tipo)
+
+st.markdown("---")
+
 tickers_acoes = tickers_cripto = []
 pais = query = ""
 max_n_acoes = max_n_cripto = max_n_imob = 5
 
-if L["tipo_acoes"] in tipo:
+if inc_acoes:
     st.markdown(f"**{L['tipo_acoes']}**")
     tickers_acoes = [t.strip().upper() for t in
-        st.text_input(L["tickers_label"], value="SPY, AAPL, NVDA",
-            key="tick_acoes", placeholder="ex: AAPL").split(",") if t.strip()]
+        st.text_input(L["tickers_label"], value="",
+            key="tick_acoes", placeholder="ex: SPY, AAPL, NVDA").split(",") if t.strip()]
     max_n_acoes = st.slider(L["max_label"], 3, 20, 5, key="max_acoes")
+    st.markdown("")
 
-if L["tipo_cripto"] in tipo:
+if inc_cripto:
     st.markdown(f"**{L['tipo_cripto']}**")
     tickers_cripto = [t.strip().upper() for t in
-        st.text_input(L["tickers_label"], value="BTC-USD, ETH-USD, SOL-USD",
-            key="tick_cripto", placeholder="ex: BTC-USD").split(",") if t.strip()]
+        st.text_input(L["tickers_label"], value="",
+            key="tick_cripto", placeholder="ex: BTC-USD, ETH-USD, SOL-USD").split(",") if t.strip()]
     max_n_cripto = st.slider(L["max_label"], 3, 20, 5, key="max_cripto")
+    st.markdown("")
 
-if L["tipo_imob"] in tipo:
+if inc_imob:
     st.markdown(f"**{L['tipo_imob']}**")
     paises = L["paises"]
     pais = st.selectbox(L["pais_label"], list(paises.keys()), key="pais_sel")
     query = paises[pais]
     max_n_imob = st.slider(L["max_label"], 3, 20, 8, key="max_imob")
     st.caption(f"💡 {L['imob_reits_hint']}")
+    st.markdown("")
 
 ver = st.button(L["btn_ver"], type="primary", use_container_width=True)
 
@@ -219,8 +231,11 @@ if not ver and "noticias_resultado" not in st.session_state:
     st.stop()
 
 if ver:
+    if not any([inc_acoes, inc_cripto, inc_imob]):
+        st.warning("Seleciona pelo menos um tipo de notícias.")
+        st.stop()
     st.session_state["noticias_resultado"] = {
-        "tipo": tipo,
+        "inc_acoes": inc_acoes, "inc_cripto": inc_cripto, "inc_imob": inc_imob,
         "tickers_acoes": tickers_acoes,
         "tickers_cripto": tickers_cripto,
         "pais": pais, "query": query,
@@ -230,7 +245,9 @@ if ver:
     }
 
 cfg            = st.session_state.get("noticias_resultado", {})
-tipo           = cfg.get("tipo", tipo)
+inc_acoes      = cfg.get("inc_acoes", False)
+inc_cripto     = cfg.get("inc_cripto", False)
+inc_imob       = cfg.get("inc_imob", False)
 tickers_acoes  = cfg.get("tickers_acoes", [])
 tickers_cripto = cfg.get("tickers_cripto", [])
 pais           = cfg.get("pais", "")
@@ -267,7 +284,7 @@ def formatar_data(data_str):
 st.markdown("---")
 
 # ── AÇÕES ─────────────────────────────────────────────────────
-if L["tipo_acoes"] in tipo and tickers_acoes:
+if inc_acoes and tickers_acoes:
     st.subheader(L["tipo_acoes"])
     todas_acoes = []
     with st.spinner(L["a_carregar"]):
@@ -299,7 +316,7 @@ if L["tipo_acoes"] in tipo and tickers_acoes:
         st.warning(L["sem_noticias"])
 
 # ── CRIPTO ────────────────────────────────────────────────────
-if L["tipo_cripto"] in tipo and tickers_cripto:
+if inc_cripto and tickers_cripto:
     st.subheader(L["tipo_cripto"])
     todas_cripto = []
     with st.spinner(L["a_carregar"]):
@@ -331,7 +348,7 @@ if L["tipo_cripto"] in tipo and tickers_cripto:
         st.warning(L["sem_noticias"])
 
 # ── IMOBILIÁRIO ───────────────────────────────────────────────
-if L["tipo_imob"] in tipo and query:
+if inc_imob and query:
     st.subheader(f"{L['tipo_imob']} — {pais}")
 
     def google_news_rss(query, max_n=10):
