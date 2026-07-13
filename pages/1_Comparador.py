@@ -206,7 +206,7 @@ if "comp_portfolios" not in st.session_state:
 st.header(L["sec_config"])
 
 periodo_opcoes = L["periodos"]
-periodo_label  = st.selectbox(L["periodo_label"], list(periodo_opcoes.keys()), index=4)
+periodo_label  = st.radio(L["periodo_label"], list(periodo_opcoes.keys()), index=4, horizontal=True)
 dias = periodo_opcoes[periodo_label]
 
 st.markdown("---")

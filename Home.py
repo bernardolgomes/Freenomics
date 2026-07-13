@@ -65,7 +65,7 @@ if "lang" not in st.session_state:
     st.session_state["lang"] = "🇵🇹 Português"
 
 st.sidebar.markdown("### 🌐 Language / Língua")
-lang = st.sidebar.selectbox(
+lang = st.sidebar.radio(
     "", LINGUAS,
     index=LINGUAS.index(st.session_state["lang"]),
     label_visibility="collapsed",
