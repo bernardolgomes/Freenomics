@@ -3,44 +3,40 @@ from translations import LINGUAS, NOMES_PAGINAS
 
 st.set_page_config(page_title="Freenomics", layout="wide", page_icon="📊")
 
-# Fix dropdown colors via JavaScript MutationObserver
-st.markdown("""
+import streamlit.components.v1 as components
+components.html("""
 <script>
-(function() {
-    function fixDropdowns() {
+function fixDropdowns() {
+    try {
+        var doc = window.parent.document;
         // Opções da lista
-        document.querySelectorAll(
-            'li[role="option"], [data-baseweb="option"]'
-        ).forEach(el => {
+        doc.querySelectorAll('li[role="option"]').forEach(function(el) {
             el.style.setProperty('color', '#FFFFFF', 'important');
             el.style.setProperty('background-color', '#1A2F4A', 'important');
         });
-        // Container do popup
-        document.querySelectorAll(
-            '[data-baseweb="popover"], [data-baseweb="menu"], ul[role="listbox"]'
-        ).forEach(el => {
+        // Container popup
+        doc.querySelectorAll('[data-baseweb="popover"], [data-baseweb="menu"], ul[role="listbox"]').forEach(function(el) {
             el.style.setProperty('background-color', '#1A2F4A', 'important');
+        });
+        // Texto dentro de cada opção
+        doc.querySelectorAll('[data-baseweb="option"]').forEach(function(el) {
             el.style.setProperty('color', '#FFFFFF', 'important');
+            el.style.setProperty('background-color', '#1A2F4A', 'important');
+            el.querySelectorAll('*').forEach(function(child) {
+                child.style.setProperty('color', '#FFFFFF', 'important');
+            });
         });
-        // Texto dentro de todos os filhos do popover
-        document.querySelectorAll('[data-baseweb="popover"] *').forEach(el => {
-            if (el.tagName !== 'INPUT') {
-                el.style.setProperty('color', '#FFFFFF', 'important');
-            }
-        });
-    }
-
-    // Correr quando o DOM muda (dropdowns abrem dinamicamente)
-    const observer = new MutationObserver(fixDropdowns);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    // Correr também ao carregar
-    document.addEventListener('DOMContentLoaded', fixDropdowns);
-    setTimeout(fixDropdowns, 500);
-    setTimeout(fixDropdowns, 1500);
-})();
+    } catch(e) {}
+}
+// Observer para apanhar dropdowns que abrem dinamicamente
+try {
+    var observer = new MutationObserver(fixDropdowns);
+    observer.observe(window.parent.document.body, { childList: true, subtree: true });
+} catch(e) {}
+// Correr também periodicamente como fallback
+setInterval(fixDropdowns, 200);
 </script>
-""", unsafe_allow_html=True)
+""", height=0)
 
 st.markdown("""
 <style>
