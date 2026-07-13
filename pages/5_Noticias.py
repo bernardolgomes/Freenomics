@@ -177,17 +177,6 @@ st.title(L["titulo"])
 st.caption(L["subtitulo"])
 
 # ── FORMULÁRIO ────────────────────────────────────────────────
-tipo = st.multiselect(L["tipo_label"],
-    [L["tipo_acoes"], L["tipo_cripto"], L["tipo_imob"]],
-    default=[L["tipo_acoes"]])
-
-st.markdown("---")
-
-if not tipo:
-    st.info("Seleciona pelo menos um tipo de notícias.")
-    st.stop()
-
-# ── SECÇÕES A INCLUIR (estilo Export) ────────────────────────
 st.markdown("#### " + L["tipo_label"])
 col_a, col_c, col_i = st.columns(3)
 inc_acoes = col_a.checkbox(L["tipo_acoes"],  value=L["tipo_acoes"]  in tipo)
