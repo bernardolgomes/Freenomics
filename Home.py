@@ -99,6 +99,8 @@ pg = st.navigation([
     st.Page("pages/4_Risco.py",        title=n["risco"]),
     st.Page("pages/5_Noticias.py",     title=n["noticias"]),
     st.Page("pages/7_patrimonio.py",   title=PATRIMONIO[lang]),
+    st.Page("pages/8_Orcamento.py",    title=n["orcamento"]),
+    st.Page("pages/9_Objetivos.py",    title=n["objetivos"]),
     st.Page("pages/6_Exportar.py",     title=EXPORTAR[lang]),
 ])
 pg.run()

@@ -13,6 +13,8 @@ NOMES_PAGINAS = {
         "dividendos": "📅 Dividendos",
         "risco":      "⚠️ Risco",
         "noticias":   "📰 Notícias",
+        "orcamento":  "🧾 Orçamento",
+        "objetivos":  "🎯 Objetivos",
     },
     "🇬🇧 English": {
         "dashboard":  "🏠 Portfolio Analysis",
@@ -21,6 +23,8 @@ NOMES_PAGINAS = {
         "dividendos": "📅 Dividends",
         "risco":      "⚠️ Risk",
         "noticias":   "📰 News",
+        "orcamento":  "🧾 Budget",
+        "objetivos":  "🎯 Goals",
     },
     "🇫🇷 Français": {
         "dashboard":  "🏠 Analyse de Portefeuille",
@@ -29,6 +33,8 @@ NOMES_PAGINAS = {
         "dividendos": "📅 Dividendes",
         "risco":      "⚠️ Risque",
         "noticias":   "📰 Actualités",
+        "orcamento":  "🧾 Budget",
+        "objetivos":  "🎯 Objectifs",
     },
     "🇩🇪 Deutsch": {
         "dashboard":  "🏠 Portfolio-Analyse",
@@ -37,6 +43,8 @@ NOMES_PAGINAS = {
         "dividendos": "📅 Dividenden",
         "risco":      "⚠️ Risiko",
         "noticias":   "📰 Nachrichten",
+        "orcamento":  "🧾 Budget",
+        "objetivos":  "🎯 Ziele",
     },
     "🇪🇸 Español": {
         "dashboard":  "🏠 Análisis de Cartera",
@@ -45,6 +53,8 @@ NOMES_PAGINAS = {
         "dividendos": "📅 Dividendos",
         "risco":      "⚠️ Riesgo",
         "noticias":   "📰 Noticias",
+        "orcamento":  "🧾 Presupuesto",
+        "objetivos":  "🎯 Objetivos",
     },
 }
 
