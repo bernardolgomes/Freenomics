@@ -193,11 +193,13 @@ if not resultados:
 
 # ── RESUMO ────────────────────────────────────────────────────
 st.subheader(L["resumo"])
+resumo_export = {}
 cols = st.columns(min(len(resultados), 4))
 for col, (t, dados) in zip(cols, resultados.items()):
     info = dados["info"]
     y    = (info.get("dividendYield", 0) or 0) * 100
     rate = info.get("dividendRate", 0) or 0
+    resumo_export[t] = {"yield": round(y, 2), "rate": round(rate, 2)}
     with col:
         def cartao_div(label, val, sub=None):
             h  = '<div style="background:#0E2A3D;border-radius:10px;padding:14px 16px;border-left:4px solid #C29A4B;margin-bottom:10px;">'
@@ -237,6 +239,12 @@ for t, dados in resultados.items():
 
 st.markdown(f"<div class='info-box'>💡 <strong>{L['nota_titulo']}</strong><br>{L['nota']}</div>",
     unsafe_allow_html=True)
+
+# Guarda o estado atual desta página para a página de Exportar reutilizar
+st.session_state["export_dividendos"] = {
+    "tickers": resumo_export, "anos": anos_hist,
+}
+
 st.caption(L["aviso"])
 st.markdown("---")
 st.caption(L["rodape"])

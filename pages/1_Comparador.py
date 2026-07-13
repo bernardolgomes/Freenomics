@@ -501,13 +501,13 @@ else:
     st.info(f"💡 {L['api_info']}")
     insight_final = "\n\n".join(fb)
 
-# Guarda o estado atual (as duas primeiras carteiras) para a página de Exportar reutilizar
-if len(resultados) >= 2:
-    st.session_state["export_comparador"] = {
-        "ma": resultados[0]["metricas"], "mb": resultados[1]["metricas"],
-        "nome_a": resultados[0]["nome_curto"], "nome_b": resultados[1]["nome_curto"],
-        "insight": insight_final, "periodo_label": periodo_label,
-    }
+# Guarda o estado atual (todas as carteiras comparadas) para a página de Exportar reutilizar
+st.session_state["export_comparador"] = {
+    "portfolios": [
+        {"nome": r["nome_curto"], "metricas": r["metricas"]} for r in resultados
+    ],
+    "insight": insight_final, "periodo_label": periodo_label,
+}
 
 st.caption(L["aviso"])
 st.markdown("---")

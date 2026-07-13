@@ -338,6 +338,14 @@ with c1: st.markdown(big_card(L["total_ativos"],   total_ativos,   "#C29A4B"), u
 with c2: st.markdown(big_card(L["total_passivos"], total_passivos, "#F44336"), unsafe_allow_html=True)
 with c3: st.markdown(big_card(L["patrimonio_liq"], patrimonio,     cor(patrimonio)), unsafe_allow_html=True)
 
+# Guarda o estado atual desta página para a página de Exportar reutilizar
+st.session_state["export_patrimonio"] = {
+    "total_ativos": total_ativos, "total_passivos": total_passivos,
+    "patrimonio": patrimonio,
+    "categorias": [(label, totais.get(k, 0)) for k, label in zip(cat_keys, cat_labels)],
+    "data": data_atual,
+}
+
 # ── GRÁFICOS ──────────────────────────────────────────────────
 col_pie, col_bar = st.columns(2)
 

@@ -36,6 +36,8 @@ T = {
         "sec_simulador": "💰 Simulador de Investimento",
         "sec_risco": "⚠️ Análise de Risco",
         "sec_noticias": "📰 Notícias da Carteira",
+        "sec_dividendos": "📅 Dividendos",
+        "sec_patrimonio": "💎 Património",
         "btn_gerar": "📄 Gerar e descarregar relatório PDF",
         "a_gerar": "A gerar relatório...",
         "sucesso": "✅ Relatório gerado com sucesso!",
@@ -55,6 +57,8 @@ T = {
         "sec_simulador": "💰 Investment Simulator",
         "sec_risco": "⚠️ Risk Analysis",
         "sec_noticias": "📰 Portfolio News",
+        "sec_dividendos": "📅 Dividends",
+        "sec_patrimonio": "💎 Net Worth",
         "btn_gerar": "📄 Generate and download PDF report",
         "a_gerar": "Generating report...",
         "sucesso": "✅ Report successfully generated!",
@@ -74,6 +78,8 @@ T = {
         "sec_simulador": "💰 Simulateur",
         "sec_risco": "⚠️ Analyse des Risques",
         "sec_noticias": "📰 Actualités du Portefeuille",
+        "sec_dividendos": "📅 Dividendes",
+        "sec_patrimonio": "💎 Patrimoine",
         "btn_gerar": "📄 Générer et télécharger le rapport PDF",
         "a_gerar": "Génération du rapport...",
         "sucesso": "✅ Rapport généré avec succès!",
@@ -93,6 +99,8 @@ T = {
         "sec_simulador": "💰 Investitionssimulator",
         "sec_risco": "⚠️ Risikoanalyse",
         "sec_noticias": "📰 Portfolio-Nachrichten",
+        "sec_dividendos": "📅 Dividenden",
+        "sec_patrimonio": "💎 Vermögen",
         "btn_gerar": "📄 PDF-Bericht erstellen und herunterladen",
         "a_gerar": "Bericht wird erstellt...",
         "sucesso": "✅ Bericht erfolgreich erstellt!",
@@ -112,6 +120,8 @@ T = {
         "sec_simulador": "💰 Simulador de Inversión",
         "sec_risco": "⚠️ Análisis de Riesgo",
         "sec_noticias": "📰 Noticias de la Cartera",
+        "sec_dividendos": "📅 Dividendos",
+        "sec_patrimonio": "💎 Patrimonio",
         "btn_gerar": "📄 Generar y descargar informe PDF",
         "a_gerar": "Generando informe...",
         "sucesso": "✅ ¡Informe generado con éxito!",
@@ -133,24 +143,28 @@ st.caption(T["subtitulo"])
 st.header(T["secoes_titulo"])
 
 disponiveis = {
-    "dashboard":  ("export_dashboard",  T["sec_dashboard"]),
-    "comparador": ("export_comparador", T["sec_comparador"]),
-    "simulador":  ("export_simulador",  T["sec_simulador"]),
-    "risco":      ("export_risco",      T["sec_risco"]),
-    "noticias":   ("export_noticias",   T["sec_noticias"]),
+    "dashboard":   ("export_dashboard",   T["sec_dashboard"]),
+    "comparador":  ("export_comparador",  T["sec_comparador"]),
+    "simulador":   ("export_simulador",   T["sec_simulador"]),
+    "risco":       ("export_risco",       T["sec_risco"]),
+    "dividendos":  ("export_dividendos",  T["sec_dividendos"]),
+    "patrimonio":  ("export_patrimonio",  T["sec_patrimonio"]),
+    "noticias":    ("export_noticias",    T["sec_noticias"]),
 }
 
 selecionadas = {}
-col_a, col_b, col_c, col_d, col_e = st.columns(5)
-cols = [col_a, col_b, col_c, col_d, col_e]
-for col, (chave, (session_key, label)) in zip(cols, disponiveis.items()):
-    disponivel = session_key in st.session_state
-    with col:
-        marcado = st.checkbox(label, value=disponivel, disabled=not disponivel)
-        if disponivel and marcado:
-            selecionadas[chave] = st.session_state[session_key]
-        if not disponivel:
-            st.caption(f"ℹ️ {T['sem_dados']}")
+itens = list(disponiveis.items())
+for inicio in range(0, len(itens), 4):
+    bloco = itens[inicio:inicio+4]
+    cols = st.columns(len(bloco))
+    for col, (chave, (session_key, label)) in zip(cols, bloco):
+        disponivel = session_key in st.session_state
+        with col:
+            marcado = st.checkbox(label, value=disponivel, disabled=not disponivel)
+            if disponivel and marcado:
+                selecionadas[chave] = st.session_state[session_key]
+            if not disponivel:
+                st.caption(f"ℹ️ {T['sem_dados']}")
 
 st.markdown("---")
 
@@ -245,30 +259,33 @@ def gerar_pdf_completo(secoes):
         comp = secoes["comparador"]
         if comp.get("periodo_label"):
             el.append(Paragraph(f"Período: {comp['periodo_label']}", e_h2))
-        cab = ["", "Retorno", "Volatilidade", "Max Drawdown", "Sharpe"]
-        linhas_c = [
-            cab,
-            [comp["nome_a"], f"{comp['ma']['retorno']}%", f"{comp['ma']['vol']}%",
-             f"{comp['ma']['dd']}%", str(comp['ma']['sharpe'])],
-            [comp["nome_b"], f"{comp['mb']['retorno']}%", f"{comp['mb']['vol']}%",
-             f"{comp['mb']['dd']}%", str(comp['mb']['sharpe'])],
-        ]
-        tab_c = Table(linhas_c, colWidths=[4*cm, 3*cm, 3*cm, 3*cm, 3*cm])
-        tab_c.setStyle(TableStyle([
-            ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
-            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"), ("FONTSIZE",(0,0),(-1,-1),9),
-            ("ALIGN",(0,0),(-1,-1),"CENTER"), ("VALIGN",(0,0),(-1,-1),"MIDDLE"),
-            ("ROWBACKGROUNDS",(0,1),(-1,-1),[CREME,colors.white]),
-            ("FONTNAME",(0,1),(-1,-1),"Helvetica"),
-            ("GRID",(0,0),(-1,-1),0.5,colors.HexColor("#E5DFD0")),
-            ("TOPPADDING",(0,0),(-1,-1),6), ("BOTTOMPADDING",(0,0),(-1,-1),6),
-            ("LEFTPADDING",(0,0),(-1,-1),6), ("RIGHTPADDING",(0,0),(-1,-1),6),
-            ("LINEBELOW",(0,0),(-1,0),1.5,DOURADO),
-        ]))
-        el.append(tab_c)
-        el.append(Spacer(1, 0.4*cm))
-        add_insight(comp["insight"])
-        if "simulador" in secoes or "risco" in secoes or "noticias" in secoes:
+        portfolios = comp.get("portfolios", [])
+        if portfolios:
+            cab = ["", "Retorno", "Volatilidade", "Max Drawdown", "Sharpe"]
+            linhas_c = [cab]
+            for p in portfolios:
+                m = p["metricas"]
+                linhas_c.append([p["nome"], f"{m['retorno']}%", f"{m['vol']}%",
+                                  f"{m['dd']}%", str(m['sharpe'])])
+            # Larguras dinâmicas: primeira coluna maior, restantes divididas pelo espaço disponível (17cm úteis em A4)
+            largura_nome = 5*cm
+            largura_resto = (17*cm - largura_nome) / 4
+            tab_c = Table(linhas_c, colWidths=[largura_nome] + [largura_resto]*4)
+            tab_c.setStyle(TableStyle([
+                ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+                ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"), ("FONTSIZE",(0,0),(-1,-1),9),
+                ("ALIGN",(0,0),(-1,-1),"CENTER"), ("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                ("ROWBACKGROUNDS",(0,1),(-1,-1),[CREME,colors.white]),
+                ("FONTNAME",(0,1),(-1,-1),"Helvetica"),
+                ("GRID",(0,0),(-1,-1),0.5,colors.HexColor("#E5DFD0")),
+                ("TOPPADDING",(0,0),(-1,-1),6), ("BOTTOMPADDING",(0,0),(-1,-1),6),
+                ("LEFTPADDING",(0,0),(-1,-1),6), ("RIGHTPADDING",(0,0),(-1,-1),6),
+                ("LINEBELOW",(0,0),(-1,0),1.5,DOURADO),
+            ]))
+            el.append(tab_c)
+            el.append(Spacer(1, 0.4*cm))
+        add_insight(comp.get("insight"))
+        if "simulador" in secoes or "risco" in secoes or "noticias" in secoes or "dividendos" in secoes or "patrimonio" in secoes:
             el.append(PageBreak())
 
     # ── SECÇÃO SIMULADOR ──
@@ -306,7 +323,7 @@ def gerar_pdf_completo(secoes):
         el.append(tab_s)
         el.append(Spacer(1, 0.4*cm))
         add_insight(sim["insight"])
-        if "risco" in secoes or "noticias" in secoes:
+        if "risco" in secoes or "dividendos" in secoes or "patrimonio" in secoes or "noticias" in secoes:
             el.append(PageBreak())
 
     # ── SECÇÃO RISCO ──
@@ -354,6 +371,64 @@ def gerar_pdf_completo(secoes):
         el.append(tab_stress)
         el.append(Spacer(1, 0.4*cm))
         add_insight(risco["insight"])
+        if "dividendos" in secoes or "patrimonio" in secoes or "noticias" in secoes:
+            el.append(PageBreak())
+
+    # ── SECÇÃO DIVIDENDOS ──
+    if "dividendos" in secoes:
+        add_secao_titulo(T["sec_dividendos"])
+        div = secoes["dividendos"]
+        if div.get("anos"):
+            el.append(Paragraph(f"Histórico considerado: {div['anos']} anos", e_h2))
+        dados_d = [["Ativo", "Dividend Yield", "Valor por ação/ano"]]
+        for t, m in div["tickers"].items():
+            dados_d.append([t, f"{m['yield']}%", f"${m['rate']}"])
+        tab_d = Table(dados_d, colWidths=[5.5*cm, 5.5*cm, 5.5*cm])
+        tab_d.setStyle(TableStyle([
+            ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"), ("FONTSIZE",(0,0),(-1,-1),9),
+            ("ALIGN",(0,0),(-1,-1),"CENTER"),
+            ("ROWBACKGROUNDS",(0,1),(-1,-1),[CREME,colors.white]),
+            ("FONTNAME",(0,1),(-1,-1),"Helvetica"),
+            ("GRID",(0,0),(-1,-1),0.5,colors.HexColor("#E5DFD0")),
+            ("TOPPADDING",(0,0),(-1,-1),6), ("BOTTOMPADDING",(0,0),(-1,-1),6),
+            ("LEFTPADDING",(0,0),(-1,-1),8), ("RIGHTPADDING",(0,0),(-1,-1),8),
+            ("LINEBELOW",(0,0),(-1,0),1.5,DOURADO),
+        ]))
+        el.append(tab_d)
+        el.append(Spacer(1, 0.4*cm))
+        if "patrimonio" in secoes or "noticias" in secoes:
+            el.append(PageBreak())
+
+    # ── SECÇÃO PATRIMÓNIO ──
+    if "patrimonio" in secoes:
+        add_secao_titulo(T["sec_patrimonio"])
+        pat = secoes["patrimonio"]
+        if pat.get("data"):
+            el.append(Paragraph(f"Calculado em: {pat['data']}", e_h2))
+        dados_p = [["Categoria", "Valor"]]
+        for nome, valor in pat.get("categorias", []):
+            dados_p.append([nome, f"€{valor:,.0f}"])
+        dados_p.append(["", ""])
+        dados_p.append(["Total de Ativos", f"€{pat['total_ativos']:,.0f}"])
+        dados_p.append(["Total de Passivos", f"€{pat['total_passivos']:,.0f}"])
+        dados_p.append(["Património Líquido", f"€{pat['patrimonio']:,.0f}"])
+        tab_p = Table(dados_p, colWidths=[9*cm, 8*cm])
+        tab_p.setStyle(TableStyle([
+            ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"), ("FONTSIZE",(0,0),(-1,-1),9),
+            ("ALIGN",(1,0),(1,-1),"CENTER"), ("ALIGN",(0,0),(0,-1),"LEFT"),
+            ("ROWBACKGROUNDS",(0,1),(-1,-1),[CREME,colors.white]),
+            ("FONTNAME",(0,1),(-1,-1),"Helvetica"),
+            ("GRID",(0,0),(-1,-1),0.5,colors.HexColor("#E5DFD0")),
+            ("TOPPADDING",(0,0),(-1,-1),6), ("BOTTOMPADDING",(0,0),(-1,-1),6),
+            ("LEFTPADDING",(0,0),(-1,-1),8), ("RIGHTPADDING",(0,0),(-1,-1),8),
+            ("FONTNAME",(0,-1),(-1,-1),"Helvetica-Bold"),
+            ("LINEBELOW",(0,0),(-1,0),1.5,DOURADO),
+            ("LINEABOVE",(0,-1),(-1,-1),1,DOURADO),
+        ]))
+        el.append(tab_p)
+        el.append(Spacer(1, 0.4*cm))
         if "noticias" in secoes:
             el.append(PageBreak())
 
