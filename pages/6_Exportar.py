@@ -5,6 +5,7 @@ Não recalcula nada: usa exatamente os dados/configurações que deixaste em cad
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import io
 import sys
@@ -21,9 +22,10 @@ from reportlab.platypus import (
     TableStyle, HRFlowable, PageBreak
 )
 from reportlab.lib.enums import TA_CENTER
-from translations import CSS
+from translations import CSS, FIX_DROPDOWNS_JS
 
 st.markdown(CSS, unsafe_allow_html=True)
+components.html(FIX_DROPDOWNS_JS, height=0)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 
 # ── TRADUÇÕES DESTA PÁGINA ────────────────────────────────────

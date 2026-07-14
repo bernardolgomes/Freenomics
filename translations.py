@@ -890,4 +890,33 @@ CSS = """
 </style>
 """
 
+FIX_DROPDOWNS_JS = """
+<script>
+function fixDropdowns() {
+    try {
+        var doc = window.parent.document;
+        doc.querySelectorAll('li[role="option"]').forEach(function(el) {
+            el.style.setProperty('color', '#FFFFFF', 'important');
+            el.style.setProperty('background-color', '#1A2F4A', 'important');
+        });
+        doc.querySelectorAll('[data-baseweb="popover"], [data-baseweb="menu"], ul[role="listbox"]').forEach(function(el) {
+            el.style.setProperty('background-color', '#1A2F4A', 'important');
+        });
+        doc.querySelectorAll('[data-baseweb="option"]').forEach(function(el) {
+            el.style.setProperty('color', '#FFFFFF', 'important');
+            el.style.setProperty('background-color', '#1A2F4A', 'important');
+            el.querySelectorAll('*').forEach(function(child) {
+                child.style.setProperty('color', '#FFFFFF', 'important');
+            });
+        });
+    } catch(e) {}
+}
+try {
+    var observer = new MutationObserver(fixDropdowns);
+    observer.observe(window.parent.document.body, { childList: true, subtree: true });
+} catch(e) {}
+setInterval(fixDropdowns, 200);
+</script>
+"""
+
 PLOT_COLORS = ["#0E2A3D", "#C29A4B", "#6B8E7F", "#A8453E", "#5C6B73"]

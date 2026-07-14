@@ -5,13 +5,15 @@ e guarda a capacidade de investir para a página de Objetivos reutilizar.
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import show_logo
-from translations import CSS
+from translations import CSS, FIX_DROPDOWNS_JS
 
 st.markdown(CSS, unsafe_allow_html=True)
+components.html(FIX_DROPDOWNS_JS, height=0)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 
 CATEGORIAS = ["habitacao", "alimentacao", "transportes", "subscricoes", "lazer", "saude", "outros"]

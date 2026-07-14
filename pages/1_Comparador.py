@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -7,9 +8,10 @@ from datetime import datetime, timedelta
 import requests, sys, os, re
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import show_logo
-from translations import CSS, PLOT_COLORS
+from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS
 
 st.markdown(CSS, unsafe_allow_html=True)
+components.html(FIX_DROPDOWNS_JS, height=0)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 
 L = {
