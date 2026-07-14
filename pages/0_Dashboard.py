@@ -441,7 +441,12 @@ if "SPY" not in tickers:
 fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
     yaxis_title="Value (base 100)", xaxis_title="Date",
     hovermode="x unified", height=440,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02))
+    font=dict(color="#1A1A1A"),
+    xaxis=dict(color="#1A1A1A", tickfont=dict(color="#1A1A1A"),
+        title=dict(font=dict(color="#1A1A1A"))),
+    yaxis=dict(color="#1A1A1A", tickfont=dict(color="#1A1A1A"),
+        title=dict(font=dict(color="#1A1A1A"))),
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, font=dict(color="#1A1A1A")))
 st.plotly_chart(fig, use_container_width=True)
 st.caption(L["caption_base100"])
 st.caption(L["caption_benchmark"])
