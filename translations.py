@@ -887,6 +887,23 @@ CSS = """
         color: #FFFFFF !important;
         background-color: #1A2F4A !important;
     }
+
+    /* ── Reforço de especificidade: o CSS interno do BaseWeb usa seletores
+       muito específicos, por isso repetimos o atributo para ganhar a "guerra"
+       de especificidade mesmo com !important dos dois lados ── */
+    li[role="option"][role="option"][role="option"][role="option"],
+    li[role="option"][role="option"][role="option"][role="option"] *,
+    [data-baseweb="option"][data-baseweb="option"][data-baseweb="option"][data-baseweb="option"],
+    [data-baseweb="option"][data-baseweb="option"][data-baseweb="option"][data-baseweb="option"] *,
+    [data-baseweb="menu"][data-baseweb="menu"][data-baseweb="menu"][data-baseweb="menu"] *,
+    [data-baseweb="popover"][data-baseweb="popover"][data-baseweb="popover"][data-baseweb="popover"] *,
+    ul[role="listbox"][role="listbox"][role="listbox"][role="listbox"] * {
+        color: #FFFFFF !important;
+    }
+    li[role="option"][aria-selected="true"][aria-selected="true"][aria-selected="true"],
+    li[role="option"][aria-selected="true"][aria-selected="true"][aria-selected="true"] * {
+        color: #C29A4B !important;
+    }
 </style>
 """
 
