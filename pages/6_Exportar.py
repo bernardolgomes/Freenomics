@@ -38,6 +38,8 @@ T = {
         "sec_noticias": "📰 Notícias da Carteira",
         "sec_dividendos": "📅 Dividendos",
         "sec_patrimonio": "💎 Património",
+        "sec_orcamento": "🧾 Orçamento",
+        "sec_objetivos": "🎯 Objetivos Financeiros",
         "btn_gerar": "📄 Gerar e descarregar relatório PDF",
         "a_gerar": "A gerar relatório...",
         "sucesso": "✅ Relatório gerado com sucesso!",
@@ -59,6 +61,8 @@ T = {
         "sec_noticias": "📰 Portfolio News",
         "sec_dividendos": "📅 Dividends",
         "sec_patrimonio": "💎 Net Worth",
+        "sec_orcamento": "🧾 Budget",
+        "sec_objetivos": "🎯 Financial Goals",
         "btn_gerar": "📄 Generate and download PDF report",
         "a_gerar": "Generating report...",
         "sucesso": "✅ Report successfully generated!",
@@ -80,6 +84,8 @@ T = {
         "sec_noticias": "📰 Actualités du Portefeuille",
         "sec_dividendos": "📅 Dividendes",
         "sec_patrimonio": "💎 Patrimoine",
+        "sec_orcamento": "🧾 Budget",
+        "sec_objetivos": "🎯 Objectifs Financiers",
         "btn_gerar": "📄 Générer et télécharger le rapport PDF",
         "a_gerar": "Génération du rapport...",
         "sucesso": "✅ Rapport généré avec succès!",
@@ -101,6 +107,8 @@ T = {
         "sec_noticias": "📰 Portfolio-Nachrichten",
         "sec_dividendos": "📅 Dividenden",
         "sec_patrimonio": "💎 Vermögen",
+        "sec_orcamento": "🧾 Budget",
+        "sec_objetivos": "🎯 Finanzielle Ziele",
         "btn_gerar": "📄 PDF-Bericht erstellen und herunterladen",
         "a_gerar": "Bericht wird erstellt...",
         "sucesso": "✅ Bericht erfolgreich erstellt!",
@@ -122,6 +130,8 @@ T = {
         "sec_noticias": "📰 Noticias de la Cartera",
         "sec_dividendos": "📅 Dividendos",
         "sec_patrimonio": "💎 Patrimonio",
+        "sec_orcamento": "🧾 Presupuesto",
+        "sec_objetivos": "🎯 Objetivos Financieros",
         "btn_gerar": "📄 Generar y descargar informe PDF",
         "a_gerar": "Generando informe...",
         "sucesso": "✅ ¡Informe generado con éxito!",
@@ -143,12 +153,14 @@ st.caption(T["subtitulo"])
 st.header(T["secoes_titulo"])
 
 disponiveis = {
+    "orcamento":   ("export_orcamento",   T["sec_orcamento"]),
+    "objetivos":   ("export_objetivos",   T["sec_objetivos"]),
+    "patrimonio":  ("export_patrimonio",  T["sec_patrimonio"]),
     "dashboard":   ("export_dashboard",   T["sec_dashboard"]),
     "comparador":  ("export_comparador",  T["sec_comparador"]),
     "simulador":   ("export_simulador",   T["sec_simulador"]),
     "risco":       ("export_risco",       T["sec_risco"]),
     "dividendos":  ("export_dividendos",  T["sec_dividendos"]),
-    "patrimonio":  ("export_patrimonio",  T["sec_patrimonio"]),
     "noticias":    ("export_noticias",    T["sec_noticias"]),
 }
 
@@ -240,8 +252,101 @@ def gerar_pdf_completo(secoes):
                 el.append(Paragraph(paragrafo.strip(), e_corpo))
         el.append(Spacer(1, 0.3*cm))
 
+    # ── SECÇÃO ORÇAMENTO ──
+    def render_orcamento():
+        add_secao_titulo(T["sec_orcamento"])
+        orc = secoes["orcamento"]
+        dados_o = [
+            ["Rendimento total", f"€{orc['total_rendimento']:,.0f}"],
+            ["Despesas totais", f"€{orc['total_despesas']:,.0f}"],
+            ["Capacidade de investir/mês", f"€{orc['saldo_mensal']:,.0f}"],
+            ["Taxa de esforço", f"{orc['taxa_esforco']}%"],
+            ["Taxa de poupança", f"{orc['taxa_poupanca']}%"],
+            ["", ""],
+        ]
+        for nome, valor in orc.get("categorias", []):
+            dados_o.append([nome, f"€{valor:,.0f}"])
+        tab_o = Table(dados_o, colWidths=[9*cm, 8*cm])
+        tab_o.setStyle(TableStyle([
+            ("FONTSIZE",(0,0),(-1,-1),9),
+            ("ALIGN",(1,0),(1,-1),"CENTER"), ("ALIGN",(0,0),(0,-1),"LEFT"),
+            ("ROWBACKGROUNDS",(0,0),(-1,-1),[CREME,colors.white]),
+            ("FONTNAME",(0,0),(-1,-1),"Helvetica"),
+            ("FONTNAME",(0,0),(-1,4),"Helvetica-Bold"),
+            ("GRID",(0,0),(-1,-1),0.5,colors.HexColor("#E5DFD0")),
+            ("TOPPADDING",(0,0),(-1,-1),6), ("BOTTOMPADDING",(0,0),(-1,-1),6),
+            ("LEFTPADDING",(0,0),(-1,-1),8), ("RIGHTPADDING",(0,0),(-1,-1),8),
+            ("LINEBELOW",(0,4),(-1,4),1.5,DOURADO),
+        ]))
+        el.append(tab_o)
+        el.append(Spacer(1, 0.4*cm))
+
+    # ── SECÇÃO OBJETIVOS ──
+    def render_objetivos():
+        add_secao_titulo(T["sec_objetivos"])
+        obj_data = secoes["objetivos"]
+        for obj in obj_data.get("objetivos", []):
+            el.append(Paragraph(f"🎯 {obj['nome']}", e_h2))
+            progresso = (obj["valor_atual"] / obj["valor_objetivo"] * 100) if obj["valor_objetivo"] else 0
+            el.append(Paragraph(
+                f"Progresso: €{obj['valor_atual']:,.0f} / €{obj['valor_objetivo']:,.0f} ({progresso:.0f}%) · "
+                f"Alocação mensal: €{obj['alocacao']:,.0f}", e_corpo))
+            dados_g = [["Cenário", "Tempo estimado"]]
+            for cenario, meses in obj.get("tempos_meses", {}).items():
+                if meses is None:
+                    texto_tempo = "Não atingível"
+                elif meses == 0:
+                    texto_tempo = "Já atingido"
+                else:
+                    anos, resto = divmod(meses, 12)
+                    texto_tempo = f"{anos} anos, {resto} meses"
+                dados_g.append([cenario, texto_tempo])
+            tab_g = Table(dados_g, colWidths=[8.5*cm, 8.5*cm])
+            tab_g.setStyle(TableStyle([
+                ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+                ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"), ("FONTSIZE",(0,0),(-1,-1),9),
+                ("ALIGN",(0,0),(-1,-1),"CENTER"),
+                ("ROWBACKGROUNDS",(0,1),(-1,-1),[CREME,colors.white]),
+                ("FONTNAME",(0,1),(-1,-1),"Helvetica"),
+                ("GRID",(0,0),(-1,-1),0.5,colors.HexColor("#E5DFD0")),
+                ("TOPPADDING",(0,0),(-1,-1),6), ("BOTTOMPADDING",(0,0),(-1,-1),6),
+                ("LINEBELOW",(0,0),(-1,0),1.5,DOURADO),
+            ]))
+            el.append(tab_g)
+            el.append(Spacer(1, 0.4*cm))
+
+    # ── SECÇÃO PATRIMÓNIO ──
+    def render_patrimonio():
+        add_secao_titulo(T["sec_patrimonio"])
+        pat = secoes["patrimonio"]
+        if pat.get("data"):
+            el.append(Paragraph(f"Calculado em: {pat['data']}", e_h2))
+        dados_p = [["Categoria", "Valor"]]
+        for nome, valor in pat.get("categorias", []):
+            dados_p.append([nome, f"€{valor:,.0f}"])
+        dados_p.append(["", ""])
+        dados_p.append(["Total de Ativos", f"€{pat['total_ativos']:,.0f}"])
+        dados_p.append(["Total de Passivos", f"€{pat['total_passivos']:,.0f}"])
+        dados_p.append(["Património Líquido", f"€{pat['patrimonio']:,.0f}"])
+        tab_p = Table(dados_p, colWidths=[9*cm, 8*cm])
+        tab_p.setStyle(TableStyle([
+            ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"), ("FONTSIZE",(0,0),(-1,-1),9),
+            ("ALIGN",(1,0),(1,-1),"CENTER"), ("ALIGN",(0,0),(0,-1),"LEFT"),
+            ("ROWBACKGROUNDS",(0,1),(-1,-1),[CREME,colors.white]),
+            ("FONTNAME",(0,1),(-1,-1),"Helvetica"),
+            ("GRID",(0,0),(-1,-1),0.5,colors.HexColor("#E5DFD0")),
+            ("TOPPADDING",(0,0),(-1,-1),6), ("BOTTOMPADDING",(0,0),(-1,-1),6),
+            ("LEFTPADDING",(0,0),(-1,-1),8), ("RIGHTPADDING",(0,0),(-1,-1),8),
+            ("FONTNAME",(0,-1),(-1,-1),"Helvetica-Bold"),
+            ("LINEBELOW",(0,0),(-1,0),1.5,DOURADO),
+            ("LINEABOVE",(0,-1),(-1,-1),1,DOURADO),
+        ]))
+        el.append(tab_p)
+        el.append(Spacer(1, 0.4*cm))
+
     # ── SECÇÃO DASHBOARD ──
-    if "dashboard" in secoes:
+    def render_dashboard():
         add_secao_titulo(T["sec_dashboard"])
         dash = secoes["dashboard"]
         if dash.get("periodo_label"):
@@ -250,11 +355,9 @@ def gerar_pdf_completo(secoes):
         el.append(tabela_metricas(dash["metricas"], labels))
         el.append(Spacer(1, 0.4*cm))
         add_insight(dash["insight"])
-        if len(secoes) > 1:
-            el.append(PageBreak())
 
     # ── SECÇÃO COMPARADOR ──
-    if "comparador" in secoes:
+    def render_comparador():
         add_secao_titulo(T["sec_comparador"])
         comp = secoes["comparador"]
         if comp.get("periodo_label"):
@@ -285,11 +388,9 @@ def gerar_pdf_completo(secoes):
             el.append(tab_c)
             el.append(Spacer(1, 0.4*cm))
         add_insight(comp.get("insight"))
-        if "simulador" in secoes or "risco" in secoes or "noticias" in secoes or "dividendos" in secoes or "patrimonio" in secoes:
-            el.append(PageBreak())
 
     # ── SECÇÃO SIMULADOR ──
-    if "simulador" in secoes:
+    def render_simulador():
         add_secao_titulo(T["sec_simulador"])
         sim = secoes["simulador"]
         dados_sim = [
@@ -323,11 +424,9 @@ def gerar_pdf_completo(secoes):
         el.append(tab_s)
         el.append(Spacer(1, 0.4*cm))
         add_insight(sim["insight"])
-        if "risco" in secoes or "dividendos" in secoes or "patrimonio" in secoes or "noticias" in secoes:
-            el.append(PageBreak())
 
     # ── SECÇÃO RISCO ──
-    if "risco" in secoes:
+    def render_risco():
         add_secao_titulo(T["sec_risco"])
         risco = secoes["risco"]
         capital = risco["capital"]
@@ -371,11 +470,9 @@ def gerar_pdf_completo(secoes):
         el.append(tab_stress)
         el.append(Spacer(1, 0.4*cm))
         add_insight(risco["insight"])
-        if "dividendos" in secoes or "patrimonio" in secoes or "noticias" in secoes:
-            el.append(PageBreak())
 
     # ── SECÇÃO DIVIDENDOS ──
-    if "dividendos" in secoes:
+    def render_dividendos():
         add_secao_titulo(T["sec_dividendos"])
         div = secoes["dividendos"]
         if div.get("anos"):
@@ -397,43 +494,9 @@ def gerar_pdf_completo(secoes):
         ]))
         el.append(tab_d)
         el.append(Spacer(1, 0.4*cm))
-        if "patrimonio" in secoes or "noticias" in secoes:
-            el.append(PageBreak())
-
-    # ── SECÇÃO PATRIMÓNIO ──
-    if "patrimonio" in secoes:
-        add_secao_titulo(T["sec_patrimonio"])
-        pat = secoes["patrimonio"]
-        if pat.get("data"):
-            el.append(Paragraph(f"Calculado em: {pat['data']}", e_h2))
-        dados_p = [["Categoria", "Valor"]]
-        for nome, valor in pat.get("categorias", []):
-            dados_p.append([nome, f"€{valor:,.0f}"])
-        dados_p.append(["", ""])
-        dados_p.append(["Total de Ativos", f"€{pat['total_ativos']:,.0f}"])
-        dados_p.append(["Total de Passivos", f"€{pat['total_passivos']:,.0f}"])
-        dados_p.append(["Património Líquido", f"€{pat['patrimonio']:,.0f}"])
-        tab_p = Table(dados_p, colWidths=[9*cm, 8*cm])
-        tab_p.setStyle(TableStyle([
-            ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
-            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"), ("FONTSIZE",(0,0),(-1,-1),9),
-            ("ALIGN",(1,0),(1,-1),"CENTER"), ("ALIGN",(0,0),(0,-1),"LEFT"),
-            ("ROWBACKGROUNDS",(0,1),(-1,-1),[CREME,colors.white]),
-            ("FONTNAME",(0,1),(-1,-1),"Helvetica"),
-            ("GRID",(0,0),(-1,-1),0.5,colors.HexColor("#E5DFD0")),
-            ("TOPPADDING",(0,0),(-1,-1),6), ("BOTTOMPADDING",(0,0),(-1,-1),6),
-            ("LEFTPADDING",(0,0),(-1,-1),8), ("RIGHTPADDING",(0,0),(-1,-1),8),
-            ("FONTNAME",(0,-1),(-1,-1),"Helvetica-Bold"),
-            ("LINEBELOW",(0,0),(-1,0),1.5,DOURADO),
-            ("LINEABOVE",(0,-1),(-1,-1),1,DOURADO),
-        ]))
-        el.append(tab_p)
-        el.append(Spacer(1, 0.4*cm))
-        if "noticias" in secoes:
-            el.append(PageBreak())
 
     # ── SECÇÃO NOTÍCIAS ──
-    if "noticias" in secoes:
+    def render_noticias():
         add_secao_titulo(T["sec_noticias"])
         e_noticia_titulo = ParagraphStyle("nt", fontSize=10, textColor=AZUL,
                                           fontName="Helvetica-Bold", spaceAfter=2, spaceBefore=8)
@@ -453,6 +516,24 @@ def gerar_pdf_completo(secoes):
                 if a["resumo"]:
                     el.append(Paragraph(a["resumo"] + "...", e_noticia_resumo))
             el.append(Spacer(1, 0.3*cm))
+
+    # ── ORDEM DO RELATÓRIO E QUEBRAS DE PÁGINA AUTOMÁTICAS ────────
+    # Acrescentar uma secção nova no futuro é só: escrever a função render_x acima
+    # e adicionar a chave "x" a esta lista, na posição onde deve aparecer no PDF.
+    ORDEM = ["orcamento", "objetivos", "patrimonio", "dashboard", "comparador",
+             "simulador", "risco", "dividendos", "noticias"]
+    RENDERERS = {
+        "orcamento": render_orcamento, "objetivos": render_objetivos,
+        "patrimonio": render_patrimonio, "dashboard": render_dashboard,
+        "comparador": render_comparador, "simulador": render_simulador,
+        "risco": render_risco, "dividendos": render_dividendos,
+        "noticias": render_noticias,
+    }
+    presentes = [k for k in ORDEM if k in secoes]
+    for idx, chave in enumerate(presentes):
+        RENDERERS[chave]()
+        if idx < len(presentes) - 1:
+            el.append(PageBreak())
 
     # ── RODAPÉ ──
     el.append(Spacer(1, 0.5*cm))
