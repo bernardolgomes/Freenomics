@@ -742,6 +742,16 @@ CSS = """
         color: #E8EDF2 !important;
     }
 
+    /* ── Opções dos dropdowns (selectbox) — fundo escuro, texto claro ── */
+    div[data-baseweb="popover"] li,
+    div[data-baseweb="popover"] li *,
+    div[data-baseweb="menu"] li,
+    div[data-baseweb="menu"] li *,
+    ul[role="listbox"] li,
+    ul[role="listbox"] li * {
+        color: #E8EDF2 !important;
+    }
+
     /* ── Métricas (sempre dark card) ── */
     div[data-testid="stMetric"] {
         background-color: #0E2A3D; border-radius: 10px;
