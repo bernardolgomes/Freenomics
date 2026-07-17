@@ -697,28 +697,19 @@ CSS = """
     /* ── Fontes base ── */
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
-    /* ── LIGHT MODE ── */
-    .stApp { background-color: #FAF8F3; }
-    h1, h2, h3 { font-family: 'Source Serif 4', serif !important; color: #0E2A3D; }
-    p, label, span, div { color: #1A1A1A; }
-    [data-testid="stSidebar"] { background-color: #F0EDE6; }
-    [data-testid="stSidebar"] * { color: #0E2A3D !important; }
-
-    /* ── DARK MODE ── */
-    @media (prefers-color-scheme: dark) {
-        .stApp { background-color: #0A1628 !important; }
-        h1, h2, h3 { color: #FFFFFF !important; }
-        p, label, span { color: #E8EDF2 !important; }
-        [data-testid="stSidebar"] { background-color: #0D1E35 !important; }
-        [data-testid="stSidebar"] * { color: #E8EDF2 !important; }
-        .stSelectbox label, .stTextInput label, .stNumberInput label,
-        .stSlider label, .stFileUploader label, .stCheckbox label,
-        .stToggle label, .stRadio label {
-            color: #E8EDF2 !important;
-        }
-        [data-testid="stMarkdownContainer"] p { color: #E8EDF2 !important; }
-        [data-testid="stCaptionContainer"] { color: #9BAEC8 !important; }
+    /* ── MODO ÚNICO: sempre escuro (azuis), independente do tema do sistema/telemóvel ── */
+    .stApp { background-color: #0A1628 !important; }
+    h1, h2, h3 { font-family: 'Source Serif 4', serif !important; color: #FFFFFF !important; }
+    p, label, span, div { color: #E8EDF2; }
+    [data-testid="stSidebar"] { background-color: #0D1E35 !important; }
+    [data-testid="stSidebar"] * { color: #E8EDF2 !important; }
+    .stSelectbox label, .stTextInput label, .stNumberInput label,
+    .stSlider label, .stFileUploader label, .stCheckbox label,
+    .stToggle label, .stRadio label {
+        color: #E8EDF2 !important;
     }
+    [data-testid="stMarkdownContainer"] p { color: #E8EDF2 !important; }
+    [data-testid="stCaptionContainer"] { color: #9BAEC8 !important; }
 
     /* ── Forçar dark mode quando Streamlit usa tema escuro ── */
     [data-theme="dark"] .stApp,
