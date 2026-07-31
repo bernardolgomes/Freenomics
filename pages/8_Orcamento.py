@@ -11,6 +11,7 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import show_logo
 from translations import CSS, FIX_DROPDOWNS_JS
+import auth
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -202,26 +203,29 @@ with c4: st.markdown(cartao(L["taxa_poupanca"], f"{taxa_poupanca:.0f}%", cor(tax
 
 st.caption(f"{L['taxa_esforco']}: {taxa_esforco:.0f}%")
 
-# ── GRÁFICO ───────────────────────────────────────────────────
-st.subheader(L["dist_titulo"])
-labels_pie = [L[k] for k, v in despesas.items() if v > 0]
-values_pie = [v for v in despesas.values() if v > 0]
-if values_pie:
-    fig = go.Figure(go.Pie(labels=labels_pie, values=values_pie,
-        marker=dict(colors=CORES[:len(values_pie)]), textinfo="label+percent", hole=0.4))
-    fig.update_layout(paper_bgcolor="#FAF8F3", showlegend=False, height=340,
-        margin=dict(l=0, r=0, t=10, b=0))
-    st.plotly_chart(fig, use_container_width=True)
+if auth.has_full_access():
+    # ── GRÁFICO (só para subscritores) ──────────────────────────
+    st.subheader(L["dist_titulo"])
+    labels_pie = [L[k] for k, v in despesas.items() if v > 0]
+    values_pie = [v for v in despesas.values() if v > 0]
+    if values_pie:
+        fig = go.Figure(go.Pie(labels=labels_pie, values=values_pie,
+            marker=dict(colors=CORES[:len(values_pie)]), textinfo="label+percent", hole=0.4))
+        fig.update_layout(paper_bgcolor="#FAF8F3", showlegend=False, height=340,
+            margin=dict(l=0, r=0, t=10, b=0))
+        st.plotly_chart(fig, use_container_width=True)
 
-# ── INSIGHT ───────────────────────────────────────────────────
-if saldo <= 0:
-    st.warning(L["sem_saldo"])
-elif taxa_poupanca >= 20:
-    st.markdown(f"<div class='insight-box'>{L['insight_boa'](taxa_poupanca).replace('**','')}</div>", unsafe_allow_html=True)
-elif taxa_poupanca >= 10:
-    st.markdown(f"<div class='insight-box'>{L['insight_ok'](taxa_poupanca).replace('**','')}</div>", unsafe_allow_html=True)
+    # ── INSIGHT (só para subscritores) ───────────────────────────
+    if saldo <= 0:
+        st.warning(L["sem_saldo"])
+    elif taxa_poupanca >= 20:
+        st.markdown(f"<div class='insight-box'>{L['insight_boa'](taxa_poupanca).replace('**','')}</div>", unsafe_allow_html=True)
+    elif taxa_poupanca >= 10:
+        st.markdown(f"<div class='insight-box'>{L['insight_ok'](taxa_poupanca).replace('**','')}</div>", unsafe_allow_html=True)
+    else:
+        st.markdown(f"<div class='insight-box'>{L['insight_baixa'](taxa_poupanca).replace('**','')}</div>", unsafe_allow_html=True)
 else:
-    st.markdown(f"<div class='insight-box'>{L['insight_baixa'](taxa_poupanca).replace('**','')}</div>", unsafe_allow_html=True)
+    auth.render_locked_section()
 
 # Guarda a capacidade de investir e o estado desta página para outras páginas reutilizarem
 st.session_state["capacidade_mensal"] = max(saldo, 0)

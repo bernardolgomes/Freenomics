@@ -1,5 +1,6 @@
 import streamlit as st
 from translations import LINGUAS, NOMES_PAGINAS
+import auth
 
 st.set_page_config(page_title="Freenomics", layout="wide", page_icon="📊")
 
@@ -63,6 +64,8 @@ st.markdown("""
 
 if "lang" not in st.session_state:
     st.session_state["lang"] = "🇵🇹 Português"
+
+auth.render_login_widget()
 
 st.sidebar.markdown("### 🌐 Language")
 lang = st.sidebar.radio(
