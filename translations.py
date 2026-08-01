@@ -835,6 +835,17 @@ CSS = """
     ul[role="listbox"] {
         background-color: #1A2F4A !important;
     }
+    /* Garantir que a lista de opções nunca fica maior que o ecrã e fica sempre
+       scrollável, mesmo quando o dropdown abre perto do fundo da sidebar */
+    [data-baseweb="popover"] {
+        max-height: 60vh !important;
+    }
+    [data-baseweb="menu"],
+    ul[role="listbox"] {
+        max-height: 55vh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
     /* ── Dropdowns — forçar branco em TODOS os contextos ── */
     /* Container da lista (portaled para o body) */
     [data-baseweb="popover"],
