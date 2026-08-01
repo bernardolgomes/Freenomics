@@ -139,6 +139,63 @@ def render_login_widget():
         st.markdown("---")
 
 
+def render_login_widget_top_right():
+    """Widget de login/registo/sessão compacto, no canto superior direito de cada página."""
+    st.markdown("""
+    <style>
+    div[data-testid="stPopover"] {
+        display: flex;
+        justify-content: flex-end;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    _, col_right = st.columns([5, 1])
+    with col_right:
+        if not is_configured():
+            st.caption("⚠️ Contas por configurar")
+            return
+
+        if is_logged_in():
+            plano_labels = {"free": "🔓 Gratuito", "premium": "⭐ Premium", "admin": "👑 Admin"}
+            rotulo = f"👤 {current_user()['email'].split('@')[0]}"
+            with st.popover(rotulo, use_container_width=True):
+                st.markdown(f"**{current_user()['email']}**")
+                st.caption(plano_labels.get(current_plan(), current_plan()))
+                if st.button("Sair", use_container_width=True, key="btn_logout_top"):
+                    sign_out()
+                    st.rerun()
+        else:
+            with st.popover("🔐 Entrar", use_container_width=True):
+                tab_login, tab_signup = st.tabs(["Entrar", "Criar conta"])
+
+                with tab_login:
+                    email = st.text_input("Email", key="login_email_top")
+                    pw = st.text_input("Password", type="password", key="login_pw_top")
+                    if st.button("Entrar", key="btn_login_top", use_container_width=True):
+                        try:
+                            res = sign_in(email, pw)
+                            profile = ensure_profile(res.user.id, email)
+                            st.session_state["user"] = {"id": res.user.id, "email": email}
+                            st.session_state["user_plan"] = profile.get("plan", "free")
+                            st.rerun()
+                        except Exception:
+                            st.error("Email ou password inválidos.")
+
+                with tab_signup:
+                    email_s = st.text_input("Email", key="signup_email_top")
+                    pw_s = st.text_input("Password (mín. 6 caracteres)", type="password", key="signup_pw_top")
+                    if st.button("Criar conta", key="btn_signup_top", use_container_width=True):
+                        if len(pw_s) < 6:
+                            st.error("A password precisa de pelo menos 6 caracteres.")
+                        else:
+                            try:
+                                sign_up(email_s, pw_s)
+                                st.success("Conta criada! Verifica o teu email para confirmar (se pedido) e depois inicia sessão no separador 'Entrar'.")
+                            except Exception as e:
+                                st.error(f"Não foi possível criar a conta: {e}")
+
+
 def render_locked_section(mensagem_extra=""):
     """Mostra um cartão de 'conteúdo bloqueado', usar quando has_full_access() é False."""
     st.markdown(f"""

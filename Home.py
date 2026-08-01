@@ -59,18 +59,15 @@ st.markdown("""
     border-color: #C29A4B !important;
     opacity: 1 !important;
 }
-/* Colocar o login/idioma (conteúdo adicionado pelo nosso código) ACIMA da
-   lista de páginas nativa da sidebar, para ficar sempre visível sem scroll
-   e para o dropdown de idioma abrir com espaço suficiente por baixo. */
-[data-testid="stSidebarContent"] {
-    display: flex;
-    flex-direction: column;
+/* Dropdown do idioma: garantir espaço suficiente para abrir sem cortar. */
+[data-baseweb="popover"] {
+    max-height: 70vh !important;
 }
-[data-testid="stSidebarUserContent"] {
-    order: -1;
-}
-[data-testid="stSidebarNav"] {
-    order: 2;
+[data-baseweb="menu"],
+ul[role="listbox"] {
+    max-height: 65vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -87,7 +84,7 @@ lang = st.sidebar.selectbox(
 )
 st.session_state["lang"] = lang
 
-auth.render_login_widget()
+auth.render_login_widget_top_right()
 
 n = NOMES_PAGINAS[lang]
 
