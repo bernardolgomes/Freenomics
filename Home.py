@@ -68,7 +68,7 @@ if "lang" not in st.session_state:
 auth.render_login_widget()
 
 st.sidebar.markdown("### 🌐 Language")
-lang = st.sidebar.radio(
+lang = st.sidebar.selectbox(
     "", LINGUAS,
     index=LINGUAS.index(st.session_state["lang"]),
     label_visibility="collapsed",

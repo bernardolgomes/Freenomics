@@ -1,5 +1,5 @@
 """
-Objetivos Financeiros — Freenomics
+Objetivos Financeiros · Freenomics
 Define vários objetivos (casa, fundo de emergência, etc.) e compara cenários de
 retorno para perceber quanto tempo demoras a atingir cada um.
 """
@@ -39,7 +39,7 @@ L = {
         "btn_add": "➕ Adicionar objetivo",
         "btn_calcular": "🎯 Calcular plano",
         "capacidade_info": lambda v: f"💡 Na página de Orçamento calculaste uma capacidade de investir de €{v:,.0f}/mês.",
-        "sem_capacidade": "💡 Ainda não calculaste a tua capacidade de investir — visita a página de Orçamento para uma sugestão automática.",
+        "sem_capacidade": "💡 Ainda não calculaste a tua capacidade de investir. Visita a página de Orçamento para uma sugestão automática.",
         "alocado_total": "Total alocado por mês", "excede_aviso": "⚠️ O total alocado excede a tua capacidade de investir mensal.",
         "progresso": "Progresso atual", "objetivo_titulo": "Objetivo",
         "tempo_estimado": "Tempo estimado", "anos_label": "anos", "meses_label": "meses",
@@ -47,7 +47,7 @@ L = {
         "ja_atingido": "🎉 Objetivo já atingido!",
         "cenarios_titulo": "Comparação de cenários de retorno",
         "insight": lambda nome, cenario, anos, meses, valor: f"No cenário **{cenario}**, atinges o objetivo **{nome}** em **{anos} anos e {meses} meses**, investindo €{valor:,.0f}/mês.",
-        "aviso": "⚠️ Simulação baseada em retornos constantes — retornos reais variam. Não constitui aconselhamento financeiro.",
+        "aviso": "⚠️ Simulação baseada em retornos constantes, retornos reais variam. Não constitui aconselhamento financeiro.",
         "rodape": "Freenomics · Planeamento de objetivos financeiros",
     },
     "🇬🇧 English": {
@@ -59,7 +59,7 @@ L = {
         "btn_add": "➕ Add goal",
         "btn_calcular": "🎯 Calculate plan",
         "capacidade_info": lambda v: f"💡 On the Budget page you calculated an investing capacity of €{v:,.0f}/month.",
-        "sem_capacidade": "💡 You haven't calculated your investing capacity yet — visit the Budget page for an automatic suggestion.",
+        "sem_capacidade": "💡 You haven't calculated your investing capacity yet. Visit the Budget page for an automatic suggestion.",
         "alocado_total": "Total allocated per month", "excede_aviso": "⚠️ The total allocated exceeds your monthly investing capacity.",
         "progresso": "Current progress", "objetivo_titulo": "Goal",
         "tempo_estimado": "Estimated time", "anos_label": "years", "meses_label": "months",
@@ -67,7 +67,7 @@ L = {
         "ja_atingido": "🎉 Goal already reached!",
         "cenarios_titulo": "Return scenario comparison",
         "insight": lambda nome, cenario, anos, meses, valor: f"Under the **{cenario}** scenario, you reach **{nome}** in **{anos} years and {meses} months**, investing €{valor:,.0f}/month.",
-        "aviso": "⚠️ Simulation based on constant returns — real returns vary. Does not constitute financial advice.",
+        "aviso": "⚠️ Simulation based on constant returns, real returns vary. Does not constitute financial advice.",
         "rodape": "Freenomics · Financial goal planning",
     },
     "🇫🇷 Français": {
@@ -79,7 +79,7 @@ L = {
         "btn_add": "➕ Ajouter un objectif",
         "btn_calcular": "🎯 Calculer le plan",
         "capacidade_info": lambda v: f"💡 Sur la page Budget, vous avez calculé une capacité d'investissement de €{v:,.0f}/mois.",
-        "sem_capacidade": "💡 Vous n'avez pas encore calculé votre capacité d'investir — visitez la page Budget.",
+        "sem_capacidade": "💡 Vous n'avez pas encore calculé votre capacité d'investir. Visitez la page Budget.",
         "alocado_total": "Total alloué par mois", "excede_aviso": "⚠️ Le total alloué dépasse votre capacité mensuelle.",
         "progresso": "Progrès actuel", "objetivo_titulo": "Objectif",
         "tempo_estimado": "Temps estimé", "anos_label": "ans", "meses_label": "mois",
@@ -87,7 +87,7 @@ L = {
         "ja_atingido": "🎉 Objectif déjà atteint!",
         "cenarios_titulo": "Comparaison des scénarios de rendement",
         "insight": lambda nome, cenario, anos, meses, valor: f"Dans le scénario **{cenario}**, vous atteignez **{nome}** en **{anos} ans et {meses} mois**, en investissant €{valor:,.0f}/mois.",
-        "aviso": "⚠️ Simulation basée sur des rendements constants — ne constitue pas un conseil financier.",
+        "aviso": "⚠️ Simulation basée sur des rendements constants, ne constitue pas un conseil financier.",
         "rodape": "Freenomics · Planification d'objectifs financiers",
     },
     "🇩🇪 Deutsch": {
@@ -99,7 +99,7 @@ L = {
         "btn_add": "➕ Ziel hinzufügen",
         "btn_calcular": "🎯 Plan berechnen",
         "capacidade_info": lambda v: f"💡 Auf der Budget-Seite haben Sie eine Investitionsfähigkeit von €{v:,.0f}/Monat berechnet.",
-        "sem_capacidade": "💡 Sie haben Ihre Investitionsfähigkeit noch nicht berechnet — besuchen Sie die Budget-Seite.",
+        "sem_capacidade": "💡 Sie haben Ihre Investitionsfähigkeit noch nicht berechnet. Besuchen Sie die Budget-Seite.",
         "alocado_total": "Gesamt zugewiesen pro Monat", "excede_aviso": "⚠️ Die Gesamtzuweisung übersteigt Ihre monatliche Kapazität.",
         "progresso": "Aktueller Fortschritt", "objetivo_titulo": "Ziel",
         "tempo_estimado": "Geschätzte Zeit", "anos_label": "Jahre", "meses_label": "Monate",
@@ -107,7 +107,7 @@ L = {
         "ja_atingido": "🎉 Ziel bereits erreicht!",
         "cenarios_titulo": "Vergleich der Renditeszenarien",
         "insight": lambda nome, cenario, anos, meses, valor: f"Im Szenario **{cenario}** erreichen Sie **{nome}** in **{anos} Jahren und {meses} Monaten**, mit €{valor:,.0f}/Monat.",
-        "aviso": "⚠️ Simulation basierend auf konstanten Renditen — stellt keine Finanzberatung dar.",
+        "aviso": "⚠️ Simulation basierend auf konstanten Renditen und stellt keine Finanzberatung dar.",
         "rodape": "Freenomics · Finanzzielplanung",
     },
     "🇪🇸 Español": {
@@ -119,7 +119,7 @@ L = {
         "btn_add": "➕ Añadir objetivo",
         "btn_calcular": "🎯 Calcular plan",
         "capacidade_info": lambda v: f"💡 En la página de Presupuesto calculaste una capacidad de inversión de €{v:,.0f}/mes.",
-        "sem_capacidade": "💡 Aún no has calculado tu capacidad de inversión — visita la página de Presupuesto.",
+        "sem_capacidade": "💡 Aún no has calculado tu capacidad de inversión. Visita la página de Presupuesto.",
         "alocado_total": "Total asignado por mes", "excede_aviso": "⚠️ El total asignado excede tu capacidad mensual.",
         "progresso": "Progreso actual", "objetivo_titulo": "Objetivo",
         "tempo_estimado": "Tiempo estimado", "anos_label": "años", "meses_label": "meses",
@@ -127,7 +127,7 @@ L = {
         "ja_atingido": "🎉 ¡Objetivo ya alcanzado!",
         "cenarios_titulo": "Comparación de escenarios de rentabilidad",
         "insight": lambda nome, cenario, anos, meses, valor: f"En el escenario **{cenario}**, alcanzas **{nome}** en **{anos} años y {meses} meses**, invirtiendo €{valor:,.0f}/mes.",
-        "aviso": "⚠️ Simulación basada en rentabilidades constantes — no constituye asesoramiento financiero.",
+        "aviso": "⚠️ Simulación basada en rentabilidades constantes, no constituye asesoramiento financiero.",
         "rodape": "Freenomics · Planificación de objetivos financieros",
     },
 }[lang]

@@ -14,7 +14,7 @@ lang = st.session_state.get("lang", "🇵🇹 Português")
 L = {
     "🇵🇹 Português": {
         "titulo": "Simulador de Investimento Regular",
-        "subtitulo": "Descobre quanto acumulas ao investir uma quantia fixa todos os meses — o poder do juro composto.",
+        "subtitulo": "Descobre quanto acumulas ao investir uma quantia fixa todos os meses, o poder do juro composto.",
         "sec_config": "⚙️ Configura a simulação",
         "inv_inicial": "Investimento inicial (€)", "contrib": "Contribuição mensal (€)",
         "anos": "Horizonte temporal (anos)", "retorno": "Retorno anual esperado (%)",
@@ -26,9 +26,9 @@ L = {
         "marcos": "Marcos ao longo do tempo", "anos_label": "anos", "investido_label": "investido",
         "valor_final": "Valor final (nominal)", "valor_real": "Valor final (real)", "adj": "ajustado à inflação",
         "total_inv": "Total investido", "multiplicador": "Multiplicador",
-        "aviso": "⚠️ Simulação baseada em retorno constante. Retornos reais variam — não constitui aconselhamento financeiro.",
+        "aviso": "⚠️ Simulação baseada em retorno constante. Retornos reais variam, e isto não constitui aconselhamento financeiro.",
         "rodape": "Freenomics · Calculadora de juro composto",
-        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"Ao investires **€{cm:.0f}/mês** durante **{anos} anos** com um retorno de **{r}%/ano**, transformas um total investido de **€{ti:,.0f}** em **€{vf:,.0f}** — os juros compostos geram **€{g:,.0f}** adicionais. Ajustando à inflação de {inf}%, o poder de compra real seria de **€{vr:,.0f}**.",
+        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"Ao investires **€{cm:.0f}/mês** durante **{anos} anos** com um retorno de **{r}%/ano**, transformas um total investido de **€{ti:,.0f}** em **€{vf:,.0f}**, e os juros compostos geram **€{g:,.0f}** adicionais. Ajustando à inflação de {inf}%, o poder de compra real seria de **€{vr:,.0f}**.",
     },
     "🇬🇧 English": {
         "titulo": "Regular Investment Simulator",
@@ -44,9 +44,9 @@ L = {
         "marcos": "Milestones over time", "anos_label": "years", "investido_label": "invested",
         "valor_final": "Final value (nominal)", "valor_real": "Final value (real)", "adj": "inflation-adjusted",
         "total_inv": "Total invested", "multiplicador": "Multiplier",
-        "aviso": "⚠️ Simulation based on constant return. Real returns vary — does not constitute financial advice.",
+        "aviso": "⚠️ Simulation based on constant return. Real returns vary, and this does not constitute financial advice.",
         "rodape": "Freenomics · Compound interest calculator",
-        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"By investing **€{cm:.0f}/month** for **{anos} years** at **{r}%/year**, you turn **€{ti:,.0f}** invested into **€{vf:,.0f}** — compound interest generates an extra **€{g:,.0f}**. Adjusted for {inf}% inflation, real purchasing power would be **€{vr:,.0f}**.",
+        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"By investing **€{cm:.0f}/month** for **{anos} years** at **{r}%/year**, you turn **€{ti:,.0f}** invested into **€{vf:,.0f}**, and compound interest generates an extra **€{g:,.0f}**. Adjusted for {inf}% inflation, real purchasing power would be **€{vr:,.0f}**.",
     },
     "🇫🇷 Français": {
         "titulo": "Simulateur d'Investissement Régulier",
@@ -62,9 +62,9 @@ L = {
         "marcos": "Jalons dans le temps", "anos_label": "ans", "investido_label": "investi",
         "valor_final": "Valeur finale (nominale)", "valor_real": "Valeur finale (réelle)", "adj": "ajusté à l'inflation",
         "total_inv": "Total investi", "multiplicador": "Multiplicateur",
-        "aviso": "⚠️ Simulation basée sur un rendement constant — ne constitue pas un conseil financier.",
+        "aviso": "⚠️ Simulation basée sur un rendement constant, elle ne constitue pas un conseil financier.",
         "rodape": "Freenomics · Calculateur d'intérêts composés",
-        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"En investissant **€{cm:.0f}/mois** pendant **{anos} ans** à **{r}%/an**, vous transformez **€{ti:,.0f}** investis en **€{vf:,.0f}** — les intérêts composés génèrent **€{g:,.0f}** supplémentaires. Ajusté à {inf}% d'inflation : **€{vr:,.0f}**.",
+        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"En investissant **€{cm:.0f}/mois** pendant **{anos} ans** à **{r}%/an**, vous transformez **€{ti:,.0f}** investis en **€{vf:,.0f}**, et les intérêts composés génèrent **€{g:,.0f}** supplémentaires. Ajusté à {inf}% d'inflation : **€{vr:,.0f}**.",
     },
     "🇩🇪 Deutsch": {
         "titulo": "Regelmäßiger Investitionssimulator",
@@ -80,9 +80,9 @@ L = {
         "marcos": "Meilensteine", "anos_label": "Jahre", "investido_label": "investiert",
         "valor_final": "Endwert (nominal)", "valor_real": "Endwert (real)", "adj": "inflationsbereinigt",
         "total_inv": "Gesamt investiert", "multiplicador": "Multiplikator",
-        "aviso": "⚠️ Simulation auf Basis konstanter Rendite — stellt keine Finanzberatung dar.",
+        "aviso": "⚠️ Simulation auf Basis konstanter Rendite und stellt keine Finanzberatung dar.",
         "rodape": "Freenomics · Zinseszinsrechner",
-        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"Durch monatliche Einzahlungen von **€{cm:.0f}** über **{anos} Jahre** bei **{r}%/Jahr** werden aus **€{ti:,.0f}** investiertem Kapital **€{vf:,.0f}** — der Zinseszins generiert **€{g:,.0f}**. Inflationsbereinigt ({inf}%): **€{vr:,.0f}**.",
+        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"Durch monatliche Einzahlungen von **€{cm:.0f}** über **{anos} Jahre** bei **{r}%/Jahr** werden aus **€{ti:,.0f}** investiertem Kapital **€{vf:,.0f}**, und der Zinseszins generiert **€{g:,.0f}**. Inflationsbereinigt ({inf}%): **€{vr:,.0f}**.",
     },
     "🇪🇸 Español": {
         "titulo": "Simulador de Inversión Regular",
@@ -98,9 +98,9 @@ L = {
         "marcos": "Hitos a lo largo del tiempo", "anos_label": "años", "investido_label": "invertido",
         "valor_final": "Valor final (nominal)", "valor_real": "Valor final (real)", "adj": "ajustado a inflación",
         "total_inv": "Total invertido", "multiplicador": "Multiplicador",
-        "aviso": "⚠️ Simulación basada en rentabilidad constante — no constituye asesoramiento financiero.",
+        "aviso": "⚠️ Simulación basada en rentabilidad constante y no constituye asesoramiento financiero.",
         "rodape": "Freenomics · Calculadora de interés compuesto",
-        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"Al invertir **€{cm:.0f}/mes** durante **{anos} años** con **{r}%/año**, conviertes **€{ti:,.0f}** invertidos en **€{vf:,.0f}** — el interés compuesto genera **€{g:,.0f}** adicionales. Ajustando a {inf}% de inflación: **€{vr:,.0f}**.",
+        "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"Al invertir **€{cm:.0f}/mes** durante **{anos} años** con **{r}%/año**, conviertes **€{ti:,.0f}** invertidos en **€{vf:,.0f}**, y el interés compuesto genera **€{g:,.0f}** adicionales. Ajustando a {inf}% de inflación: **€{vr:,.0f}**.",
     },
 }.get(lang, {})
 

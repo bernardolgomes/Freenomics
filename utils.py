@@ -1,5 +1,5 @@
 """
-utils.py — Freenomics
+utils.py · Freenomics
 Funções partilhadas entre todas as páginas.
 """
 import streamlit as st

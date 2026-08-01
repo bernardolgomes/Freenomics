@@ -1,5 +1,5 @@
 """
-auth.py — Freenomics
+auth.py · Freenomics
 Autenticação e planos de subscrição, usando Supabase (Auth + tabela "profiles").
 
 Planos possíveis em profiles.plan: "free", "premium", "admin".
@@ -140,7 +140,7 @@ def render_login_widget():
 
 
 def render_locked_section(mensagem_extra=""):
-    """Mostra um cartão de 'conteúdo bloqueado' — usar quando has_full_access() é False."""
+    """Mostra um cartão de 'conteúdo bloqueado', usar quando has_full_access() é False."""
     st.markdown(f"""
     <div style="background:#0E2A3D;border-radius:10px;padding:24px;border:2px dashed #C29A4B;text-align:center;margin:16px 0;">
         <p style="color:#FAF8F3;font-size:1.1rem;font-weight:700;margin:0 0 8px 0;">🔒 Resultados disponíveis para subscritores</p>

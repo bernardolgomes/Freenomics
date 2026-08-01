@@ -32,7 +32,7 @@ L = {
         "por_acao": "por ação/ano",
         "nota_titulo": "O que é o Dividend Yield?",
         "nota": "É a percentagem do preço da ação que recebes em dividendos por ano. Ex: um yield de 3% num ativo de €100 significa que recebes €3/ano por ação. Atenção: um yield muito alto pode ser sinal de que o preço da ação caiu significativamente.",
-        "aviso": "⚠️ Dados históricos — não constitui aconselhamento financeiro.",
+        "aviso": "⚠️ Dados históricos · não constitui aconselhamento financeiro.",
         "rodape": "Freenomics · Dados via Yahoo Finance",
     },
     "🇬🇧 English": {
@@ -53,7 +53,7 @@ L = {
         "por_acao": "per share/year",
         "nota_titulo": "What is Dividend Yield?",
         "nota": "It's the percentage of the share price you receive in dividends per year. E.g. a 3% yield on a €100 asset means €3/year per share. Note: a very high yield may signal the share price has fallen significantly.",
-        "aviso": "⚠️ Historical data — does not constitute financial advice.",
+        "aviso": "⚠️ Historical data · does not constitute financial advice.",
         "rodape": "Freenomics · Data via Yahoo Finance",
     },
     "🇫🇷 Français": {
@@ -74,7 +74,7 @@ L = {
         "por_acao": "par action/an",
         "nota_titulo": "Qu'est-ce que le Dividend Yield?",
         "nota": "C'est le pourcentage du prix de l'action que vous recevez en dividendes par an.",
-        "aviso": "⚠️ Données historiques — ne constitue pas un conseil financier.",
+        "aviso": "⚠️ Données historiques · ne constitue pas un conseil financier.",
         "rodape": "Freenomics · Données via Yahoo Finance",
     },
     "🇩🇪 Deutsch": {
@@ -95,7 +95,7 @@ L = {
         "por_acao": "je Aktie/Jahr",
         "nota_titulo": "Was ist die Dividendenrendite?",
         "nota": "Es ist der Prozentsatz des Aktienkurses, den Sie jährlich als Dividende erhalten.",
-        "aviso": "⚠️ Historische Daten — stellt keine Finanzberatung dar.",
+        "aviso": "⚠️ Historische Daten · stellt keine Finanzberatung dar.",
         "rodape": "Freenomics · Daten via Yahoo Finance",
     },
     "🇪🇸 Español": {
@@ -116,7 +116,7 @@ L = {
         "por_acao": "por acción/año",
         "nota_titulo": "¿Qué es el Dividend Yield?",
         "nota": "Es el porcentaje del precio de la acción que recibes en dividendos al año.",
-        "aviso": "⚠️ Datos históricos — no constituye asesoramiento financiero.",
+        "aviso": "⚠️ Datos históricos · no constituye asesoramiento financiero.",
         "rodape": "Freenomics · Datos via Yahoo Finance",
     },
 }.get(lang, {})
@@ -215,7 +215,7 @@ for col, (t, dados) in zip(cols, resultados.items()):
             f"${rate:.2f} {L['por_acao']}"), unsafe_allow_html=True)
 
 # ── GRÁFICO ───────────────────────────────────────────────────
-st.subheader(f"{L['historico']} — {anos_hist} {L.get('anos_label','anos')}")
+st.subheader(f"{L['historico']} · {anos_hist} {L.get('anos_label','anos')}")
 fig = go.Figure()
 ano_inicio = datetime.today().year - anos_hist
 for i, (t, dados) in enumerate(resultados.items()):
@@ -236,7 +236,7 @@ for t, dados in resultados.items():
     if df.empty: continue
     d = pd.DataFrame({"Data": df.index.strftime("%d/%m/%Y"),
                       "Dividendo": df.values.flatten().round(4)}).sort_values("Data", ascending=False).head(12)
-    with st.expander(f"📋 {t} — {len(d)} {L['pagamentos']}"):
+    with st.expander(f"📋 {t} · {len(d)} {L['pagamentos']}"):
         st.dataframe(d.set_index("Data"), use_container_width=True)
 
 st.markdown(f"<div class='info-box'>💡 <strong>{L['nota_titulo']}</strong><br>{L['nota']}</div>",

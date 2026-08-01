@@ -16,7 +16,7 @@ lang = st.session_state.get("lang", "🇵🇹 Português")
 L = {
     "🇵🇹 Português": {
         "titulo": "Notícias",
-        "subtitulo": "Notícias de mercado actualizadas — ações, cripto e imobiliário.",
+        "subtitulo": "Notícias de mercado actualizadas · ações, cripto e imobiliário.",
         "tipo_label": "Tipo de notícias",
         "tipo_acoes": "📈 Ações & ETFs",
         "tipo_cripto": "₿ Cripto",
@@ -32,7 +32,7 @@ L = {
         "encontradas": "notícias encontradas",
         "ler": "Ler artigo completo ↗",
         "aviso_ticker": "Não foi possível carregar notícias para",
-        "aviso": "⚠️ Conteúdo de terceiros — Freenomics não é responsável pelo conteúdo dos artigos.",
+        "aviso": "⚠️ Conteúdo de terceiros. Freenomics não é responsável pelo conteúdo dos artigos.",
         "rodape": "Freenomics · Notícias via Yahoo Finance e Google News",
         "paises": {
             "🇵🇹 Portugal": "mercado imobiliário Portugal",
@@ -48,7 +48,7 @@ L = {
     },
     "🇬🇧 English": {
         "titulo": "News",
-        "subtitulo": "Up-to-date market news — stocks, crypto and real estate.",
+        "subtitulo": "Up-to-date market news · stocks, crypto and real estate.",
         "tipo_label": "News type",
         "tipo_acoes": "📈 Stocks & ETFs",
         "tipo_cripto": "₿ Crypto",
@@ -64,7 +64,7 @@ L = {
         "encontradas": "news found",
         "ler": "Read full article ↗",
         "aviso_ticker": "Could not load news for",
-        "aviso": "⚠️ Third-party content — Freenomics is not responsible for article content.",
+        "aviso": "⚠️ Third-party content. Freenomics is not responsible for article content.",
         "rodape": "Freenomics · News via Yahoo Finance and Google News",
         "paises": {
             "🇺🇸 USA": "US real estate market",
@@ -80,7 +80,7 @@ L = {
     },
     "🇫🇷 Français": {
         "titulo": "Actualités",
-        "subtitulo": "Actualités de marché en temps réel — actions, crypto et immobilier.",
+        "subtitulo": "Actualités de marché en temps réel · actions, crypto et immobilier.",
         "tipo_label": "Type d'actualités",
         "tipo_acoes": "📈 Actions & ETFs",
         "tipo_cripto": "₿ Crypto",
@@ -96,7 +96,7 @@ L = {
         "encontradas": "actualités trouvées",
         "ler": "Lire l'article complet ↗",
         "aviso_ticker": "Impossible de charger les actualités pour",
-        "aviso": "⚠️ Contenu tiers — Freenomics n'est pas responsable du contenu des articles.",
+        "aviso": "⚠️ Contenu tiers. Freenomics n'est pas responsable du contenu des articles.",
         "rodape": "Freenomics · Actualités via Yahoo Finance et Google News",
         "paises": {
             "🇫🇷 France": "marché immobilier France",
@@ -111,7 +111,7 @@ L = {
     },
     "🇩🇪 Deutsch": {
         "titulo": "Nachrichten",
-        "subtitulo": "Aktuelle Marktnachrichten — Aktien, Krypto und Immobilien.",
+        "subtitulo": "Aktuelle Marktnachrichten · Aktien, Krypto und Immobilien.",
         "tipo_label": "Nachrichtentyp",
         "tipo_acoes": "📈 Aktien & ETFs",
         "tipo_cripto": "₿ Krypto",
@@ -127,7 +127,7 @@ L = {
         "encontradas": "Nachrichten gefunden",
         "ler": "Vollständigen Artikel lesen ↗",
         "aviso_ticker": "Nachrichten konnten nicht geladen werden für",
-        "aviso": "⚠️ Inhalte Dritter — Freenomics ist nicht für den Artikelinhalt verantwortlich.",
+        "aviso": "⚠️ Inhalte Dritter. Freenomics ist nicht für den Artikelinhalt verantwortlich.",
         "rodape": "Freenomics · Nachrichten via Yahoo Finance und Google News",
         "paises": {
             "🇩🇪 Deutschland": "Immobilienmarkt Deutschland",
@@ -142,7 +142,7 @@ L = {
     },
     "🇪🇸 Español": {
         "titulo": "Noticias",
-        "subtitulo": "Noticias de mercado actualizadas — acciones, cripto e inmobiliario.",
+        "subtitulo": "Noticias de mercado actualizadas · acciones, cripto e inmobiliario.",
         "tipo_label": "Tipo de noticias",
         "tipo_acoes": "📈 Acciones & ETFs",
         "tipo_cripto": "₿ Cripto",
@@ -158,7 +158,7 @@ L = {
         "encontradas": "noticias encontradas",
         "ler": "Leer artículo completo ↗",
         "aviso_ticker": "No se pudieron cargar noticias para",
-        "aviso": "⚠️ Contenido de terceros — Freenomics no es responsable del contenido.",
+        "aviso": "⚠️ Contenido de terceros. Freenomics no es responsable del contenido.",
         "rodape": "Freenomics · Noticias via Yahoo Finance y Google News",
         "paises": {
             "🇪🇸 España": "mercado inmobiliario España",
@@ -351,7 +351,7 @@ if inc_cripto and tickers_cripto:
 
 # ── IMOBILIÁRIO ───────────────────────────────────────────────
 if inc_imob and query:
-    st.subheader(f"{L['tipo_imob']} — {pais}")
+    st.subheader(f"{L['tipo_imob']} · {pais}")
 
     def google_news_rss(query, max_n=10):
         import urllib.parse
