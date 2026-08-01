@@ -15,6 +15,7 @@ NOMES_PAGINAS = {
         "noticias":   "📰 Notícias",
         "orcamento":  "🧾 Orçamento",
         "objetivos":  "🎯 Objetivos",
+        "precos":     "✨ Preços",
     },
     "🇬🇧 English": {
         "dashboard":  "🏠 Portfolio Analysis",
@@ -25,6 +26,7 @@ NOMES_PAGINAS = {
         "noticias":   "📰 News",
         "orcamento":  "🧾 Budget",
         "objetivos":  "🎯 Goals",
+        "precos":     "✨ Pricing",
     },
     "🇫🇷 Français": {
         "dashboard":  "🏠 Analyse de Portefeuille",
@@ -35,6 +37,7 @@ NOMES_PAGINAS = {
         "noticias":   "📰 Actualités",
         "orcamento":  "🧾 Budget",
         "objetivos":  "🎯 Objectifs",
+        "precos":     "✨ Tarifs",
     },
     "🇩🇪 Deutsch": {
         "dashboard":  "🏠 Portfolio-Analyse",
@@ -45,6 +48,7 @@ NOMES_PAGINAS = {
         "noticias":   "📰 Nachrichten",
         "orcamento":  "🧾 Budget",
         "objetivos":  "🎯 Ziele",
+        "precos":     "✨ Preise",
     },
     "🇪🇸 Español": {
         "dashboard":  "🏠 Análisis de Cartera",
@@ -55,6 +59,7 @@ NOMES_PAGINAS = {
         "noticias":   "📰 Noticias",
         "orcamento":  "🧾 Presupuesto",
         "objetivos":  "🎯 Objetivos",
+        "precos":     "✨ Precios",
     },
 }
 
