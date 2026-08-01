@@ -39,7 +39,18 @@ L = {
             "Comparador de carteiras ilimitado",
             "Simulações e cenários de objetivos completos",
         ],
+        "anual_nome": "👑 Premium Anual",
+        "anual_preco": "€39,99",
+        "anual_periodo": "/ano",
+        "anual_badge": "Poupa 33%",
+        "anual_desc": "O mesmo acesso completo, com o melhor preço mensal.",
+        "anual_items": [
+            "Tudo o que está incluído no Premium mensal",
+            "Equivale a €3,33/mês (menos de metade do preço mensal)",
+            "1 pagamento por ano, sem surpresas",
+        ],
         "btn_premium": "⭐ Subscrever Premium",
+        "btn_anual": "👑 Subscrever Anual",
         "btn_free": "🔓 Continuar no plano Gratuito",
         "em_breve": "🚧 Os pagamentos ainda não estão ligados. Em breve podes subscrever diretamente aqui.",
         "atual_titulo": "O teu plano atual",
@@ -73,7 +84,18 @@ L = {
             "Unlimited portfolio comparator",
             "Full goal simulations and scenarios",
         ],
+        "anual_nome": "👑 Premium Yearly",
+        "anual_preco": "€39.99",
+        "anual_periodo": "/year",
+        "anual_badge": "Save 33%",
+        "anual_desc": "The same full access, at the best monthly price.",
+        "anual_items": [
+            "Everything included in monthly Premium",
+            "Equivalent to €3.33/month (less than half the monthly price)",
+            "1 payment per year, no surprises",
+        ],
         "btn_premium": "⭐ Subscribe to Premium",
+        "btn_anual": "👑 Subscribe Yearly",
         "btn_free": "🔓 Continue on the Free plan",
         "em_breve": "🚧 Payments aren't connected yet. You'll soon be able to subscribe directly here.",
         "atual_titulo": "Your current plan",
@@ -107,7 +129,18 @@ L = {
             "Comparateur de portefeuilles illimité",
             "Simulations et scénarios d'objectifs complets",
         ],
+        "anual_nome": "👑 Premium Annuel",
+        "anual_preco": "€39,99",
+        "anual_periodo": "/an",
+        "anual_badge": "Économisez 33%",
+        "anual_desc": "Le même accès complet, au meilleur prix mensuel.",
+        "anual_items": [
+            "Tout ce qui est inclus dans le Premium mensuel",
+            "Équivaut à €3,33/mois (moins de la moitié du prix mensuel)",
+            "1 paiement par an, sans surprise",
+        ],
         "btn_premium": "⭐ S'abonner à Premium",
+        "btn_anual": "👑 S'abonner à l'offre Annuelle",
         "btn_free": "🔓 Continuer avec le plan Gratuit",
         "em_breve": "🚧 Les paiements ne sont pas encore connectés. Vous pourrez bientôt vous abonner directement ici.",
         "atual_titulo": "Votre plan actuel",
@@ -141,7 +174,18 @@ L = {
             "Unbegrenzter Portfolio-Vergleich",
             "Vollständige Zielsimulationen und Szenarien",
         ],
+        "anual_nome": "👑 Premium Jährlich",
+        "anual_preco": "€39,99",
+        "anual_periodo": "/Jahr",
+        "anual_badge": "Spare 33%",
+        "anual_desc": "Derselbe volle Zugriff, zum besten Monatspreis.",
+        "anual_items": [
+            "Alles, was im monatlichen Premium enthalten ist",
+            "Entspricht €3,33/Monat (weniger als die Hälfte des Monatspreises)",
+            "1 Zahlung pro Jahr, ohne Überraschungen",
+        ],
         "btn_premium": "⭐ Premium abonnieren",
+        "btn_anual": "👑 Jährlich abonnieren",
         "btn_free": "🔓 Mit dem kostenlosen Plan fortfahren",
         "em_breve": "🚧 Zahlungen sind noch nicht verbunden. Bald kannst du direkt hier abonnieren.",
         "atual_titulo": "Dein aktueller Plan",
@@ -175,7 +219,18 @@ L = {
             "Comparador de carteras ilimitado",
             "Simulaciones y escenarios de objetivos completos",
         ],
+        "anual_nome": "👑 Premium Anual",
+        "anual_preco": "€39,99",
+        "anual_periodo": "/año",
+        "anual_badge": "Ahorra 33%",
+        "anual_desc": "El mismo acceso completo, al mejor precio mensual.",
+        "anual_items": [
+            "Todo lo incluido en el Premium mensual",
+            "Equivale a €3,33/mes (menos de la mitad del precio mensual)",
+            "1 pago al año, sin sorpresas",
+        ],
         "btn_premium": "⭐ Suscribirse a Premium",
+        "btn_anual": "👑 Suscribirse al Anual",
         "btn_free": "🔓 Continuar con el plan Gratis",
         "em_breve": "🚧 Los pagos aún no están conectados. Pronto podrás suscribirte directamente aquí.",
         "atual_titulo": "Tu plan actual",
@@ -193,7 +248,7 @@ show_logo()
 st.title(L["titulo"])
 st.markdown("---")
 
-col_free, col_premium = st.columns(2)
+col_free, col_premium, col_anual = st.columns(3)
 
 with col_free:
     st.markdown(f"""
@@ -220,12 +275,28 @@ with col_premium:
     for item in L["premium_items"]:
         st.markdown(f"⭐ {item}")
 
+with col_anual:
+    st.markdown(f"""
+    <div style="background:#1A2F4A;border-radius:12px;padding:28px;border:2px solid #C29A4B;height:100%;position:relative;">
+        <span style="position:absolute;top:-12px;right:20px;background:#C29A4B;color:#0E2A3D;font-size:0.72rem;font-weight:800;padding:4px 10px;border-radius:12px;">{L['anual_badge']}</span>
+        <h3 style="color:#FAF8F3;margin:0;">{L['anual_nome']}</h3>
+        <p style="font-size:2rem;font-weight:800;color:#C29A4B;margin:8px 0 0 0;">{L['anual_preco']}<span style="font-size:1rem;font-weight:400;color:#C8D3DA;"> {L['anual_periodo']}</span></p>
+        <p style="color:#C8D3DA;margin-top:8px;">{L['anual_desc']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.write("")
+    for item in L["anual_items"]:
+        st.markdown(f"👑 {item}")
+
 st.write("")
-col_a, col_b = st.columns(2)
+col_a, col_b, col_c = st.columns(3)
 with col_a:
     st.button(L["btn_free"], use_container_width=True, disabled=True, key="btn_free_plano")
 with col_b:
     if st.button(L["btn_premium"], use_container_width=True, type="primary", key="btn_premium_plano"):
+        st.info(L["em_breve"])
+with col_c:
+    if st.button(L["btn_anual"], use_container_width=True, type="primary", key="btn_anual_plano"):
         st.info(L["em_breve"])
 
 if auth.is_logged_in():
