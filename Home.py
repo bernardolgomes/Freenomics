@@ -59,13 +59,24 @@ st.markdown("""
     border-color: #C29A4B !important;
     opacity: 1 !important;
 }
+/* Colocar o login/idioma (conteúdo adicionado pelo nosso código) ACIMA da
+   lista de páginas nativa da sidebar, para ficar sempre visível sem scroll
+   e para o dropdown de idioma abrir com espaço suficiente por baixo. */
+[data-testid="stSidebarContent"] {
+    display: flex;
+    flex-direction: column;
+}
+[data-testid="stSidebarUserContent"] {
+    order: -1;
+}
+[data-testid="stSidebarNav"] {
+    order: 2;
+}
 </style>
 """, unsafe_allow_html=True)
 
 if "lang" not in st.session_state:
     st.session_state["lang"] = "🇵🇹 Português"
-
-auth.render_login_widget()
 
 st.sidebar.markdown("### 🌐 Language")
 lang = st.sidebar.selectbox(
@@ -75,6 +86,8 @@ lang = st.sidebar.selectbox(
     key="lang_selector"
 )
 st.session_state["lang"] = lang
+
+auth.render_login_widget()
 
 n = NOMES_PAGINAS[lang]
 
