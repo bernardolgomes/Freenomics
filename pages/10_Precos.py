@@ -18,8 +18,7 @@ lang = st.session_state.get("lang", "🇵🇹 Português")
 
 L = {
     "🇵🇹 Português": {
-        "titulo": "Bem-vindo(a) ao Freenomics",
-        "subtitulo": "A app que te ajuda a organizar a tua vida financeira e a caminhar para a liberdade financeira, sem partilhares os teus dados com ninguém: tudo fica no teu browser.",
+        "titulo": "Planos & Preços",
         "free_nome": "🔓 Gratuito",
         "free_preco": "€0",
         "free_periodo": "para sempre",
@@ -53,8 +52,7 @@ L = {
         "rodape": "Freenomics · Dinheiro, mentalidade e liberdade financeira",
     },
     "🇬🇧 English": {
-        "titulo": "Welcome to Freenomics",
-        "subtitulo": "The app that helps you organize your finances and move towards financial freedom, without sharing your data with anyone: everything stays in your browser.",
+        "titulo": "Plans & Pricing",
         "free_nome": "🔓 Free",
         "free_preco": "€0",
         "free_periodo": "forever",
@@ -88,8 +86,7 @@ L = {
         "rodape": "Freenomics · Money, mindset and financial freedom",
     },
     "🇫🇷 Français": {
-        "titulo": "Bienvenue sur Freenomics",
-        "subtitulo": "L'application qui vous aide à organiser vos finances et à avancer vers la liberté financière, sans partager vos données : tout reste dans votre navigateur.",
+        "titulo": "Offres & Tarifs",
         "free_nome": "🔓 Gratuit",
         "free_preco": "€0",
         "free_periodo": "pour toujours",
@@ -123,8 +120,7 @@ L = {
         "rodape": "Freenomics · Argent, mentalité et liberté financière",
     },
     "🇩🇪 Deutsch": {
-        "titulo": "Willkommen bei Freenomics",
-        "subtitulo": "Die App, die dir hilft, deine Finanzen zu organisieren und finanzielle Freiheit zu erreichen, ohne deine Daten zu teilen: alles bleibt in deinem Browser.",
+        "titulo": "Pläne & Preise",
         "free_nome": "🔓 Kostenlos",
         "free_preco": "€0",
         "free_periodo": "für immer",
@@ -158,8 +154,7 @@ L = {
         "rodape": "Freenomics · Geld, Mindset und finanzielle Freiheit",
     },
     "🇪🇸 Español": {
-        "titulo": "Bienvenido a Freenomics",
-        "subtitulo": "La app que te ayuda a organizar tus finanzas y avanzar hacia la libertad financiera, sin compartir tus datos con nadie: todo se queda en tu navegador.",
+        "titulo": "Planes & Precios",
         "free_nome": "🔓 Gratis",
         "free_preco": "€0",
         "free_periodo": "para siempre",
@@ -196,7 +191,6 @@ L = {
 
 show_logo()
 st.title(L["titulo"])
-st.markdown(f"<p style='font-size:1.05rem;color:#C8D3DA;'>{L['subtitulo']}</p>", unsafe_allow_html=True)
 st.markdown("---")
 
 col_free, col_premium = st.columns(2)

@@ -105,6 +105,7 @@ PATRIMONIO = {
 }
 
 pg = st.navigation([
+    st.Page("pages/11_BoasVindas.py",  title=n["boasvindas"]),
     st.Page("pages/10_Precos.py",      title=n["precos"]),
     st.Page("pages/8_Orcamento.py",    title=n["orcamento"]),
     st.Page("pages/9_Objetivos.py",    title=n["objetivos"]),

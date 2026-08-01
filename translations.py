@@ -16,6 +16,7 @@ NOMES_PAGINAS = {
         "orcamento":  "🧾 Orçamento",
         "objetivos":  "🎯 Objetivos",
         "precos":     "✨ Preços",
+        "boasvindas": "👋 Início",
     },
     "🇬🇧 English": {
         "dashboard":  "🏠 Portfolio Analysis",
@@ -27,6 +28,7 @@ NOMES_PAGINAS = {
         "orcamento":  "🧾 Budget",
         "objetivos":  "🎯 Goals",
         "precos":     "✨ Pricing",
+        "boasvindas": "👋 Home",
     },
     "🇫🇷 Français": {
         "dashboard":  "🏠 Analyse de Portefeuille",
@@ -38,6 +40,7 @@ NOMES_PAGINAS = {
         "orcamento":  "🧾 Budget",
         "objetivos":  "🎯 Objectifs",
         "precos":     "✨ Tarifs",
+        "boasvindas": "👋 Accueil",
     },
     "🇩🇪 Deutsch": {
         "dashboard":  "🏠 Portfolio-Analyse",
@@ -49,6 +52,7 @@ NOMES_PAGINAS = {
         "orcamento":  "🧾 Budget",
         "objetivos":  "🎯 Ziele",
         "precos":     "✨ Preise",
+        "boasvindas": "👋 Start",
     },
     "🇪🇸 Español": {
         "dashboard":  "🏠 Análisis de Cartera",
@@ -60,6 +64,7 @@ NOMES_PAGINAS = {
         "orcamento":  "🧾 Presupuesto",
         "objetivos":  "🎯 Objetivos",
         "precos":     "✨ Precios",
+        "boasvindas": "👋 Inicio",
     },
 }
 
