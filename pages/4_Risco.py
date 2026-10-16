@@ -33,6 +33,7 @@ L = {
         "dd_titulo": "Drawdown histórico (queda face ao pico)",
         "stress_titulo": "Simulação de cenários adversos",
         "stress_sub": "Impacto estimado no capital em diferentes cenários de mercado",
+        "vol_anual": "Vol. anual", "ex_ticker": "ex: AAPL", "eixo_x": "Data",
         "cenarios": {"Correção leve (-10%)": -0.10, "Correção moderada (-20%)": -0.20,
                      "Bear market (-35%)": -0.35, "Crash severo (-50%)": -0.50},
         "aviso": "⚠️ VaR = Value at Risk (percentil 5%) · Não constitui aconselhamento financeiro.",
@@ -57,6 +58,7 @@ L = {
         "dd_titulo": "Historical drawdown (fall from peak)",
         "stress_titulo": "Stress scenario simulation",
         "stress_sub": "Estimated impact on capital in different market scenarios",
+        "vol_anual": "Ann. volatility", "ex_ticker": "e.g. AAPL", "eixo_x": "Date",
         "cenarios": {"Mild correction (-10%)": -0.10, "Moderate correction (-20%)": -0.20,
                      "Bear market (-35%)": -0.35, "Severe crash (-50%)": -0.50},
         "aviso": "⚠️ VaR = Value at Risk (5th percentile) · Does not constitute financial advice.",
@@ -81,6 +83,7 @@ L = {
         "dd_titulo": "Drawdown historique (chute depuis le pic)",
         "stress_titulo": "Simulation de scénarios de stress",
         "stress_sub": "Impact estimé sur le capital dans différents scénarios de marché",
+        "vol_anual": "Volatilité ann.", "ex_ticker": "ex : AAPL", "eixo_x": "Date",
         "cenarios": {"Correction légère (-10%)": -0.10, "Correction modérée (-20%)": -0.20,
                      "Bear market (-35%)": -0.35, "Krach sévère (-50%)": -0.50},
         "aviso": "⚠️ VaR = Value at Risk (5e percentile) · Ne constitue pas un conseil financier.",
@@ -105,6 +108,7 @@ L = {
         "dd_titulo": "Historischer Drawdown (Rückgang vom Höchststand)",
         "stress_titulo": "Stressszenario-Simulation",
         "stress_sub": "Geschätzte Auswirkungen auf das Kapital in verschiedenen Marktszenarien",
+        "vol_anual": "Jährl. Volatilität", "ex_ticker": "z. B. AAPL", "eixo_x": "Datum",
         "cenarios": {"Leichte Korrektur (-10%)": -0.10, "Moderate Korrektur (-20%)": -0.20,
                      "Bärenmarkt (-35%)": -0.35, "Schwerer Crash (-50%)": -0.50},
         "aviso": "⚠️ VaR = Value at Risk (5. Perzentil) · Stellt keine Finanzberatung dar.",
@@ -129,6 +133,7 @@ L = {
         "dd_titulo": "Drawdown histórico (caída desde el pico)",
         "stress_titulo": "Simulación de escenarios adversos",
         "stress_sub": "Impacto estimado en el capital en diferentes escenarios de mercado",
+        "vol_anual": "Volatilidad anual", "ex_ticker": "ej: AAPL", "eixo_x": "Fecha",
         "cenarios": {"Corrección leve (-10%)": -0.10, "Corrección moderada (-20%)": -0.20,
                      "Bear market (-35%)": -0.35, "Crash severo (-50%)": -0.50},
         "aviso": "⚠️ VaR = Value at Risk (percentil 5%) · No constituye asesoramiento financiero.",
@@ -155,7 +160,7 @@ for i, t in enumerate(st.session_state.risco_tickers):
         with c1:
             st.session_state.risco_tickers[i] = st.text_input(
                 L["ticker_label"], value=t, key=f"risco_t_{i}",
-                placeholder="ex: AAPL",
+                placeholder=L["ex_ticker"],
                 label_visibility="collapsed" if i > 0 else "visible").upper().strip()
         with c2:
             if len(st.session_state.risco_tickers) > 2:
@@ -170,8 +175,10 @@ with col_add:
         st.session_state.risco_tickers.append(""); st.rerun()
 with col_per:
     periodo_opcoes = L["periodos"]
-    periodo_label = st.selectbox(L["periodo_label"], list(periodo_opcoes.keys()), index=1)
-    dias = periodo_opcoes[periodo_label]
+    _label_por_dias = {v: k for k, v in periodo_opcoes.items()}
+    # Valor interno = nº de dias (independente da língua); o rótulo traduz-se só na apresentação
+    dias = st.selectbox(L["periodo_label"], list(periodo_opcoes.values()), index=1,
+                        format_func=lambda d: _label_por_dias.get(d, str(d)), key="risco_periodo_dias")
 with col_cap:
     capital = st.number_input(L["capital_label"], value=10000, step=500)
 
@@ -236,7 +243,7 @@ for col, t in zip(cols, dados.keys()):
             h += '</div>'
             return h
         st.markdown(f"**{t}**")
-        st.markdown(cartao_r("Vol. anual", f"{vol:.1f}%",
+        st.markdown(cartao_r(L["vol_anual"],f"{vol:.1f}%",
             f"{L['var_label']}: {var:.2f}%/dia"), unsafe_allow_html=True)
         st.markdown(f"""<div class='risco-box risco-{nivel}'>
             {L['perda_txt']} <strong>€{perda:,.0f}</strong> {L['capital_txt']} €{capital:,.0f}.
@@ -264,7 +271,7 @@ for i, t in enumerate(dados.keys()):
     fig2.add_trace(go.Scatter(x=precos.index, y=dd.values,
         name=t, line=dict(color=PLOT_COLORS[i % len(PLOT_COLORS)], width=1.5)))
 fig2.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title="Drawdown (%)", xaxis_title="Date",
+    yaxis_title="Drawdown (%)", xaxis_title=L["eixo_x"],
     hovermode="x unified", height=380,
     legend=dict(orientation="h", yanchor="bottom", y=1.02))
 st.plotly_chart(fig2, use_container_width=True)
@@ -280,13 +287,10 @@ for col, (nome, pct) in zip(cols2, cenarios.items()):
 
 if metricas_r:
     mais_vol = max(metricas_r.items(), key=lambda x: x[1]["vol"])
-    insight_risco = (
-        f"{mais_vol[0]} é o ativo com maior volatilidade ({mais_vol[1]['vol']}%). "
-        f"Num cenário de crash severo (-50%), o capital de €{capital:,.0f} reduziria para €{capital*0.5:,.0f}."
-    )
-    # Guarda o estado atual desta página para a página de Exportar reutilizar
+    # Guarda dados brutos (sem texto); o relatório compõe o texto na língua escolhida ao exportar
     st.session_state["export_risco"] = {
-        "metricas": metricas_r, "capital": capital, "insight": insight_risco,
+        "metricas": metricas_r, "capital": capital,
+        "mais_vol": {"ticker": mais_vol[0], "vol": mais_vol[1]["vol"]},
     }
 
 st.caption(L["aviso"])

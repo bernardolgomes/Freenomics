@@ -189,6 +189,15 @@ TEXTOS = {
 }
 L = TEXTOS.get(lang, TEXTOS["🇬🇧 English"])
 
+EXTRA = {
+    "🇵🇹 Português": {"remover": "Remover", "ex_ticker": "ex: AAPL", "spinner_ai": "🤖 A gerar análise com IA...", "api_indisp": "API indisponível. A usar análise automática.", "benchmark": "S&P 500 (benchmark)"},
+    "🇬🇧 English": {"remover": "Remove", "ex_ticker": "e.g. AAPL", "spinner_ai": "🤖 Generating AI analysis...", "api_indisp": "API unavailable. Using automatic analysis.", "benchmark": "S&P 500 (benchmark)"},
+    "🇫🇷 Français": {"remover": "Supprimer", "ex_ticker": "ex : AAPL", "spinner_ai": "🤖 Génération de l'analyse par IA...", "api_indisp": "API indisponible. Utilisation de l'analyse automatique.", "benchmark": "S&P 500 (benchmark)"},
+    "🇩🇪 Deutsch": {"remover": "Entfernen", "ex_ticker": "z. B. AAPL", "spinner_ai": "🤖 KI-Analyse wird erstellt...", "api_indisp": "API nicht verfügbar. Automatische Analyse wird verwendet.", "benchmark": "S&P 500 (Benchmark)"},
+    "🇪🇸 Español": {"remover": "Eliminar", "ex_ticker": "ej: AAPL", "spinner_ai": "🤖 Generando análisis con IA...", "api_indisp": "API no disponible. Usando análisis automático.", "benchmark": "S&P 500 (benchmark)"},
+}
+LX = EXTRA.get(lang, EXTRA["🇬🇧 English"])
+
 # ── CABEÇALHO ─────────────────────────────────────────────────
 show_logo()
 st.title(T["titulo"])
@@ -205,8 +214,11 @@ st.header(L["sec_carteira"])
 
 # Período
 periodo_opcoes = L["periodos"]
-periodo_label = st.radio(L["periodo_label"], list(periodo_opcoes.keys()), index=2, horizontal=True)
-dias = periodo_opcoes[periodo_label]
+_label_por_dias = {v: k for k, v in periodo_opcoes.items()}
+# Valor interno = nº de dias (independente da língua); o rótulo traduz-se só na apresentação
+dias = st.radio(L["periodo_label"], list(periodo_opcoes.values()), index=2, horizontal=True,
+                format_func=lambda d: _label_por_dias.get(d, str(d)), key="dash_periodo_dias")
+periodo_label = _label_por_dias[dias]
 
 st.markdown("---")
 
@@ -217,7 +229,7 @@ for i, ativo in enumerate(st.session_state.ativos):
     with c1:
         st.session_state.ativos[i]["ticker"] = st.text_input(
             L["ticker_label"], value=ativo["ticker"],
-            key=f"tk_{i}", placeholder="ex: AAPL").upper().strip()
+            key=f"tk_{i}", placeholder=LX["ex_ticker"]).upper().strip()
     with c2:
         st.session_state.ativos[i]["moeda"] = st.selectbox(
             L["moeda_label"], ["USD", "EUR"],
@@ -236,7 +248,7 @@ for i, ativo in enumerate(st.session_state.ativos):
     with c5:
         st.markdown("<br>", unsafe_allow_html=True)
         if len(st.session_state.ativos) > 1:
-            if st.button("🗑️", key=f"rm_{i}", help="Remover"):
+            if st.button("🗑️", key=f"rm_{i}", help=LX["remover"]):
                 ativos_para_remover = i
 
 if ativos_para_remover is not None:
@@ -284,13 +296,14 @@ def get_eurusd():
 if analisar:
     st.session_state["freenomics_resultado"] = {
         "ativos": [a.copy() for a in st.session_state.ativos],
-        "dias": dias, "periodo_label": periodo_label,
+        "dias": dias,
     }
 
 cfg      = st.session_state.get("freenomics_resultado", {})
 ativos_r = cfg.get("ativos", st.session_state.ativos)
 dias     = cfg.get("dias", dias)
-periodo_label = cfg.get("periodo_label", periodo_label)
+# O rótulo do período é derivado dos dias na língua atual (não é guardado)
+periodo_label = _label_por_dias.get(dias, periodo_label)
 
 tickers = [a["ticker"] for a in ativos_r if a["ticker"]]
 dados   = {}
@@ -435,13 +448,13 @@ if "SPY" not in tickers:
             if isinstance(c, pd.DataFrame): c = c.iloc[:, 0]
             c = c.squeeze()
             fig.add_trace(go.Scatter(x=df_spy.index, y=((c/c.iloc[0])*100).values.flatten(),
-                name="S&P 500 (benchmark)",
+                name=LX["benchmark"],
                 line=dict(color="#888888", width=1.5, dash="dash"), opacity=0.7))
     except Exception:
         pass
 
 fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title="Value (base 100)", xaxis_title="Date",
+    yaxis_title=T["grafico_y"], xaxis_title=T["grafico_x"],
     hovermode="x unified", height=440,
     font=dict(color="#1A1A1A"),
     xaxis=dict(color="#1A1A1A", tickfont=dict(color="#1A1A1A"),
@@ -510,14 +523,14 @@ def render(texto):
 
 insight_texto_final = None
 if api_key:
-    with st.spinner("🤖 A gerar análise com IA..."):
+    with st.spinner(LX["spinner_ai"]):
         texto_ai, ok = gerar_ai(metricas, periodo_label, lang, api_key)
     if ok and texto_ai:
         st.markdown(f"<div class='insight-box'>{render(texto_ai).replace(chr(10)+chr(10), '<br><br>')}</div>", unsafe_allow_html=True)
         st.caption("✨ " + L["aviso"])
         insight_texto_final = texto_ai
     else:
-        st.warning("API indisponível. A usar análise automática.")
+        st.warning(LX["api_indisp"])
         frases = fallback(metricas, periodo_label, L)
         for f in frases:
             st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
@@ -530,9 +543,19 @@ else:
     insight_texto_final = "\n\n".join(frases)
 
 # Guarda o estado atual desta página para a página de Exportar reutilizar
+# Para análise automática (sem IA) guardam-se as versões em todas as línguas,
+# para o relatório respeitar a língua escolhida no momento da exportação.
+insight_por_lang = {}
+if not (api_key and ok and texto_ai):
+    for _lg, _Ll in TEXTOS.items():
+        _plabel = {v: k for k, v in _Ll["periodos"].items()}.get(dias, periodo_label)
+        insight_por_lang[_lg] = "\n\n".join(fallback(metricas, _plabel, _Ll))
 st.session_state["export_dashboard"] = {
     "metricas": metricas,
     "insight": insight_texto_final,
+    "insight_por_lang": insight_por_lang,
+    "periodo_por_lang": {_lg: {v: k for k, v in _Ll["periodos"].items()}.get(dias, periodo_label)
+                         for _lg, _Ll in TEXTOS.items()},
     "periodo_label": periodo_label,
 }
 

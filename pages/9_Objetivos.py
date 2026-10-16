@@ -16,7 +16,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 
-CENARIOS = {
+CENARIOS_ALL = {
     "🇵🇹 Português": {"Poupança (2%/ano)": 0.02, "Conservador (4%/ano)": 0.04,
                        "Moderado (6%/ano)": 0.06, "Ações (8%/ano)": 0.08},
     "🇬🇧 English": {"Savings (2%/yr)": 0.02, "Conservative (4%/yr)": 0.04,
@@ -27,7 +27,21 @@ CENARIOS = {
                     "Moderat (6%/Jahr)": 0.06, "Aktien (8%/Jahr)": 0.08},
     "🇪🇸 Español": {"Ahorro (2%/año)": 0.02, "Conservador (4%/año)": 0.04,
                     "Moderado (6%/año)": 0.06, "Acciones (8%/año)": 0.08},
-}[lang]
+}
+CENARIOS = CENARIOS_ALL[lang]
+# Chave interna do cenário = taxa anual (independente da língua); o nome traduz-se só na apresentação
+NOME_CENARIO = {taxa: nome for nome, taxa in CENARIOS.items()}
+TAXAS = list(NOME_CENARIO.keys())
+CENARIOS_POR_LANG = {lg: {taxa: nome for nome, taxa in d.items()} for lg, d in CENARIOS_ALL.items()}
+
+EXTRA = {
+    "🇵🇹 Português": {"ex_nome": "ex: Casa"},
+    "🇬🇧 English": {"ex_nome": "e.g. House"},
+    "🇫🇷 Français": {"ex_nome": "ex : Maison"},
+    "🇩🇪 Deutsch": {"ex_nome": "z. B. Haus"},
+    "🇪🇸 Español": {"ex_nome": "ej: Casa"},
+}
+LX = EXTRA[lang]
 
 L = {
     "🇵🇹 Português": {
@@ -156,7 +170,7 @@ for i, obj in enumerate(st.session_state.objetivos):
     c1, c2, c3, c4, c5 = st.columns([2.5, 2, 2, 2, 0.4])
     with c1:
         st.session_state.objetivos[i]["nome"] = st.text_input(
-            L["nome_label"], value=obj["nome"], key=f"obj_nome_{i}", placeholder="ex: Casa")
+            L["nome_label"], value=obj["nome"], key=f"obj_nome_{i}", placeholder=LX["ex_nome"])
     with c2:
         st.session_state.objetivos[i]["valor_objetivo"] = st.number_input(
             L["valor_objetivo_label"], min_value=0.0, value=float(obj["valor_objetivo"]),
@@ -242,14 +256,14 @@ for obj in objetivos_calc:
     st.progress(progresso, text=f"{L['progresso']}: €{valor_atual:,.0f} / €{valor_objetivo:,.0f} ({progresso*100:.0f}%)")
 
     tempos = {}
-    for cenario, taxa in CENARIOS.items():
+    for taxa in TAXAS:
         meses = meses_ate_objetivo(valor_atual, valor_objetivo, alocacao, taxa)
-        tempos[cenario] = meses
+        tempos[taxa] = meses  # chave interna = taxa
 
-    cols_c = st.columns(len(CENARIOS))
-    for col, (cenario, meses) in zip(cols_c, tempos.items()):
+    cols_c = st.columns(len(TAXAS))
+    for col, (taxa_c, meses) in zip(cols_c, tempos.items()):
         with col:
-            st.markdown(f"**{cenario}**")
+            st.markdown(f"**{NOME_CENARIO[taxa_c]}**")
             if meses is None:
                 st.markdown(f"<div class='risco-box risco-alto'>{L['nao_atingivel']}</div>", unsafe_allow_html=True)
             elif meses == 0:
@@ -263,11 +277,11 @@ for obj in objetivos_calc:
                 </div>""", unsafe_allow_html=True)
 
     # Insight com o cenário "Moderado" (ou o primeiro disponível se não existir)
-    cenario_ref = next((c for c in tempos if "Moder" in c or "moder" in c.lower()), list(tempos.keys())[0])
-    meses_ref = tempos[cenario_ref]
+    taxa_ref = 0.06 if 0.06 in tempos else list(tempos.keys())[0]
+    meses_ref = tempos[taxa_ref]
     if meses_ref and meses_ref > 0:
         anos_r, resto_r = formatar_tempo(meses_ref)
-        st.markdown(f"<div class='insight-box'>{L['insight'](nome, cenario_ref, anos_r, resto_r, alocacao).replace('**','')}</div>",
+        st.markdown(f"<div class='insight-box'>{L['insight'](nome, NOME_CENARIO[taxa_ref], anos_r, resto_r, alocacao).replace('**','')}</div>",
                     unsafe_allow_html=True)
 
     export_objetivos.append({
@@ -281,8 +295,8 @@ if len(objetivos_calc) > 1:
     st.subheader(L["cenarios_titulo"])
     fig = go.Figure()
     for i, obj in enumerate(export_objetivos):
-        y_vals = [obj["tempos_meses"][c] / 12 if obj["tempos_meses"][c] is not None else None for c in CENARIOS]
-        fig.add_trace(go.Bar(x=list(CENARIOS.keys()), y=y_vals, name=obj["nome"],
+        y_vals = [obj["tempos_meses"][c] / 12 if obj["tempos_meses"][c] is not None else None for c in TAXAS]
+        fig.add_trace(go.Bar(x=[NOME_CENARIO[c] for c in TAXAS], y=y_vals, name=obj["nome"],
                               marker_color=PLOT_COLORS[i % len(PLOT_COLORS)], opacity=0.85))
     fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
         yaxis_title=L["anos_label"], barmode="group", height=380,
@@ -290,7 +304,11 @@ if len(objetivos_calc) > 1:
     st.plotly_chart(fig, use_container_width=True)
 
 # Guarda o estado desta página para a página de Exportar reutilizar
-st.session_state["export_objetivos"] = {"objetivos": export_objetivos}
+st.session_state["export_objetivos"] = {
+    "objetivos": export_objetivos,
+    # nomes dos cenários por língua (chave = taxa anual); o relatório usa a língua escolhida ao exportar
+    "cenarios_por_lang": CENARIOS_POR_LANG,
+}
 
 st.caption(L["aviso"])
 st.markdown("---")

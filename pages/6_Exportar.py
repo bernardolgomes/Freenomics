@@ -22,7 +22,7 @@ from reportlab.platypus import (
     TableStyle, HRFlowable, PageBreak
 )
 from reportlab.lib.enums import TA_CENTER
-from translations import CSS, FIX_DROPDOWNS_JS
+from translations import CSS, FIX_DROPDOWNS_JS, LINGUAS, T_GERAL
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -157,6 +157,119 @@ T = {
     },
 }[lang]
 
+# ── TEXTOS DO CONTEÚDO DO RELATÓRIO (PDF e Excel) ─────────────
+# Cada chave tem 5 valores, pela ordem de LINGUAS: PT, EN, FR, DE, ES.
+_IDX = LINGUAS.index(lang)
+_K = {
+    "ativo": ("Ativo", "Asset", "Actif", "Anlage", "Activo"),
+    "retorno": ("Retorno", "Return", "Rendement", "Rendite", "Rendimiento"),
+    "volatilidade": ("Volatilidade", "Volatility", "Volatilité", "Volatilität", "Volatilidad"),
+    "max_dd": ("Max Drawdown", "Max Drawdown", "Drawdown max", "Max. Drawdown", "Max Drawdown"),
+    "sharpe": ("Sharpe", "Sharpe", "Sharpe", "Sharpe", "Sharpe"),
+    "periodo": ("Período", "Period", "Période", "Zeitraum", "Período"),
+    "rend_total": ("Rendimento total", "Total income", "Revenu total", "Gesamteinkommen", "Ingresos totales"),
+    "desp_total": ("Despesas totais", "Total expenses", "Dépenses totales", "Gesamtausgaben", "Gastos totales"),
+    "cap_inv_mes": ("Capacidade de investir/mês", "Investing capacity/month", "Capacité d'investir/mois", "Investitionsfähigkeit/Monat", "Capacidad de invertir/mes"),
+    "tx_esforco": ("Taxa de esforço", "Expense ratio", "Taux d'effort", "Ausgabenquote", "Tasa de esfuerzo"),
+    "tx_poup": ("Taxa de poupança", "Savings rate", "Taux d'épargne", "Sparquote", "Tasa de ahorro"),
+    "progresso": ("Progresso", "Progress", "Progrès", "Fortschritt", "Progreso"),
+    "aloc_mensal": ("Alocação mensal", "Monthly allocation", "Allocation mensuelle", "Monatliche Zuweisung", "Asignación mensual"),
+    "cenario": ("Cenário", "Scenario", "Scénario", "Szenario", "Escenario"),
+    "tempo_est": ("Tempo estimado", "Estimated time", "Temps estimé", "Geschätzte Zeit", "Tiempo estimado"),
+    "nao_ating": ("Não atingível", "Not reachable", "Non atteignable", "Nicht erreichbar", "No alcanzable"),
+    "ja_ating": ("Já atingido", "Already reached", "Déjà atteint", "Bereits erreicht", "Ya alcanzado"),
+    "anos_u": ("anos", "years", "ans", "Jahre", "años"),
+    "meses_u": ("meses", "months", "mois", "Monate", "meses"),
+    "calc_em": ("Calculado em", "Calculated on", "Calculé le", "Berechnet am", "Calculado el"),
+    "categoria": ("Categoria", "Category", "Catégorie", "Kategorie", "Categoría"),
+    "valor": ("Valor", "Value", "Valeur", "Wert", "Valor"),
+    "tot_ativos": ("Total de Ativos", "Total Assets", "Total des Actifs", "Gesamtvermögen", "Total de Activos"),
+    "tot_passivos": ("Total de Passivos", "Total Liabilities", "Total des Passifs", "Gesamtschulden", "Total de Pasivos"),
+    "pat_liq": ("Património Líquido", "Net Worth", "Patrimoine Net", "Nettovermögen", "Patrimonio Neto"),
+    "carteira": ("Carteira", "Portfolio", "Portefeuille", "Portfolio", "Cartera"),
+    "parametro": ("Parâmetro", "Parameter", "Paramètre", "Parameter", "Parámetro"),
+    "inv_inicial": ("Investimento inicial", "Initial investment", "Investissement initial", "Anfangsinvestition", "Inversión inicial"),
+    "contrib": ("Contribuição mensal", "Monthly contribution", "Contribution mensuelle", "Monatlicher Beitrag", "Contribución mensual"),
+    "horizonte": ("Horizonte temporal", "Time horizon", "Horizon temporel", "Anlagehorizont", "Horizonte temporal"),
+    "ret_esp": ("Retorno anual esperado", "Expected annual return", "Rendement annuel attendu", "Erwartete Jahresrendite", "Rentabilidad anual esperada"),
+    "inflacao": ("Inflação estimada", "Estimated inflation", "Inflation estimée", "Geschätzte Inflation", "Inflación estimada"),
+    "tot_inv": ("Total investido", "Total invested", "Total investi", "Gesamt investiert", "Total invertido"),
+    "vf_nom": ("Valor final (nominal)", "Final value (nominal)", "Valeur finale (nominale)", "Endwert (nominal)", "Valor final (nominal)"),
+    "vf_real": ("Valor final (real, adj. inflação)", "Final value (real, inflation-adj.)", "Valeur finale (réelle, adj. inflation)", "Endwert (real, inflationsbereinigt)", "Valor final (real, adj. inflación)"),
+    "ganhos": ("Ganhos via juro composto", "Gains from compound interest", "Gains via intérêts composés", "Gewinne durch Zinseszins", "Ganancias por interés compuesto"),
+    "mult": ("Multiplicador", "Multiplier", "Multiplicateur", "Multiplikator", "Multiplicador"),
+    "vol_var": ("Volatilidade e Value at Risk", "Volatility and Value at Risk", "Volatilité et Value at Risk", "Volatilität und Value at Risk", "Volatilidad y Value at Risk"),
+    "vol_anual": ("Volatilidade Anual", "Annual Volatility", "Volatilité annuelle", "Jährliche Volatilität", "Volatilidad anual"),
+    "var_dia": ("VaR 95%/dia", "VaR 95%/day", "VaR 95%/jour", "VaR 95%/Tag", "VaR 95%/día"),
+    "nivel": ("Nível de risco", "Risk level", "Niveau de risque", "Risikostufe", "Nivel de riesgo"),
+    "alto": ("Alto", "High", "Élevé", "Hoch", "Alto"),
+    "medio": ("Médio", "Medium", "Moyen", "Mittel", "Medio"),
+    "baixo": ("Baixo", "Low", "Faible", "Niedrig", "Bajo"),
+    "stress": ("Cenários de Stress", "Stress Scenarios", "Scénarios de stress", "Stressszenarien", "Escenarios de estrés"),
+    "cap_rest": ("Capital restante", "Remaining capital", "Capital restant", "Verbleibendes Kapital", "Capital restante"),
+    "perda_est": ("Perda estimada", "Estimated loss", "Perte estimée", "Geschätzter Verlust", "Pérdida estimada"),
+    "hist_cons": ("Histórico considerado", "History considered", "Historique considéré", "Berücksichtigte Historie", "Historial considerado"),
+    "div_yield": ("Dividend Yield", "Dividend Yield", "Dividend Yield", "Dividendenrendite", "Dividend Yield"),
+    "val_acao_ano": ("Valor por ação/ano", "Value per share/year", "Valeur par action/an", "Wert je Aktie/Jahr", "Valor por acción/año"),
+    "titulo_col": ("Título", "Title", "Titre", "Titel", "Título"),
+    "fonte": ("Fonte", "Source", "Source", "Quelle", "Fuente"),
+    "data": ("Data", "Date", "Date", "Datum", "Fecha"),
+    "resumo": ("Resumo", "Summary", "Résumé", "Zusammenfassung", "Resumen"),
+    "analise": ("Análise", "Analysis", "Analyse", "Analyse", "Análisis"),
+    "item": ("Item", "Item", "Élément", "Eintrag", "Elemento"),
+    "objetivo": ("Objetivo", "Goal", "Objectif", "Ziel", "Objetivo"),
+    "valor_atual": ("Valor Atual", "Current Value", "Valeur actuelle", "Aktueller Wert", "Valor actual"),
+    "valor_obj": ("Valor Objetivo", "Target Value", "Valeur cible", "Zielwert", "Valor objetivo"),
+    "aviso_col": ("Aviso", "Notice", "Avertissement", "Hinweis", "Aviso"),
+    "sem_export": ("Sem dados para exportar.", "No data to export.", "Aucune donnée à exporter.", "Keine Daten zum Exportieren.", "Sin datos para exportar."),
+    "sh_orc": ("Orçamento", "Budget", "Budget", "Budget", "Presupuesto"),
+    "sh_obj": ("Objetivos", "Goals", "Objectifs", "Ziele", "Objetivos"),
+    "sh_pat": ("Património", "Net Worth", "Patrimoine", "Vermögen", "Patrimonio"),
+    "sh_dash": ("Análise de Carteira", "Portfolio Analysis", "Analyse Portefeuille", "Portfolio-Analyse", "Análisis Cartera"),
+    "sh_comp": ("Comparador", "Comparator", "Comparateur", "Vergleich", "Comparador"),
+    "sh_sim": ("Simulador", "Simulator", "Simulateur", "Simulator", "Simulador"),
+    "sh_risco": ("Risco", "Risk", "Risque", "Risiko", "Riesgo"),
+    "sh_div": ("Dividendos", "Dividends", "Dividendes", "Dividenden", "Dividendos"),
+    "sh_not": ("Notícias", "News", "Actualités", "Nachrichten", "Noticias"),
+}
+X = {k: v[_IDX] for k, v in _K.items()}
+
+_RISCO_INSIGHT = (
+    lambda t, v, c: f"{t} é o ativo com maior volatilidade ({v}%). Num cenário de crash severo (-50%), o capital de €{c:,.0f} reduziria para €{c*0.5:,.0f}.",
+    lambda t, v, c: f"{t} is the asset with the highest volatility ({v}%). In a severe crash scenario (-50%), the capital of €{c:,.0f} would drop to €{c*0.5:,.0f}.",
+    lambda t, v, c: f"{t} est l'actif le plus volatil ({v}%). Dans un scénario de krach sévère (-50%), le capital de €{c:,.0f} tomberait à €{c*0.5:,.0f}.",
+    lambda t, v, c: f"{t} ist die Anlage mit der höchsten Volatilität ({v}%). Bei einem schweren Crash (-50%) würde das Kapital von €{c:,.0f} auf €{c*0.5:,.0f} sinken.",
+    lambda t, v, c: f"{t} es el activo con mayor volatilidad ({v}%). En un escenario de crash severo (-50%), el capital de €{c:,.0f} se reduciría a €{c*0.5:,.0f}.",
+)[_IDX]
+
+def _por_lang(dados, chave_lang, chave_base):
+    """Devolve dados[chave_lang][lang] se existir (texto guardado em todas as línguas); senão dados[chave_base]."""
+    return (dados.get(chave_lang) or {}).get(lang) or dados.get(chave_base)
+
+def _tempo_txt(meses, curto=False):
+    if meses is None:
+        return X["nao_ating"]
+    if meses == 0:
+        return X["ja_ating"]
+    anos, resto = divmod(meses, 12)
+    return f"{anos} {X['anos_u']}, {resto} {X['meses_u']}"
+
+def nome_carteira(p):
+    """Nome da carteira do Comparador na língua atual (letra guardada; nome antigo como fallback)."""
+    return f"{X['carteira']} {p['letra']}" if p.get("letra") else p["nome"]
+
+def risco_insight_txt(risco):
+    """Texto do insight de risco composto na língua atual a partir dos dados brutos."""
+    mv = risco.get("mais_vol")
+    if mv:
+        return _RISCO_INSIGHT(mv["ticker"], mv["vol"], risco["capital"])
+    return risco.get("insight")
+
+def _nome_cenario_obj(obj_data, chave):
+    """Nome do cenário de Objetivos na língua atual (a chave interna é a taxa anual)."""
+    por_lang = (obj_data.get("cenarios_por_lang") or {}).get(lang) or {}
+    return por_lang.get(chave, str(chave))
+
 # ── CABEÇALHO ────────────────────────────────────────────────
 show_logo()
 st.title(T["titulo"])
@@ -185,7 +298,8 @@ for inicio in range(0, len(itens), 4):
     for col, (chave, (session_key, label)) in zip(cols, bloco):
         disponivel = session_key in st.session_state
         with col:
-            marcado = st.checkbox(label, value=disponivel, disabled=not disponivel)
+            marcado = st.checkbox(label, value=disponivel, disabled=not disponivel,
+                                  key=f"exp_chk_{chave}")
             if disponivel and marcado:
                 selecionadas[chave] = st.session_state[session_key]
             if not disponivel:
@@ -232,7 +346,7 @@ def gerar_pdf_completo(secoes):
         return re.sub(r"\*\*(.*?)\*\*", r"\1", texto)
 
     def tabela_metricas(dados_metricas, labels):
-        cab = ["Ativo"] + labels
+        cab = [X["ativo"]] + labels
         linhas = [cab]
         for t, m in dados_metricas.items():
             linhas.append([t, f"{m['retorno_total']}%", f"{m['volatilidade']}%",
@@ -270,14 +384,14 @@ def gerar_pdf_completo(secoes):
         add_secao_titulo(T["sec_orcamento"])
         orc = secoes["orcamento"]
         dados_o = [
-            ["Rendimento total", f"€{orc['total_rendimento']:,.0f}"],
-            ["Despesas totais", f"€{orc['total_despesas']:,.0f}"],
-            ["Capacidade de investir/mês", f"€{orc['saldo_mensal']:,.0f}"],
-            ["Taxa de esforço", f"{orc['taxa_esforco']}%"],
-            ["Taxa de poupança", f"{orc['taxa_poupanca']}%"],
+            [X["rend_total"], f"€{orc['total_rendimento']:,.0f}"],
+            [X["desp_total"], f"€{orc['total_despesas']:,.0f}"],
+            [X["cap_inv_mes"], f"€{orc['saldo_mensal']:,.0f}"],
+            [X["tx_esforco"], f"{orc['taxa_esforco']}%"],
+            [X["tx_poup"], f"{orc['taxa_poupanca']}%"],
             ["", ""],
         ]
-        for nome, valor in orc.get("categorias", []):
+        for nome, valor in _por_lang(orc, "categorias_por_lang", "categorias") or []:
             dados_o.append([nome, f"€{valor:,.0f}"])
         tab_o = Table(dados_o, colWidths=[9*cm, 8*cm])
         tab_o.setStyle(TableStyle([
@@ -302,18 +416,11 @@ def gerar_pdf_completo(secoes):
             el.append(Paragraph(f"🎯 {obj['nome']}", e_h2))
             progresso = (obj["valor_atual"] / obj["valor_objetivo"] * 100) if obj["valor_objetivo"] else 0
             el.append(Paragraph(
-                f"Progresso: €{obj['valor_atual']:,.0f} / €{obj['valor_objetivo']:,.0f} ({progresso:.0f}%) · "
-                f"Alocação mensal: €{obj['alocacao']:,.0f}", e_corpo))
-            dados_g = [["Cenário", "Tempo estimado"]]
+                f"{X['progresso']}: €{obj['valor_atual']:,.0f} / €{obj['valor_objetivo']:,.0f} ({progresso:.0f}%) · "
+                f"{X['aloc_mensal']}: €{obj['alocacao']:,.0f}", e_corpo))
+            dados_g = [[X["cenario"], X["tempo_est"]]]
             for cenario, meses in obj.get("tempos_meses", {}).items():
-                if meses is None:
-                    texto_tempo = "Não atingível"
-                elif meses == 0:
-                    texto_tempo = "Já atingido"
-                else:
-                    anos, resto = divmod(meses, 12)
-                    texto_tempo = f"{anos} anos, {resto} meses"
-                dados_g.append([cenario, texto_tempo])
+                dados_g.append([_nome_cenario_obj(obj_data, cenario), _tempo_txt(meses)])
             tab_g = Table(dados_g, colWidths=[8.5*cm, 8.5*cm])
             tab_g.setStyle(TableStyle([
                 ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
@@ -333,14 +440,14 @@ def gerar_pdf_completo(secoes):
         add_secao_titulo(T["sec_patrimonio"])
         pat = secoes["patrimonio"]
         if pat.get("data"):
-            el.append(Paragraph(f"Calculado em: {pat['data']}", e_h2))
-        dados_p = [["Categoria", "Valor"]]
-        for nome, valor in pat.get("categorias", []):
+            el.append(Paragraph(f"{X['calc_em']}: {pat['data']}", e_h2))
+        dados_p = [[X["categoria"], X["valor"]]]
+        for nome, valor in _por_lang(pat, "categorias_por_lang", "categorias") or []:
             dados_p.append([nome, f"€{valor:,.0f}"])
         dados_p.append(["", ""])
-        dados_p.append(["Total de Ativos", f"€{pat['total_ativos']:,.0f}"])
-        dados_p.append(["Total de Passivos", f"€{pat['total_passivos']:,.0f}"])
-        dados_p.append(["Património Líquido", f"€{pat['patrimonio']:,.0f}"])
+        dados_p.append([X["tot_ativos"], f"€{pat['total_ativos']:,.0f}"])
+        dados_p.append([X["tot_passivos"], f"€{pat['total_passivos']:,.0f}"])
+        dados_p.append([X["pat_liq"], f"€{pat['patrimonio']:,.0f}"])
         tab_p = Table(dados_p, colWidths=[9*cm, 8*cm])
         tab_p.setStyle(TableStyle([
             ("BACKGROUND",(0,0),(-1,0),AZUL), ("TEXTCOLOR",(0,0),(-1,0),colors.white),
@@ -362,26 +469,28 @@ def gerar_pdf_completo(secoes):
     def render_dashboard():
         add_secao_titulo(T["sec_dashboard"])
         dash = secoes["dashboard"]
-        if dash.get("periodo_label"):
-            el.append(Paragraph(f"Período: {dash['periodo_label']}", e_h2))
-        labels = ["Retorno", "Volatilidade", "Max Drawdown", "Sharpe"]
+        plabel = _por_lang(dash, "periodo_por_lang", "periodo_label")
+        if plabel:
+            el.append(Paragraph(f"{X['periodo']}: {plabel}", e_h2))
+        labels = [X["retorno"], X["volatilidade"], X["max_dd"], X["sharpe"]]
         el.append(tabela_metricas(dash["metricas"], labels))
         el.append(Spacer(1, 0.4*cm))
-        add_insight(dash["insight"])
+        add_insight(_por_lang(dash, "insight_por_lang", "insight"))
 
     # ── SECÇÃO COMPARADOR ──
     def render_comparador():
         add_secao_titulo(T["sec_comparador"])
         comp = secoes["comparador"]
-        if comp.get("periodo_label"):
-            el.append(Paragraph(f"Período: {comp['periodo_label']}", e_h2))
+        plabel = _por_lang(comp, "periodo_por_lang", "periodo_label")
+        if plabel:
+            el.append(Paragraph(f"{X['periodo']}: {plabel}", e_h2))
         portfolios = comp.get("portfolios", [])
         if portfolios:
-            cab = ["", "Retorno", "Volatilidade", "Max Drawdown", "Sharpe"]
+            cab = ["", X["retorno"], X["volatilidade"], X["max_dd"], X["sharpe"]]
             linhas_c = [cab]
             for p in portfolios:
                 m = p["metricas"]
-                linhas_c.append([p["nome"], f"{m['retorno']}%", f"{m['vol']}%",
+                linhas_c.append([nome_carteira(p), f"{m['retorno']}%", f"{m['vol']}%",
                                   f"{m['dd']}%", str(m['sharpe'])])
             # Larguras dinâmicas: primeira coluna maior, restantes divididas pelo espaço disponível (17cm úteis em A4)
             largura_nome = 5*cm
@@ -400,25 +509,25 @@ def gerar_pdf_completo(secoes):
             ]))
             el.append(tab_c)
             el.append(Spacer(1, 0.4*cm))
-        add_insight(comp.get("insight"))
+        add_insight(_por_lang(comp, "insight_por_lang", "insight"))
 
     # ── SECÇÃO SIMULADOR ──
     def render_simulador():
         add_secao_titulo(T["sec_simulador"])
         sim = secoes["simulador"]
         dados_sim = [
-            ["Parâmetro", "Valor"],
-            ["Investimento inicial", f"€{sim['inv_inicial']:,.0f}"],
-            ["Contribuição mensal", f"€{sim['contrib']:,.0f}"],
-            ["Horizonte temporal", f"{sim['anos']} anos"],
-            ["Retorno anual esperado", f"{sim['retorno']}%"],
-            ["Inflação estimada", f"{sim['inflacao']}%"],
+            [X["parametro"], X["valor"]],
+            [X["inv_inicial"], f"€{sim['inv_inicial']:,.0f}"],
+            [X["contrib"], f"€{sim['contrib']:,.0f}"],
+            [X["horizonte"], f"{sim['anos']} {X['anos_u']}"],
+            [X["ret_esp"], f"{sim['retorno']}%"],
+            [X["inflacao"], f"{sim['inflacao']}%"],
             ["", ""],
-            ["Total investido", f"€{sim['total_inv']:,.0f}"],
-            ["Valor final (nominal)", f"€{sim['valor_final']:,.0f}"],
-            ["Valor final (real, adj. inflação)", f"€{sim['valor_real']:,.0f}"],
-            ["Ganhos via juro composto", f"€{sim['ganho']:,.0f}"],
-            ["Multiplicador", f"{sim['multiplicador']:.1f}x"],
+            [X["tot_inv"], f"€{sim['total_inv']:,.0f}"],
+            [X["vf_nom"], f"€{sim['valor_final']:,.0f}"],
+            [X["vf_real"], f"€{sim['valor_real']:,.0f}"],
+            [X["ganhos"], f"€{sim['ganho']:,.0f}"],
+            [X["mult"], f"{sim['multiplicador']:.1f}x"],
         ]
         tab_s = Table(dados_sim, colWidths=[9*cm, 8*cm])
         tab_s.setStyle(TableStyle([
@@ -436,17 +545,17 @@ def gerar_pdf_completo(secoes):
         ]))
         el.append(tab_s)
         el.append(Spacer(1, 0.4*cm))
-        add_insight(sim["insight"])
+        add_insight(_por_lang(sim, "insight_por_lang", "insight"))
 
     # ── SECÇÃO RISCO ──
     def render_risco():
         add_secao_titulo(T["sec_risco"])
         risco = secoes["risco"]
         capital = risco["capital"]
-        el.append(Paragraph("Volatilidade e Value at Risk", e_h2))
-        dados_r = [["Ativo", "Volatilidade Anual", "VaR 95%/dia", "Nível de risco"]]
+        el.append(Paragraph(X["vol_var"], e_h2))
+        dados_r = [[X["ativo"], X["vol_anual"], X["var_dia"], X["nivel"]]]
         for t, m in risco["metricas"].items():
-            nivel = "Alto" if m["vol"] > 40 else ("Médio" if m["vol"] > 20 else "Baixo")
+            nivel = X["alto"] if m["vol"] > 40 else (X["medio"] if m["vol"] > 20 else X["baixo"])
             dados_r.append([t, f"{m['vol']:.1f}%", f"{m['var']:.2f}%", nivel])
         tab_r = Table(dados_r, colWidths=[4*cm, 4.5*cm, 4.5*cm, 4*cm])
         tab_r.setStyle(TableStyle([
@@ -462,10 +571,9 @@ def gerar_pdf_completo(secoes):
         ]))
         el.append(tab_r)
         el.append(Spacer(1, 0.3*cm))
-        el.append(Paragraph("Cenários de Stress", e_h2))
-        cenarios = {"Correção leve (-10%)": -0.10, "Correção moderada (-20%)": -0.20,
-                    "Bear market (-35%)": -0.35, "Crash severo (-50%)": -0.50}
-        dados_stress = [["Cenário", "Capital restante", "Perda estimada"]]
+        el.append(Paragraph(X["stress"], e_h2))
+        cenarios = T_GERAL[lang]["risco_cenarios"]
+        dados_stress = [[X["cenario"], X["cap_rest"], X["perda_est"]]]
         for nome, pct in cenarios.items():
             dados_stress.append([nome, f"€{capital*(1+pct):,.0f}", f"€{capital*pct:,.0f}"])
         tab_stress = Table(dados_stress, colWidths=[6*cm, 5.5*cm, 5.5*cm])
@@ -482,15 +590,15 @@ def gerar_pdf_completo(secoes):
         ]))
         el.append(tab_stress)
         el.append(Spacer(1, 0.4*cm))
-        add_insight(risco["insight"])
+        add_insight(risco_insight_txt(risco))
 
     # ── SECÇÃO DIVIDENDOS ──
     def render_dividendos():
         add_secao_titulo(T["sec_dividendos"])
         div = secoes["dividendos"]
         if div.get("anos"):
-            el.append(Paragraph(f"Histórico considerado: {div['anos']} anos", e_h2))
-        dados_d = [["Ativo", "Dividend Yield", "Valor por ação/ano"]]
+            el.append(Paragraph(f"{X['hist_cons']}: {div['anos']} {X['anos_u']}", e_h2))
+        dados_d = [[X["ativo"], X["div_yield"], X["val_acao_ano"]]]
         for t, m in div["tickers"].items():
             dados_d.append([t, f"{m['yield']}%", f"${m['rate']}"])
         tab_d = Table(dados_d, colWidths=[5.5*cm, 5.5*cm, 5.5*cm])
@@ -563,107 +671,101 @@ def gerar_excel_completo(secoes):
     buffer = io.BytesIO()
 
     def df_from_pairs(pares):
-        return pd.DataFrame(pares, columns=["Item", "Valor"])
+        return pd.DataFrame(pares, columns=[X["item"], X["valor"]])
 
     def sheet_orcamento():
         orc = secoes["orcamento"]
         pares = [
-            ("Rendimento total (€)", orc["total_rendimento"]),
-            ("Despesas totais (€)", orc["total_despesas"]),
-            ("Capacidade de investir/mês (€)", orc["saldo_mensal"]),
-            ("Taxa de esforço (%)", orc["taxa_esforco"]),
-            ("Taxa de poupança (%)", orc["taxa_poupanca"]),
+            (f"{X['rend_total']} (€)", orc["total_rendimento"]),
+            (f"{X['desp_total']} (€)", orc["total_despesas"]),
+            (f"{X['cap_inv_mes']} (€)", orc["saldo_mensal"]),
+            (f"{X['tx_esforco']} (%)", orc["taxa_esforco"]),
+            (f"{X['tx_poup']} (%)", orc["taxa_poupanca"]),
             ("", ""),
         ]
-        for nome, valor in orc.get("categorias", []):
+        for nome, valor in _por_lang(orc, "categorias_por_lang", "categorias") or []:
             pares.append((nome, valor))
-        return {"Orçamento": df_from_pairs(pares)}
+        return {X["sh_orc"]: df_from_pairs(pares)}
 
     def sheet_objetivos():
+        obj_data = secoes["objetivos"]
         linhas = []
-        for obj in secoes["objetivos"].get("objetivos", []):
-            base = {"Objetivo": obj["nome"], "Valor Atual (€)": obj["valor_atual"],
-                    "Valor Objetivo (€)": obj["valor_objetivo"], "Alocação Mensal (€)": obj["alocacao"]}
+        for obj in obj_data.get("objetivos", []):
+            base = {X["objetivo"]: obj["nome"], f"{X['valor_atual']} (€)": obj["valor_atual"],
+                    f"{X['valor_obj']} (€)": obj["valor_objetivo"], f"{X['aloc_mensal']} (€)": obj["alocacao"]}
             for cenario, meses in obj.get("tempos_meses", {}).items():
-                if meses is None:
-                    texto = "Não atingível"
-                elif meses == 0:
-                    texto = "Já atingido"
-                else:
-                    anos, resto = divmod(meses, 12)
-                    texto = f"{anos}a {resto}m"
-                base[cenario] = texto
+                base[_nome_cenario_obj(obj_data, cenario)] = _tempo_txt(meses)
             linhas.append(base)
-        return {"Objetivos": pd.DataFrame(linhas)}
+        return {X["sh_obj"]: pd.DataFrame(linhas)}
 
     def sheet_patrimonio():
         pat = secoes["patrimonio"]
-        pares = list(pat.get("categorias", [])) + [
+        pares = list(_por_lang(pat, "categorias_por_lang", "categorias") or []) + [
             ("", ""),
-            ("Total de Ativos (€)", pat["total_ativos"]),
-            ("Total de Passivos (€)", pat["total_passivos"]),
-            ("Património Líquido (€)", pat["patrimonio"]),
+            (f"{X['tot_ativos']} (€)", pat["total_ativos"]),
+            (f"{X['tot_passivos']} (€)", pat["total_passivos"]),
+            (f"{X['pat_liq']} (€)", pat["patrimonio"]),
         ]
-        return {"Património": df_from_pairs(pares)}
+        return {X["sh_pat"]: df_from_pairs(pares)}
 
     def sheet_dashboard():
         dash = secoes["dashboard"]
-        linhas = [{"Ativo": t, "Retorno (%)": m["retorno_total"], "Volatilidade (%)": m["volatilidade"],
-                   "Max Drawdown (%)": m["max_drawdown"], "Sharpe": m["sharpe"]}
+        linhas = [{X["ativo"]: t, f"{X['retorno']} (%)": m["retorno_total"], f"{X['volatilidade']} (%)": m["volatilidade"],
+                   f"{X['max_dd']} (%)": m["max_drawdown"], X["sharpe"]: m["sharpe"]}
                   for t, m in dash["metricas"].items()]
         df = pd.DataFrame(linhas)
-        if dash.get("insight"):
-            df_insight = pd.DataFrame([{"Análise": dash["insight"]}])
-            return {"Dashboard": df, "Dashboard - Análise": df_insight}
-        return {"Dashboard": df}
+        insight = _por_lang(dash, "insight_por_lang", "insight")
+        if insight:
+            df_insight = pd.DataFrame([{X["analise"]: insight}])
+            return {X["sh_dash"]: df, f"{X['sh_dash']} - {X['analise']}": df_insight}
+        return {X["sh_dash"]: df}
 
     def sheet_comparador():
         comp = secoes["comparador"]
-        linhas = [{"Carteira": p["nome"], "Retorno (%)": p["metricas"]["retorno"],
-                   "Volatilidade (%)": p["metricas"]["vol"], "Max Drawdown (%)": p["metricas"]["dd"],
-                   "Sharpe": p["metricas"]["sharpe"]} for p in comp.get("portfolios", [])]
-        return {"Comparador": pd.DataFrame(linhas)}
+        linhas = [{X["carteira"]: nome_carteira(p), f"{X['retorno']} (%)": p["metricas"]["retorno"],
+                   f"{X['volatilidade']} (%)": p["metricas"]["vol"], f"{X['max_dd']} (%)": p["metricas"]["dd"],
+                   X["sharpe"]: p["metricas"]["sharpe"]} for p in comp.get("portfolios", [])]
+        return {X["sh_comp"]: pd.DataFrame(linhas)}
 
     def sheet_simulador():
         sim = secoes["simulador"]
         pares = [
-            ("Investimento inicial (€)", sim["inv_inicial"]),
-            ("Contribuição mensal (€)", sim["contrib"]),
-            ("Horizonte temporal (anos)", sim["anos"]),
-            ("Retorno anual esperado (%)", sim["retorno"]),
-            ("Inflação estimada (%)", sim["inflacao"]),
-            ("Total investido (€)", sim["total_inv"]),
-            ("Valor final nominal (€)", sim["valor_final"]),
-            ("Valor final real (€)", sim["valor_real"]),
-            ("Ganhos via juro composto (€)", sim["ganho"]),
-            ("Multiplicador", round(sim["multiplicador"], 2)),
+            (f"{X['inv_inicial']} (€)", sim["inv_inicial"]),
+            (f"{X['contrib']} (€)", sim["contrib"]),
+            (f"{X['horizonte']} ({X['anos_u']})", sim["anos"]),
+            (f"{X['ret_esp']} (%)", sim["retorno"]),
+            (f"{X['inflacao']} (%)", sim["inflacao"]),
+            (f"{X['tot_inv']} (€)", sim["total_inv"]),
+            (f"{X['vf_nom']} (€)", sim["valor_final"]),
+            (f"{X['vf_real']} (€)", sim["valor_real"]),
+            (f"{X['ganhos']} (€)", sim["ganho"]),
+            (X["mult"], round(sim["multiplicador"], 2)),
         ]
-        return {"Simulador": df_from_pairs(pares)}
+        return {X["sh_sim"]: df_from_pairs(pares)}
 
     def sheet_risco():
         risco = secoes["risco"]
         capital = risco["capital"]
-        linhas = [{"Ativo": t, "Volatilidade Anual (%)": m["vol"], "VaR 95%/dia (%)": m["var"]}
+        linhas = [{X["ativo"]: t, f"{X['vol_anual']} (%)": m["vol"], f"{X['var_dia']} (%)": m["var"]}
                   for t, m in risco["metricas"].items()]
-        cenarios = {"Correção leve (-10%)": -0.10, "Correção moderada (-20%)": -0.20,
-                    "Bear market (-35%)": -0.35, "Crash severo (-50%)": -0.50}
-        linhas_stress = [{"Cenário": nome, "Capital restante (€)": round(capital*(1+pct), 2),
-                           "Perda estimada (€)": round(capital*pct, 2)} for nome, pct in cenarios.items()]
-        return {"Risco": pd.DataFrame(linhas), "Risco - Stress": pd.DataFrame(linhas_stress)}
+        cenarios = T_GERAL[lang]["risco_cenarios"]
+        linhas_stress = [{X["cenario"]: nome, f"{X['cap_rest']} (€)": round(capital*(1+pct), 2),
+                           f"{X['perda_est']} (€)": round(capital*pct, 2)} for nome, pct in cenarios.items()]
+        return {X["sh_risco"]: pd.DataFrame(linhas), f"{X['sh_risco']} - Stress": pd.DataFrame(linhas_stress)}
 
     def sheet_dividendos():
         div = secoes["dividendos"]
-        linhas = [{"Ativo": t, "Dividend Yield (%)": m["yield"], "Valor por ação/ano ($)": m["rate"]}
+        linhas = [{X["ativo"]: t, f"{X['div_yield']} (%)": m["yield"], f"{X['val_acao_ano']} ($)": m["rate"]}
                   for t, m in div["tickers"].items()]
-        return {"Dividendos": pd.DataFrame(linhas)}
+        return {X["sh_div"]: pd.DataFrame(linhas)}
 
     def sheet_noticias():
         linhas = []
         for ticker, artigos in secoes["noticias"].items():
             for a in artigos:
-                linhas.append({"Ativo": ticker, "Título": a["titulo"], "Fonte": a["fonte"],
-                                "Data": a["data"], "Resumo": a["resumo"]})
-        return {"Notícias": pd.DataFrame(linhas)}
+                linhas.append({X["ativo"]: ticker, X["titulo_col"]: a["titulo"], X["fonte"]: a["fonte"],
+                                X["data"]: a["data"], X["resumo"]: a["resumo"]})
+        return {X["sh_not"]: pd.DataFrame(linhas)}
 
     SHEET_BUILDERS = {
         "orcamento": sheet_orcamento, "objetivos": sheet_objetivos,
@@ -686,7 +788,7 @@ def gerar_excel_completo(secoes):
                 df.to_excel(writer, sheet_name=nome_folha[:31], index=False)
                 algum_dado = True
         if not algum_dado:
-            pd.DataFrame({"Aviso": ["Sem dados para exportar."]}).to_excel(writer, sheet_name="Freenomics", index=False)
+            pd.DataFrame({X["aviso_col"]: [X["sem_export"]]}).to_excel(writer, sheet_name="Freenomics", index=False)
 
     buffer.seek(0)
     return buffer

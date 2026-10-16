@@ -171,7 +171,16 @@ L = {
         "imob_reits": "ETFs Inmobiliarios (REITs)",
         "imob_reits_hint": "Añade también: VNQ (EE.UU.), IUKP.L (UK)",
     },
-}.get(lang, {})
+}.get(lang, None) or {}
+
+EXTRA = {
+    "🇵🇹 Português": {"ex": "ex:", "min_tipo": "Seleciona pelo menos um tipo de notícias."},
+    "🇬🇧 English": {"ex": "e.g.", "min_tipo": "Select at least one news type."},
+    "🇫🇷 Français": {"ex": "ex :", "min_tipo": "Sélectionnez au moins un type d'actualités."},
+    "🇩🇪 Deutsch": {"ex": "z. B.", "min_tipo": "Wählen Sie mindestens einen Nachrichtentyp aus."},
+    "🇪🇸 Español": {"ex": "ej:", "min_tipo": "Selecciona al menos un tipo de noticias."},
+}
+LX = EXTRA.get(lang, EXTRA["🇬🇧 English"])
 
 # ── CABEÇALHO ─────────────────────────────────────────────────
 show_logo()
@@ -195,7 +204,7 @@ if inc_acoes:
     st.markdown(f"**{L['tipo_acoes']}**")
     tickers_acoes = [t.strip().upper() for t in
         st.text_input(L["tickers_label"], value="",
-            key="tick_acoes", placeholder="ex: SPY, AAPL, NVDA").split(",") if t.strip()]
+            key="tick_acoes", placeholder=f"{LX['ex']} SPY, AAPL, NVDA").split(",") if t.strip()]
     max_n_acoes = st.slider(L["max_label"], 3, 20, 5, key="max_acoes")
     st.markdown("")
 
@@ -203,15 +212,18 @@ if inc_cripto:
     st.markdown(f"**{L['tipo_cripto']}**")
     tickers_cripto = [t.strip().upper() for t in
         st.text_input(L["tickers_label"], value="",
-            key="tick_cripto", placeholder="ex: BTC-USD, ETH-USD, SOL-USD").split(",") if t.strip()]
+            key="tick_cripto", placeholder=f"{LX['ex']} BTC-USD, ETH-USD, SOL-USD").split(",") if t.strip()]
     max_n_cripto = st.slider(L["max_label"], 3, 20, 5, key="max_cripto")
     st.markdown("")
 
 if inc_imob:
     st.markdown(f"**{L['tipo_imob']}**")
     paises = L["paises"]
-    pais = st.selectbox(L["pais_label"], list(paises.keys()), key="pais_sel")
-    query = paises[pais]
+    # Valor interno = query de pesquisa (independente da língua); o nome do país traduz-se só na apresentação
+    _pais_por_query = {v: k for k, v in paises.items()}
+    query = st.selectbox(L["pais_label"], list(paises.values()),
+                         format_func=lambda q: _pais_por_query.get(q, q), key="pais_sel_query")
+    pais = query
     max_n_imob = st.slider(L["max_label"], 3, 20, 8, key="max_imob")
     st.caption(f"💡 {L['imob_reits_hint']}")
     st.markdown("")
@@ -223,7 +235,7 @@ if not ver and "noticias_resultado" not in st.session_state:
 
 if ver:
     if not any([inc_acoes, inc_cripto, inc_imob]):
-        st.warning("Seleciona pelo menos um tipo de notícias.")
+        st.warning(LX["min_tipo"])
         st.stop()
     st.session_state["noticias_resultado"] = {
         "inc_acoes": inc_acoes, "inc_cripto": inc_cripto, "inc_imob": inc_imob,
@@ -296,9 +308,10 @@ if inc_acoes and tickers_acoes:
                 st.warning(f"{L['aviso_ticker']} {t}.")
 
     if todas_acoes:
-        opcoes = [L["todos"]] + tickers_acoes
-        filtro = st.selectbox(L["filtro_label"], opcoes, key="filtro_acoes")
-        filtradas = todas_acoes if filtro == L["todos"] else [n for n in todas_acoes if n["ticker"] == filtro]
+        opcoes = [None] + tickers_acoes  # None = "Todos" (valor interno independente da língua)
+        filtro = st.selectbox(L["filtro_label"], opcoes, key="filtro_acoes",
+                              format_func=lambda x: L["todos"] if x is None else x)
+        filtradas = todas_acoes if filtro is None else [n for n in todas_acoes if n["ticker"] == filtro]
         st.caption(f"{len(filtradas)} {L['encontradas']}")
         for n in filtradas:
             card_noticia(n["ticker"], n["fonte"], formatar_data(n["data"]),
@@ -339,9 +352,10 @@ if inc_cripto and tickers_cripto:
                 st.warning(f"{L['aviso_ticker']} {t}.")
 
     if todas_cripto:
-        opcoes = [L["todos"]] + tickers_cripto
-        filtro = st.selectbox(L["filtro_label"], opcoes, key="filtro_cripto")
-        filtradas = todas_cripto if filtro == L["todos"] else [n for n in todas_cripto if n["ticker"] == filtro]
+        opcoes = [None] + tickers_cripto  # None = "Todos" (valor interno independente da língua)
+        filtro = st.selectbox(L["filtro_label"], opcoes, key="filtro_cripto",
+                              format_func=lambda x: L["todos"] if x is None else x)
+        filtradas = todas_cripto if filtro is None else [n for n in todas_cripto if n["ticker"] == filtro]
         st.caption(f"{len(filtradas)} {L['encontradas']}")
         for n in filtradas:
             card_noticia(n["ticker"], n["fonte"], formatar_data(n["data"]),
@@ -351,7 +365,8 @@ if inc_cripto and tickers_cripto:
 
 # ── IMOBILIÁRIO ───────────────────────────────────────────────
 if inc_imob and query:
-    st.subheader(f"{L['tipo_imob']} · {pais}")
+    _pais_nome = {v: k for k, v in L["paises"].items()}.get(query, "")
+    st.subheader(f"{L['tipo_imob']} · {_pais_nome}")
 
     def google_news_rss(query, max_n=10):
         import urllib.parse

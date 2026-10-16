@@ -11,7 +11,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 
-L = {
+LALL = {
     "🇵🇹 Português": {
         "titulo": "Simulador de Investimento Regular",
         "subtitulo": "Descobre quanto acumulas ao investir uma quantia fixa todos os meses, o poder do juro composto.",
@@ -102,7 +102,8 @@ L = {
         "rodape": "Freenomics · Calculadora de interés compuesto",
         "insight": lambda cm, anos, r, ti, vf, g, inf, vr: f"Al invertir **€{cm:.0f}/mes** durante **{anos} años** con **{r}%/año**, conviertes **€{ti:,.0f}** invertidos en **€{vf:,.0f}**, y el interés compuesto genera **€{g:,.0f}** adicionales. Ajustando a {inf}% de inflación: **€{vr:,.0f}**.",
     },
-}.get(lang, {})
+}
+L = LALL.get(lang, LALL["🇬🇧 English"])
 
 show_logo()
 st.title(L["titulo"])
@@ -204,6 +205,9 @@ st.session_state["export_simulador"] = {
     "retorno": retorno, "inflacao": inflacao, "total_inv": tinv,
     "valor_final": vf, "valor_real": vreal, "ganho": ganho,
     "multiplicador": mult, "insight": txt,
+    # O texto do relatório é regenerado na língua escolhida ao exportar
+    "insight_por_lang": {_lg: _Ll["insight"](contrib, anos, retorno, tinv, vf, ganho, inflacao, vreal)
+                         for _lg, _Ll in LALL.items()},
 }
 
 st.caption(L["aviso"])

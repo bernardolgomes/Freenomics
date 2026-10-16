@@ -57,6 +57,7 @@ L = {
         "grafico": "Preço estimado vs preço atual",
         "aviso": "⚠️ Modelo baseado em pressupostos teus, não numa previsão. Não constitui aconselhamento financeiro.",
         "rodape": "Freenomics · Análise de ações individuais",
+        "unidades": "Valores em milhões (moeda da empresa).",
     },
     "🇬🇧 English": {
         "titulo": "Stock Analysis",
@@ -92,6 +93,7 @@ L = {
         "grafico": "Estimated price vs current price",
         "aviso": "⚠️ Model based on your own assumptions, not a forecast. Not financial advice.",
         "rodape": "Freenomics · Individual stock analysis",
+        "unidades": "Values in millions (company currency).",
     },
     "🇫🇷 Français": {
         "titulo": "Analyse d'Action",
@@ -127,6 +129,7 @@ L = {
         "grafico": "Prix estimé vs prix actuel",
         "aviso": "⚠️ Modèle basé sur vos hypothèses, pas une prévision. Ne constitue pas un conseil financier.",
         "rodape": "Freenomics · Analyse d'actions individuelles",
+        "unidades": "Valeurs en millions (devise de l'entreprise).",
     },
     "🇩🇪 Deutsch": {
         "titulo": "Aktienanalyse",
@@ -162,6 +165,7 @@ L = {
         "grafico": "Geschätzter Kurs vs aktueller Kurs",
         "aviso": "⚠️ Modell basiert auf deinen Annahmen, keine Prognose. Keine Anlageberatung.",
         "rodape": "Freenomics · Einzelaktienanalyse",
+        "unidades": "Werte in Millionen (Währung des Unternehmens).",
     },
     "🇪🇸 Español": {
         "titulo": "Análisis de Acción",
@@ -197,6 +201,7 @@ L = {
         "grafico": "Precio estimado vs precio actual",
         "aviso": "⚠️ Modelo basado en tus supuestos, no una predicción. No es asesoramiento financiero.",
         "rodape": "Freenomics · Análisis de acciones individuales",
+        "unidades": "Valores en millones (moneda de la empresa).",
     },
 }[lang]
 
@@ -283,7 +288,7 @@ hist_tab = pd.DataFrame({
 }).T
 hist_tab.columns = [str(a) for a in anos_hist]
 st.dataframe(hist_tab, use_container_width=True)
-st.caption("Valores em milhões (moeda da empresa) / in millions")
+st.caption(L["unidades"])
 
 # ── Parâmetros ────────────────────────────────────────────────
 st.markdown("---")
@@ -305,16 +310,26 @@ cagr = float(max(min(cagr, 30.0), -10.0))
 margem_base = float(margem_h.iloc[-1])
 pe_atual = float(preco_atual / eps_h.iloc[-1]) if preco_atual and eps_h.iloc[-1] > 0 else 20.0
 
+# Colunas com chaves internas (independentes da língua); os rótulos vêm do column_config
 if "aa_proj" not in st.session_state:
     st.session_state["aa_proj"] = pd.DataFrame({
-        L["cresc_rec"]: [round(cagr, 1)] * N_ANOS,
-        L["margem"]: [round(margem_base, 1)] * N_ANOS,
-        L["acoes"]: [round(ultimo_acc / 1e6, 1)] * N_ANOS,
-        L["pe"]: [round(pe_atual, 1)] * N_ANOS,
-        L["dividendos"]: [round(div_api, 2)] * N_ANOS,
+        "cresc": [round(cagr, 1)] * N_ANOS,
+        "margem": [round(margem_base, 1)] * N_ANOS,
+        "acoes": [round(ultimo_acc / 1e6, 1)] * N_ANOS,
+        "pe": [round(pe_atual, 1)] * N_ANOS,
+        "div": [round(div_api, 2)] * N_ANOS,
     }, index=[str(ano_base + i + 1) for i in range(N_ANOS)])
 
-proj_in = st.data_editor(st.session_state["aa_proj"], use_container_width=True, key="aa_editor")
+proj_in = st.data_editor(
+    st.session_state["aa_proj"], use_container_width=True, key="aa_editor",
+    column_config={
+        "cresc": st.column_config.NumberColumn(L["cresc_rec"]),
+        "margem": st.column_config.NumberColumn(L["margem"]),
+        "acoes": st.column_config.NumberColumn(L["acoes"]),
+        "pe": st.column_config.NumberColumn(L["pe"]),
+        "div": st.column_config.NumberColumn(L["dividendos"]),
+    },
+)
 
 calcular = st.button(L["btn_calcular"], type="primary", use_container_width=True, key="aa_calcular")
 if calcular:
@@ -326,14 +341,14 @@ if not st.session_state.get("aa_calc"):
 rec_p, luc_p, eps_p, preco_p = [], [], [], []
 rec_prev = float(rec_h.iloc[-1]) / 1e6
 for _, r in proj_in.iterrows():
-    rec_prev = rec_prev * (1 + r[L["cresc_rec"]] / 100)
-    luc = rec_prev * r[L["margem"]] / 100
-    acoes = max(r[L["acoes"]], 1e-9)
+    rec_prev = rec_prev * (1 + r["cresc"] / 100)
+    luc = rec_prev * r["margem"] / 100
+    acoes = max(r["acoes"], 1e-9)
     eps = luc / acoes
     rec_p.append(rec_prev); luc_p.append(luc); eps_p.append(eps)
-    preco_p.append(eps * r[L["pe"]])
+    preco_p.append(eps * r["pe"])
 
-divs_total = float(proj_in[L["dividendos"]].sum())
+divs_total = float(proj_in["div"].sum())
 preco_final = preco_p[-1]
 if preco_atual > 0 and (preco_final + divs_total) > 0:
     retorno_anual = ((preco_final + divs_total) / preco_atual) ** (1 / N_ANOS) - 1
@@ -347,15 +362,15 @@ anos_proj = list(proj_in.index)
 mudanca = [(p / preco_atual - 1) * 100 if preco_atual else 0 for p in preco_p]
 
 # Checklist
-crescimento_medio = float(proj_in[L["cresc_rec"]].mean())
+crescimento_medio = float(proj_in["cresc"].mean())
 checks = [
     (L["c_retorno"], retorno_anual * 100 >= retorno_desejado),
     (L["c_bench"], retorno_anual * 100 > benchmark),
     (L["c_margem"], preco_atual <= preco_com_margem),
     (L["c_cresc"], crescimento_medio >= 5),
-    (L["c_margem_liq"], proj_in[L["margem"]].iloc[-1] >= margem_base - 0.05),
-    (L["c_diluicao"], proj_in[L["acoes"]].iloc[-1] <= ultimo_acc / 1e6 + 0.05),
-    (L["c_pe"], proj_in[L["pe"]].iloc[-1] <= pe_atual + 0.05),
+    (L["c_margem_liq"], proj_in["margem"].iloc[-1] >= margem_base - 0.05),
+    (L["c_diluicao"], proj_in["acoes"].iloc[-1] <= ultimo_acc / 1e6 + 0.05),
+    (L["c_pe"], proj_in["pe"].iloc[-1] <= pe_atual + 0.05),
 ]
 pontos = sum(1 for _, ok in checks if ok)
 

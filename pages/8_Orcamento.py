@@ -20,7 +20,7 @@ lang = st.session_state.get("lang", "🇵🇹 Português")
 CATEGORIAS = ["habitacao", "alimentacao", "transportes", "subscricoes", "lazer", "saude", "outros"]
 CORES = ["#0E2A3D", "#C29A4B", "#6B8E7F", "#A8453E", "#5C6B73", "#8E6BA8", "#B0B0B0"]
 
-L = {
+LALL = {
     "🇵🇹 Português": {
         "titulo": "Orçamento & Capacidade de Investir",
         "subtitulo": "Regista o teu rendimento e despesas mensais para descobrires a tua taxa de esforço e quanto podes investir todos os meses.",
@@ -131,7 +131,8 @@ L = {
         "aviso": "⚠️ Estimación basada en los valores introducidos. Actualiza cuando cambie tu situación.",
         "rodape": "Freenomics · Planificación de presupuesto personal",
     },
-}[lang]
+}
+L = LALL[lang]
 
 show_logo()
 st.title(L["titulo"])
@@ -234,6 +235,8 @@ st.session_state["export_orcamento"] = {
     "saldo_mensal": saldo, "taxa_esforco": round(taxa_esforco, 1),
     "taxa_poupanca": round(taxa_poupanca, 1),
     "categorias": [(L[k], v) for k, v in despesas.items()],
+    # Nomes das categorias em todas as línguas: o relatório usa a língua escolhida ao exportar
+    "categorias_por_lang": {_lg: [(_Ll[k], v) for k, v in despesas.items()] for _lg, _Ll in LALL.items()},
 }
 
 st.caption(L["aviso"])

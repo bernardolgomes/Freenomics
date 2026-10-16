@@ -33,6 +33,7 @@ L = {
         "nota_titulo": "O que é o Dividend Yield?",
         "nota": "É a percentagem do preço da ação que recebes em dividendos por ano. Ex: um yield de 3% num ativo de €100 significa que recebes €3/ano por ação. Atenção: um yield muito alto pode ser sinal de que o preço da ação caiu significativamente.",
         "aviso": "⚠️ Dados históricos · não constitui aconselhamento financeiro.",
+        "ex_ticker": "ex: AAPL", "grafico_y": "Dividendo por ação ($/€)", "col_data": "Data", "col_div": "Dividendo",
         "rodape": "Freenomics · Dados via Yahoo Finance",
     },
     "🇬🇧 English": {
@@ -54,6 +55,7 @@ L = {
         "nota_titulo": "What is Dividend Yield?",
         "nota": "It's the percentage of the share price you receive in dividends per year. E.g. a 3% yield on a €100 asset means €3/year per share. Note: a very high yield may signal the share price has fallen significantly.",
         "aviso": "⚠️ Historical data · does not constitute financial advice.",
+        "ex_ticker": "e.g. AAPL", "grafico_y": "Dividend per share ($/€)", "col_data": "Date", "col_div": "Dividend",
         "rodape": "Freenomics · Data via Yahoo Finance",
     },
     "🇫🇷 Français": {
@@ -75,6 +77,7 @@ L = {
         "nota_titulo": "Qu'est-ce que le Dividend Yield?",
         "nota": "C'est le pourcentage du prix de l'action que vous recevez en dividendes par an.",
         "aviso": "⚠️ Données historiques · ne constitue pas un conseil financier.",
+        "ex_ticker": "ex : AAPL", "grafico_y": "Dividende par action ($/€)", "col_data": "Date", "col_div": "Dividende",
         "rodape": "Freenomics · Données via Yahoo Finance",
     },
     "🇩🇪 Deutsch": {
@@ -96,6 +99,7 @@ L = {
         "nota_titulo": "Was ist die Dividendenrendite?",
         "nota": "Es ist der Prozentsatz des Aktienkurses, den Sie jährlich als Dividende erhalten.",
         "aviso": "⚠️ Historische Daten · stellt keine Finanzberatung dar.",
+        "ex_ticker": "z. B. AAPL", "grafico_y": "Dividende je Aktie ($/€)", "col_data": "Datum", "col_div": "Dividende",
         "rodape": "Freenomics · Daten via Yahoo Finance",
     },
     "🇪🇸 Español": {
@@ -117,9 +121,10 @@ L = {
         "nota_titulo": "¿Qué es el Dividend Yield?",
         "nota": "Es el porcentaje del precio de la acción que recibes en dividendos al año.",
         "aviso": "⚠️ Datos históricos · no constituye asesoramiento financiero.",
+        "ex_ticker": "ej: AAPL", "grafico_y": "Dividendo por acción ($/€)", "col_data": "Fecha", "col_div": "Dividendo",
         "rodape": "Freenomics · Datos via Yahoo Finance",
     },
-}.get(lang, {})
+}.get(lang, None) or {}
 
 show_logo()
 st.title(L["titulo"])
@@ -139,7 +144,7 @@ for i, t in enumerate(st.session_state.div_tickers):
         with c1:
             st.session_state.div_tickers[i] = st.text_input(
                 L["ticker_label"], value=t, key=f"div_t_{i}",
-                placeholder="ex: AAPL",
+                placeholder=L["ex_ticker"],
                 label_visibility="collapsed" if i > 0 else "visible").upper().strip()
         with c2:
             if len(st.session_state.div_tickers) > 1:
@@ -224,7 +229,7 @@ for i, (t, dados) in enumerate(resultados.items()):
         fig.add_trace(go.Bar(x=df.index, y=df.values.flatten(),
             name=t, marker_color=PLOT_COLORS[i % len(PLOT_COLORS)], opacity=0.85))
 fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title="Dividend per share ($/€)", xaxis_title="Date",
+    yaxis_title=L["grafico_y"], xaxis_title=L["col_data"],
     barmode="group", height=400,
     legend=dict(orientation="h", yanchor="bottom", y=1.02))
 st.plotly_chart(fig, use_container_width=True)
@@ -234,10 +239,12 @@ st.subheader(L["ultimos"])
 for t, dados in resultados.items():
     df = dados["divs"][dados["divs"].index.year >= ano_inicio]
     if df.empty: continue
-    d = pd.DataFrame({"Data": df.index.strftime("%d/%m/%Y"),
-                      "Dividendo": df.values.flatten().round(4)}).sort_values("Data", ascending=False).head(12)
+    d = pd.DataFrame({"_data": df.index, "_div": df.values.flatten().round(4)}).sort_values("_data", ascending=False).head(12)
+    # Nomes de colunas só na apresentação (na língua atual)
+    d = pd.DataFrame({L["col_data"]: d["_data"].dt.strftime("%d/%m/%Y").values,
+                      L["col_div"]: d["_div"].values}).set_index(L["col_data"])
     with st.expander(f"📋 {t} · {len(d)} {L['pagamentos']}"):
-        st.dataframe(d.set_index("Data"), use_container_width=True)
+        st.dataframe(d, use_container_width=True)
 
 st.markdown(f"<div class='info-box'>💡 <strong>{L['nota_titulo']}</strong><br>{L['nota']}</div>",
     unsafe_allow_html=True)

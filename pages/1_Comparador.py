@@ -14,7 +14,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 
-L = {
+LALL = {
     "🇵🇹 Português": {
         "titulo": "Comparador de Carteiras",
         "subtitulo": "Compara múltiplas estratégias de investimento e descobre qual teria performado melhor.",
@@ -190,7 +190,42 @@ L = {
         "periodos": {"1 mes": 30, "3 meses": 90, "6 meses": 180, "1 año": 365, "2 años": 730, "5 años": 1825, "10 años": 3650, "20 años": 7300},
         "letras": ["A", "B", "C", "D", "E", "F"],
     },
-}.get(lang, {})
+}
+L = LALL.get(lang, LALL["🇬🇧 English"])
+
+EXTRA = {
+    "🇵🇹 Português": {
+        "ex_ticker": "ex: AAPL", "spinner_ai": "🤖 A gerar análise com IA...", "api_indisp": "API indisponível.",
+        "y": "Valor (base 100)", "x": "Data",
+        "fb_lider": lambda c, p, r: f"Em {p}, **{c}** liderou com {r}%.",
+        "fb_sharpe": lambda c: f"Ajustando ao risco (Sharpe), **{c}** foi a escolha mais eficiente.",
+    },
+    "🇬🇧 English": {
+        "ex_ticker": "e.g. AAPL", "spinner_ai": "🤖 Generating AI analysis...", "api_indisp": "API unavailable.",
+        "y": "Value (base 100)", "x": "Date",
+        "fb_lider": lambda c, p, r: f"Over {p}, **{c}** led with {r}%.",
+        "fb_sharpe": lambda c: f"Risk-adjusted (Sharpe), **{c}** was the most efficient choice.",
+    },
+    "🇫🇷 Français": {
+        "ex_ticker": "ex : AAPL", "spinner_ai": "🤖 Génération de l'analyse par IA...", "api_indisp": "API indisponible.",
+        "y": "Valeur (base 100)", "x": "Date",
+        "fb_lider": lambda c, p, r: f"Sur {p}, **{c}** a été en tête avec {r}%.",
+        "fb_sharpe": lambda c: f"Ajusté au risque (Sharpe), **{c}** a été le choix le plus efficace.",
+    },
+    "🇩🇪 Deutsch": {
+        "ex_ticker": "z. B. AAPL", "spinner_ai": "🤖 KI-Analyse wird erstellt...", "api_indisp": "API nicht verfügbar.",
+        "y": "Wert (Basis 100)", "x": "Datum",
+        "fb_lider": lambda c, p, r: f"Im Zeitraum {p} lag **{c}** mit {r}% vorn.",
+        "fb_sharpe": lambda c: f"Risikoadjustiert (Sharpe) war **{c}** die effizienteste Wahl.",
+    },
+    "🇪🇸 Español": {
+        "ex_ticker": "ej: AAPL", "spinner_ai": "🤖 Generando análisis con IA...", "api_indisp": "API no disponible.",
+        "y": "Valor (base 100)", "x": "Fecha",
+        "fb_lider": lambda c, p, r: f"En {p}, **{c}** lideró con {r}%.",
+        "fb_sharpe": lambda c: f"Ajustado al riesgo (Sharpe), **{c}** fue la opción más eficiente.",
+    },
+}
+LX = EXTRA.get(lang, EXTRA["🇬🇧 English"])
 
 # ── CABEÇALHO ─────────────────────────────────────────────────
 show_logo()
@@ -208,8 +243,11 @@ if "comp_portfolios" not in st.session_state:
 st.header(L["sec_config"])
 
 periodo_opcoes = L["periodos"]
-periodo_label  = st.radio(L["periodo_label"], list(periodo_opcoes.keys()), index=4, horizontal=True)
-dias = periodo_opcoes[periodo_label]
+_label_por_dias = {v: k for k, v in periodo_opcoes.items()}
+# Valor interno = nº de dias (independente da língua); o rótulo traduz-se só na apresentação
+dias = st.radio(L["periodo_label"], list(periodo_opcoes.values()), index=4, horizontal=True,
+                format_func=lambda d: _label_por_dias.get(d, str(d)), key="comp_periodo_dias")
+periodo_label = _label_por_dias[dias]
 
 st.markdown("---")
 
@@ -240,7 +278,7 @@ for pi, ativos in enumerate(st.session_state.comp_portfolios):
             with c1:
                 st.session_state.comp_portfolios[pi][ai]["ticker"] = st.text_input(
                     L["ticker_label"], value=ativo["ticker"],
-                    key=f"p{pi}_t{ai}", placeholder="ex: AAPL",
+                    key=f"p{pi}_t{ai}", placeholder=LX["ex_ticker"],
                     label_visibility="collapsed" if ai > 0 else "visible"
                 ).upper().strip()
             with c2:
@@ -309,13 +347,14 @@ if comparar:
         st.stop()
     st.session_state["comp_resultado"] = {
         "portfolios": [[a.copy() for a in p] for p in st.session_state.comp_portfolios],
-        "dias": dias, "periodo_label": periodo_label,
+        "dias": dias,
     }
 
 cfg       = st.session_state.get("comp_resultado", {})
 portfolios = cfg.get("portfolios", st.session_state.comp_portfolios)
 dias      = cfg.get("dias", dias)
-periodo_label = cfg.get("periodo_label", periodo_label)
+# O rótulo do período é derivado dos dias na língua atual (não é guardado)
+periodo_label = _label_por_dias.get(dias, periodo_label)
 
 # ── DADOS ─────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
@@ -437,7 +476,7 @@ for i, r in enumerate(resultados):
     ))
 fig.update_layout(
     plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title="Value (base 100)", xaxis_title="Date",
+    yaxis_title=LX["y"], xaxis_title=LX["x"],
     hovermode="x unified", height=440,
     legend=dict(orientation="h", yanchor="bottom", y=1.02))
 st.plotly_chart(fig, use_container_width=True)
@@ -476,39 +515,53 @@ def render(t): return re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", t)
 
 melhor_sharpe = max(resultados, key=lambda x: x["metricas"]["sharpe"])
 
+def fallback_comp(lg):
+    """Análise automática na língua lg (nomes das carteiras e período traduzidos)."""
+    Ll, Lxl = LALL[lg], EXTRA[lg]
+    plabel = {v: k for k, v in Ll["periodos"].items()}.get(dias, periodo_label)
+    return [
+        Lxl["fb_lider"](f"{Ll['carteira']} {melhor['letra']}", plabel, melhor["metricas"]["retorno"]),
+        Lxl["fb_sharpe"](f"{Ll['carteira']} {melhor_sharpe['letra']}"),
+    ]
+
 insight_final = None
 if api_key:
-    with st.spinner("🤖 A gerar análise com IA..."):
+    with st.spinner(LX["spinner_ai"]):
         txt, ok = gerar_ai(resultados, periodo_label, lang, api_key)
     if ok and txt:
         st.markdown(f"<div class='insight-box'>{render(txt).replace(chr(10)+chr(10),'<br><br>')}</div>",
                     unsafe_allow_html=True)
         insight_final = txt
     else:
-        st.warning("API indisponível.")
-        fb = [
-            f"Em {periodo_label}, **{melhor['nome_curto']}** liderou com {melhor['metricas']['retorno']}%.",
-            f"Ajustando ao risco (Sharpe), **{melhor_sharpe['nome_curto']}** foi a escolha mais eficiente.",
-        ]
+        st.warning(LX["api_indisp"])
+        fb = fallback_comp(lang)
         for f in fb:
             st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
         insight_final = "\n\n".join(fb)
 else:
-    fb = [
-        f"Em {periodo_label}, **{melhor['nome_curto']}** liderou com {melhor['metricas']['retorno']}%.",
-        f"Ajustando ao risco (Sharpe), **{melhor_sharpe['nome_curto']}** foi a escolha mais eficiente.",
-    ]
+    fb = fallback_comp(lang)
     for f in fb:
         st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
     st.info(f"💡 {L['api_info']}")
     insight_final = "\n\n".join(fb)
 
+# Para análise automática (sem IA) guardam-se as versões em todas as línguas,
+# para o relatório respeitar a língua escolhida no momento da exportação.
+insight_por_lang = {}
+if not (api_key and ok and txt):
+    for _lg in LALL:
+        insight_por_lang[_lg] = "\n\n".join(fallback_comp(_lg))
+
 # Guarda o estado atual (todas as carteiras comparadas) para a página de Exportar reutilizar
 st.session_state["export_comparador"] = {
     "portfolios": [
-        {"nome": r["nome_curto"], "metricas": r["metricas"]} for r in resultados
+        {"letra": r["letra"], "nome": r["nome_curto"], "metricas": r["metricas"]} for r in resultados
     ],
-    "insight": insight_final, "periodo_label": periodo_label,
+    "insight": insight_final,
+    "insight_por_lang": insight_por_lang,
+    "periodo_por_lang": {_lg: {v: k for k, v in _Ll["periodos"].items()}.get(dias, periodo_label)
+                         for _lg, _Ll in LALL.items()},
+    "periodo_label": periodo_label,
 }
 
 st.caption(L["aviso"])

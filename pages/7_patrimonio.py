@@ -12,7 +12,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 
-L = {
+LALL = {
     "🇵🇹 Português": {
         "titulo": "Valor de Património",
         "subtitulo": "Regista os teus ativos e passivos para acompanhar a evolução do teu património líquido ao longo do tempo.",
@@ -193,7 +193,17 @@ L = {
         "categorias": ["🏦 Cuentas Bancarias", "📈 Inversiones & Brokers", "🏖️ Planes de Jubilación", "🏠 Inmuebles", "🚗 Otros Activos"],
         "cat_keys": ["contas", "investimentos", "reforma", "imoveis", "outros"],
     },
-}.get(lang, {})
+}
+L = LALL.get(lang, LALL["🇬🇧 English"])
+
+EXTRA = {
+    "🇵🇹 Português": {"ex_nome": "ex: Conta CGD", "eur_cat": "€ por categoria", "eur_var": "€ variação", "erro_ficheiro": "Erro ao ler o ficheiro"},
+    "🇬🇧 English": {"ex_nome": "e.g. Savings account", "eur_cat": "€ by category", "eur_var": "€ change", "erro_ficheiro": "Error reading the file"},
+    "🇫🇷 Français": {"ex_nome": "ex : Compte épargne", "eur_cat": "€ par catégorie", "eur_var": "€ variation", "erro_ficheiro": "Erreur de lecture du fichier"},
+    "🇩🇪 Deutsch": {"ex_nome": "z. B. Sparkonto", "eur_cat": "€ pro Kategorie", "eur_var": "€ Veränderung", "erro_ficheiro": "Fehler beim Lesen der Datei"},
+    "🇪🇸 Español": {"ex_nome": "ej: Cuenta de ahorro", "eur_cat": "€ por categoría", "eur_var": "€ variación", "erro_ficheiro": "Error al leer el archivo"},
+}
+LX = EXTRA.get(lang, EXTRA["🇬🇧 English"])
 
 # ── CABEÇALHO ─────────────────────────────────────────────────
 show_logo()
@@ -226,7 +236,7 @@ def render_categoria(key, titulo, cor_borda="#C29A4B"):
             lista[i]["nome"] = st.text_input(
                 L["nome_label"], value=item["nome"],
                 key=f"{key}_nome_{i}",
-                placeholder="ex: Conta CGD",
+                placeholder=LX["ex_nome"],
                 label_visibility="collapsed" if i > 0 else "visible")
         with c2:
             lista[i]["valor"] = st.number_input(
@@ -345,6 +355,9 @@ st.session_state["export_patrimonio"] = {
     "total_ativos": total_ativos, "total_passivos": total_passivos,
     "patrimonio": patrimonio,
     "categorias": [(label, totais.get(k, 0)) for k, label in zip(cat_keys, cat_labels)],
+    # Nomes das categorias em todas as línguas: o relatório usa a língua escolhida ao exportar
+    "categorias_por_lang": {_lg: [(_Ll["categorias"][i], totais.get(k, 0)) for i, k in enumerate(cat_keys)]
+                            for _lg, _Ll in LALL.items()},
     "data": data_atual,
 }
 
@@ -367,7 +380,7 @@ with col_pie:
         st.plotly_chart(fig_pie, use_container_width=True)
 
 with col_bar:
-    st.subheader("€ por categoria")
+    st.subheader(LX["eur_cat"])
     todas_cats   = cat_labels + [L["passivos"]]
     todas_values = [totais.get(k, 0) for k in cat_keys] + [totais.get("passivos", 0)]
     todas_cores  = cores[:len(cat_keys)] + ["#F44336"]
@@ -453,13 +466,13 @@ if uploaded:
             textposition="outside"))
         fig_ev.update_layout(
             plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-            yaxis_title="€ variação", height=380,
+            yaxis_title=LX["eur_var"], height=380,
             margin=dict(l=0, r=0, t=30, b=0))
         fig_ev.add_hline(y=0, line_color="#888888", line_width=1)
         st.plotly_chart(fig_ev, use_container_width=True)
 
     except Exception as e:
-        st.error(f"Erro ao ler o ficheiro: {e}")
+        st.error(f"{LX['erro_ficheiro']}: {e}")
 
 st.markdown("---")
 st.caption(L["rodape"])
