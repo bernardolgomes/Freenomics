@@ -104,12 +104,21 @@ PATRIMONIO = {
     "🇪🇸 Español":   "💎 Patrimonio",
 }
 
+ANALISE_ACAO = {
+    "🇵🇹 Português": "🔎 Análise de Ação",
+    "🇬🇧 English":   "🔎 Stock Analysis",
+    "🇫🇷 Français":  "🔎 Analyse d'Action",
+    "🇩🇪 Deutsch":   "🔎 Aktienanalyse",
+    "🇪🇸 Español":   "🔎 Análisis de Acción",
+}
+
 pg = st.navigation([
     st.Page("pages/11_BoasVindas.py",  title=n["boasvindas"]),
     st.Page("pages/10_Precos.py",      title=n["precos"]),
     st.Page("pages/8_Orcamento.py",    title=n["orcamento"]),
     st.Page("pages/9_Objetivos.py",    title=n["objetivos"]),
     st.Page("pages/7_patrimonio.py",   title=PATRIMONIO[lang]),
+    st.Page("pages/12_Analise_Acao.py", title=ANALISE_ACAO[lang]),
     st.Page("pages/0_Dashboard.py",    title=n["dashboard"]),
     st.Page("pages/1_Comparador.py",   title=n["comparador"]),
     st.Page("pages/2_Simulador.py",    title=n["simulador"]),
