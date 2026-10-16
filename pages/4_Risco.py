@@ -8,7 +8,8 @@ from datetime import datetime, timedelta
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import show_logo
-from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS
+import auth
+from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS, style_fig
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -171,7 +172,7 @@ if remover is not None:
 
 col_add, col_per, col_cap = st.columns([1, 1, 1])
 with col_add:
-    if st.button(L["btn_add"]):
+    if st.button(L["btn_add"], key="risco_add"):
         st.session_state.risco_tickers.append(""); st.rerun()
 with col_per:
     periodo_opcoes = L["periodos"]
@@ -180,9 +181,9 @@ with col_per:
     dias = st.selectbox(L["periodo_label"], list(periodo_opcoes.values()), index=1,
                         format_func=lambda d: _label_por_dias.get(d, str(d)), key="risco_periodo_dias")
 with col_cap:
-    capital = st.number_input(L["capital_label"], value=10000, step=500)
+    capital = st.number_input(L["capital_label"], value=10000, step=500, key="risco_capital")
 
-analisar = st.button(L["btn_analisar"], type="primary", use_container_width=True)
+analisar = st.button(L["btn_analisar"], type="primary", use_container_width=True, key="risco_analisar")
 
 if not analisar and "risco_resultado" not in st.session_state:
     st.stop()
@@ -249,41 +250,41 @@ for col, t in zip(cols, dados.keys()):
             {L['perda_txt']} <strong>€{perda:,.0f}</strong> {L['capital_txt']} €{capital:,.0f}.
         </div>""", unsafe_allow_html=True)
 
-# ── CORRELAÇÃO ────────────────────────────────────────────────
-st.subheader(L["corr_titulo"])
-st.caption(L["corr_sub"])
-corr = retornos.corr().round(2)
-fig = go.Figure(data=go.Heatmap(
-    z=corr.values, x=corr.columns.tolist(), y=corr.index.tolist(),
-    colorscale=[[0,"#C29A4B"],[0.5,"#FAF8F3"],[1,"#0E2A3D"]],
-    zmin=-1, zmax=1, text=corr.values.round(2), texttemplate="%{text}", showscale=True))
-fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    height=350, margin=dict(l=10,r=10,t=10,b=10))
-st.plotly_chart(fig, use_container_width=True)
+if auth.has_full_access():
+    # ── CORRELAÇÃO (só para subscritores) ─────────────────────────
+    st.subheader(L["corr_titulo"])
+    st.caption(L["corr_sub"])
+    corr = retornos.corr().round(2)
+    fig = go.Figure(data=go.Heatmap(
+        z=corr.values, x=corr.columns.tolist(), y=corr.index.tolist(),
+        colorscale=[[0,"#E8806A"],[0.5,"#1A2F4A"],[1,"#4FB8C4"]],
+        zmin=-1, zmax=1, text=corr.values.round(2), texttemplate="%{text}", showscale=True,
+        textfont=dict(color="#FAF8F3", size=14)))
+    style_fig(fig, height=360, legenda=False, margin=dict(l=10, r=10, t=10, b=10))
+    st.plotly_chart(fig, use_container_width=True)
 
-# ── DRAWDOWN ──────────────────────────────────────────────────
-st.subheader(L["dd_titulo"])
-fig2 = go.Figure()
-for i, t in enumerate(dados.keys()):
-    if t not in precos.columns: continue
-    pico = precos[t].cummax()
-    dd   = (precos[t] - pico) / pico * 100
-    fig2.add_trace(go.Scatter(x=precos.index, y=dd.values,
-        name=t, line=dict(color=PLOT_COLORS[i % len(PLOT_COLORS)], width=1.5)))
-fig2.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title="Drawdown (%)", xaxis_title=L["eixo_x"],
-    hovermode="x unified", height=380,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02))
-st.plotly_chart(fig2, use_container_width=True)
+    # ── DRAWDOWN ──────────────────────────────────────────────
+    st.subheader(L["dd_titulo"])
+    fig2 = go.Figure()
+    for i, t in enumerate(dados.keys()):
+        if t not in precos.columns: continue
+        pico = precos[t].cummax()
+        dd   = (precos[t] - pico) / pico * 100
+        fig2.add_trace(go.Scatter(x=precos.index, y=dd.values,
+            name=t, line=dict(color=PLOT_COLORS[i % len(PLOT_COLORS)], width=1.5)))
+    style_fig(fig2, height=400, yaxis_title="Drawdown (%)", xaxis_title=L["eixo_x"], hovermode="x unified")
+    st.plotly_chart(fig2, use_container_width=True)
 
-# ── STRESS ────────────────────────────────────────────────────
-st.subheader(L["stress_titulo"])
-st.caption(L["stress_sub"])
-cenarios = L["cenarios"]
-cols2 = st.columns(len(cenarios))
-for col, (nome, pct) in zip(cols2, cenarios.items()):
-    perda = capital * pct
-    col.metric(nome, f"€{capital+perda:,.0f}", f"€{perda:,.0f}", delta_color="inverse")
+    # ── STRESS ────────────────────────────────────────────────
+    st.subheader(L["stress_titulo"])
+    st.caption(L["stress_sub"])
+    cenarios = L["cenarios"]
+    cols2 = st.columns(len(cenarios))
+    for col, (nome, pct) in zip(cols2, cenarios.items()):
+        perda = capital * pct
+        col.metric(nome, f"€{capital+perda:,.0f}", f"€{perda:,.0f}", delta_color="inverse")
+else:
+    auth.render_locked_section()
 
 if metricas_r:
     mais_vol = max(metricas_r.items(), key=lambda x: x[1]["vol"])

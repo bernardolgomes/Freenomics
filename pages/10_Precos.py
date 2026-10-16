@@ -292,12 +292,34 @@ st.write("")
 col_a, col_b, col_c = st.columns(3)
 with col_a:
     st.button(L["btn_free"], use_container_width=True, disabled=True, key="btn_free_plano")
+LOGIN_PRIMEIRO = {
+    "🇵🇹 Português": "Cria conta ou entra (canto superior direito) para subscrever.",
+    "🇬🇧 English": "Sign up or log in (top right) to subscribe.",
+    "🇫🇷 Français": "Créez un compte ou connectez-vous (en haut à droite) pour vous abonner.",
+    "🇩🇪 Deutsch": "Registriere dich oder melde dich an (oben rechts), um zu abonnieren.",
+    "🇪🇸 Español": "Crea una cuenta o inicia sesión (arriba a la derecha) para suscribirte.",
+}[lang]
+
+
+def botao_subscrever(rotulo, kind, key):
+    if auth.has_full_access():
+        st.button(rotulo, use_container_width=True, disabled=True, key=key)
+        return
+    url = auth.checkout_url(kind)
+    if url:
+        st.link_button(rotulo, url, use_container_width=True, type="primary")
+    elif not auth.is_logged_in() and auth.secret("STRIPE_LINK_MONTHLY"):
+        if st.button(rotulo, use_container_width=True, type="primary", key=key):
+            st.info(LOGIN_PRIMEIRO)
+    else:
+        if st.button(rotulo, use_container_width=True, type="primary", key=key):
+            st.info(L["em_breve"])
+
+
 with col_b:
-    if st.button(L["btn_premium"], use_container_width=True, type="primary", key="btn_premium_plano"):
-        st.info(L["em_breve"])
+    botao_subscrever(L["btn_premium"], "monthly", "btn_premium_plano")
 with col_c:
-    if st.button(L["btn_anual"], use_container_width=True, type="primary", key="btn_anual_plano"):
-        st.info(L["em_breve"])
+    botao_subscrever(L["btn_anual"], "yearly", "btn_anual_plano")
 
 if auth.is_logged_in():
     plano_labels = {"free": L["free_nome"], "premium": L["premium_nome"], "admin": "👑 Admin"}

@@ -916,6 +916,167 @@ CSS = """
     li[role="option"][aria-selected="true"][aria-selected="true"][aria-selected="true"] * {
         color: #C29A4B !important;
     }
+
+    /* ═════════ REVISÃO DE DESIGN (legibilidade e consistência) ═════════ */
+
+    /* ── Tipografia e espaçamento ── */
+    .block-container { padding-top: 2.2rem; }
+    h1 { font-size: 2.3rem !important; font-weight: 700 !important; letter-spacing: -0.3px; }
+    h2 { font-size: 1.55rem !important; }
+    h3 { font-size: 1.25rem !important; }
+    hr { border-color: #1E4060 !important; opacity: 1 !important; }
+
+    /* ── Botões ── */
+    [data-testid="stBaseButton-primary"], button[kind="primary"] {
+        background: linear-gradient(135deg, #D8B368 0%, #C29A4B 100%) !important;
+        border: none !important; border-radius: 12px !important;
+        padding: 0.6rem 1.2rem !important; min-height: 2.9rem;
+        box-shadow: 0 4px 14px rgba(194,154,75,0.28);
+        transition: transform .12s ease, box-shadow .12s ease;
+    }
+    [data-testid="stBaseButton-primary"]:hover, button[kind="primary"]:hover {
+        transform: translateY(-1px); box-shadow: 0 6px 18px rgba(194,154,75,0.42);
+    }
+    [data-testid="stBaseButton-primary"] p, [data-testid="stBaseButton-primary"] span,
+    button[kind="primary"] p, button[kind="primary"] span,
+    [data-testid="stBaseButton-primary"] [data-testid="stMarkdownContainer"] p,
+    button[kind="primary"] [data-testid="stMarkdownContainer"] p {
+        color: #0A1628 !important; font-weight: 700 !important;
+    }
+    [data-testid="stBaseButton-secondary"], button[kind="secondary"],
+    [data-testid="stDownloadButton"] button {
+        background-color: #1A2F4A !important; border: 1px solid #2B5F8E !important;
+        border-radius: 12px !important; transition: border-color .12s ease, background-color .12s ease;
+    }
+    [data-testid="stBaseButton-secondary"]:hover, button[kind="secondary"]:hover,
+    [data-testid="stDownloadButton"] button:hover {
+        border-color: #C29A4B !important; background-color: #20395A !important;
+    }
+    [data-testid="stBaseButton-secondary"] p, button[kind="secondary"] p,
+    [data-testid="stDownloadButton"] button p { color: #FAF8F3 !important; font-weight: 600; }
+
+    /* ── Ligações de página (Próximo passo, Início) ── */
+    [data-testid="stPageLink-NavLink"], div[data-testid="stPageLink"] a {
+        background-color: #1A2F4A; border: 1px solid #2B5F8E; border-radius: 12px;
+        padding: 0.6rem 1rem; transition: border-color .12s ease, background-color .12s ease;
+    }
+    [data-testid="stPageLink-NavLink"]:hover, div[data-testid="stPageLink"] a:hover {
+        border-color: #C29A4B; background-color: #20395A;
+    }
+    [data-testid="stPageLink-NavLink"] p, div[data-testid="stPageLink"] a p {
+        color: #FAF8F3 !important; font-weight: 600;
+    }
+    .st-key-fn_hero [data-testid="stPageLink-NavLink"], .st-key-fn_next [data-testid="stPageLink-NavLink"] {
+        background: linear-gradient(135deg, #D8B368 0%, #C29A4B 100%); border: none;
+        justify-content: center; box-shadow: 0 6px 20px rgba(194,154,75,0.35);
+    }
+    .st-key-fn_hero [data-testid="stPageLink-NavLink"] { padding: 1rem 1.4rem; }
+    .st-key-fn_hero [data-testid="stPageLink-NavLink"] p { font-size: 1.25rem; }
+    .st-key-fn_hero [data-testid="stPageLink-NavLink"] p,
+    .st-key-fn_next [data-testid="stPageLink-NavLink"] p { color: #0A1628 !important; font-weight: 800; }
+    .st-key-fn_hero [data-testid="stPageLink-NavLink"]:hover,
+    .st-key-fn_next [data-testid="stPageLink-NavLink"]:hover {
+        background: linear-gradient(135deg, #E3C27A 0%, #CDA555 100%);
+    }
+
+    /* ── Separadores (tabs) ── */
+    button[data-baseweb="tab"] { background: transparent !important; padding: 0.6rem 1.1rem; }
+    button[data-baseweb="tab"] p, button[data-baseweb="tab"] span {
+        color: #C8D3DA !important; font-weight: 600; font-size: 1rem;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] p,
+    button[data-baseweb="tab"][aria-selected="true"] span { color: #C29A4B !important; }
+    button[data-baseweb="tab"]:hover p { color: #FAF8F3 !important; }
+    [data-baseweb="tab-highlight"] { background-color: #C29A4B !important; height: 3px !important; }
+    [data-baseweb="tab-border"] { background-color: #1E4060 !important; }
+
+    /* ── Campos de entrada ── */
+    [data-baseweb="input"], [data-baseweb="base-input"], [data-baseweb="textarea"] {
+        background-color: #1A2F4A !important; border-radius: 10px !important;
+    }
+    [data-baseweb="input"] { border: 1px solid #2B5F8E !important; }
+    [data-baseweb="input"]:focus-within, [data-baseweb="select"] > div:focus-within {
+        border-color: #C29A4B !important; box-shadow: 0 0 0 1px #C29A4B !important;
+    }
+    [data-baseweb="input"] input, [data-baseweb="textarea"] textarea {
+        color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important;
+    }
+    [data-baseweb="input"] input::placeholder, [data-baseweb="textarea"] textarea::placeholder {
+        color: #8FA3BF !important; -webkit-text-fill-color: #8FA3BF !important; opacity: 1;
+    }
+    [data-testid="stNumberInput"] button { background-color: #20395A !important; color: #FAF8F3 !important; }
+    [data-testid="stNumberInput"] button svg { fill: #FAF8F3 !important; }
+    [data-baseweb="select"] > div { border-radius: 10px !important; }
+
+    /* ── Métricas ── */
+    div[data-testid="stMetric"] {
+        border: 1px solid #1E4060; border-left: 4px solid #C29A4B; border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+    div[data-testid="stMetricLabel"], div[data-testid="stMetricLabel"] * {
+        color: #C8D3DA !important; font-size: 0.88rem !important;
+    }
+    div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {
+        color: #FAF8F3 !important; font-weight: 700 !important;
+    }
+    div[data-testid="stMetricValue"] { font-size: 1.7rem !important; }
+
+    /* ── Expanders ── */
+    [data-testid="stExpander"] {
+        background-color: #0E2A3D; border: 1px solid #1E4060 !important; border-radius: 12px;
+    }
+    [data-testid="stExpander"] details, [data-testid="stExpander"] summary { background-color: transparent !important; }
+    [data-testid="stExpander"] summary:hover { background-color: rgba(194,154,75,0.08) !important; }
+    [data-testid="stExpander"] summary p, [data-testid="stExpander"] summary span {
+        color: #FAF8F3 !important; font-weight: 600;
+    }
+    [data-testid="stExpander"] summary svg { fill: #C29A4B !important; color: #C29A4B !important; }
+
+    /* ── Tabelas (st.dataframe / st.data_editor) ── */
+    [data-testid="stDataFrame"], [data-testid="stDataFrameResizable"] {
+        border: 1px solid #1E4060; border-radius: 12px; overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+
+    /* ── Alertas (info, aviso, sucesso, erro) ── */
+    [data-testid="stAlert"] { border-radius: 12px; }
+    [data-testid="stAlert"] p { color: #FAF8F3 !important; }
+
+    /* ── Upload de ficheiros ── */
+    [data-testid="stFileUploaderDropzone"] {
+        background-color: #0E2A3D !important; border: 1px dashed #C29A4B !important; border-radius: 12px;
+    }
+    [data-testid="stFileUploaderDropzone"] * { color: #E8EDF2 !important; }
+
+    /* ── Barra de progresso ── */
+    [data-testid="stProgress"] div[role="progressbar"] > div { background-color: #C29A4B !important; }
+
+    /* ── Cartões reutilizáveis (Início, Próximo passo, Modo demonstração) ── */
+    .fn-card {
+        background: linear-gradient(160deg, #0E2A3D 0%, #12324A 100%);
+        border: 1px solid #1E4060; border-radius: 14px; padding: 18px 20px; height: 100%;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .fn-card .fn-num {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 34px; height: 34px; border-radius: 50%; margin-bottom: 10px;
+        background: #C29A4B; color: #0A1628 !important; font-weight: 800; font-size: 1.05rem;
+    }
+    .fn-card .fn-tit { color: #FAF8F3 !important; font-weight: 700; font-size: 1.08rem; margin: 0 0 6px 0; }
+    .fn-card .fn-txt { color: #C8D3DA !important; font-size: 0.93rem; line-height: 1.5; margin: 0; }
+    .fn-next-card {
+        background: linear-gradient(135deg, #0E2A3D 0%, #15385A 100%);
+        border: 1px solid #C29A4B; border-radius: 14px; padding: 20px 24px; margin: 8px 0 10px 0;
+    }
+    .fn-next-card .fn-kicker {
+        color: #C29A4B !important; font-size: 0.78rem; font-weight: 800;
+        letter-spacing: 2px; text-transform: uppercase; margin: 0 0 6px 0;
+    }
+    .fn-next-card .fn-txt { color: #FAF8F3 !important; font-size: 1.05rem; line-height: 1.5; margin: 0; }
+    .fn-demo-badge {
+        display: inline-block; background: rgba(194,154,75,0.16); border: 1px solid #C29A4B;
+        color: #E3C27A !important; border-radius: 999px; padding: 4px 14px; font-size: 0.85rem; font-weight: 600;
+    }
 </style>
 """
 
@@ -948,4 +1109,51 @@ setInterval(fixDropdowns, 200);
 </script>
 """
 
-PLOT_COLORS = ["#0E2A3D", "#C29A4B", "#6B8E7F", "#A8453E", "#5C6B73"]
+# ── Paleta de gráficos (bom contraste sobre fundo azul-marinho) ────────────
+# dourado, verde-azulado, azul claro, coral, lilás, verde menta, areia, azul acinzentado
+PALETTE = ["#C29A4B", "#4FB8C4", "#6FB1E8", "#E8806A", "#A98BDB", "#7FC8A9", "#E3C27A", "#8FA3BF"]
+PLOT_COLORS = PALETTE
+COR_POSITIVO = "#5FD3A0"
+COR_NEGATIVO = "#F26B6B"
+COR_TEXTO = "#FAF8F3"
+_GRELHA = "rgba(250,248,243,0.09)"
+_LINHA = "rgba(250,248,243,0.28)"
+
+
+def style_fig(fig, titulo=None, height=None, legenda=True, **layout_extra):
+    """Aplica o estilo Freenomics a um gráfico plotly: fundo transparente, texto claro,
+    grelha subtil, eixos e legenda legíveis, tooltips escuros e paleta consistente.
+    Não altera dados nem cálculos. Devolve a própria figura (para encadear)."""
+    layout = dict(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, sans-serif", color=COR_TEXTO, size=13),
+        colorway=PALETTE,
+        margin=dict(l=12, r=12, t=64 if titulo else 36, b=12),
+        hoverlabel=dict(bgcolor="#0E2A3D", bordercolor="#C29A4B",
+                        font=dict(color=COR_TEXTO, size=13, family="Inter, sans-serif")),
+        showlegend=legenda,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                    font=dict(color=COR_TEXTO, size=13), bgcolor="rgba(0,0,0,0)",
+                    title=dict(font=dict(color=COR_TEXTO))),
+    )
+    if titulo:
+        layout["title"] = dict(text=titulo, x=0, xanchor="left",
+                               font=dict(family="Source Serif 4, serif", size=19, color=COR_TEXTO))
+    if height:
+        layout["height"] = height
+    layout.update(layout_extra)
+    fig.update_layout(**layout)
+    eixo = dict(gridcolor=_GRELHA, zerolinecolor=_LINHA, linecolor=_LINHA,
+                tickfont=dict(color="#E8EDF2", size=12), title_font=dict(color="#C8D3DA", size=13),
+                automargin=True)
+    fig.update_xaxes(**eixo)
+    fig.update_yaxes(**eixo)
+    # Tartes: texto claro e separadores na cor do fundo
+    fig.update_traces(textfont=dict(color=COR_TEXTO, size=13),
+                      marker=dict(line=dict(color="#0A1628", width=2)),
+                      selector=dict(type="pie"))
+    # Mapas de calor: barra de cores legível
+    fig.update_traces(colorbar=dict(tickfont=dict(color="#E8EDF2"), outlinewidth=0),
+                      selector=dict(type="heatmap"))
+    return fig

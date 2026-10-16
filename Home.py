@@ -4,6 +4,14 @@ import auth
 
 st.set_page_config(page_title="Freenomics", layout="wide", page_icon="📊")
 
+# O modo demonstração pré-preenche widgets via session_state: evita o aviso amarelo de "valor duplicado"
+# (também definido em .streamlit/config.toml; isto cobre execuções sem esse ficheiro).
+try:
+    from streamlit import config as _st_config
+    _st_config.set_option("global.disableWidgetStateDuplicationWarning", True)
+except Exception:
+    pass
+
 import streamlit.components.v1 as components
 components.html("""
 <script>
@@ -84,6 +92,7 @@ lang = st.sidebar.selectbox(
 )
 st.session_state["lang"] = lang
 
+auth.refresh_plan()
 auth.render_login_widget_top_right()
 
 n = NOMES_PAGINAS[lang]
@@ -112,19 +121,59 @@ ANALISE_ACAO = {
     "🇪🇸 Español":   "🔎 Análisis de Acción",
 }
 
-pg = st.navigation([
-    st.Page("pages/11_BoasVindas.py",  title=n["boasvindas"]),
-    st.Page("pages/10_Precos.py",      title=n["precos"]),
-    st.Page("pages/8_Orcamento.py",    title=n["orcamento"]),
-    st.Page("pages/9_Objetivos.py",    title=n["objetivos"]),
-    st.Page("pages/7_patrimonio.py",   title=PATRIMONIO[lang]),
-    st.Page("pages/12_Analise_Acao.py", title=ANALISE_ACAO[lang]),
-    st.Page("pages/0_Dashboard.py",    title=n["dashboard"]),
-    st.Page("pages/1_Comparador.py",   title=n["comparador"]),
-    st.Page("pages/2_Simulador.py",    title=n["simulador"]),
-    st.Page("pages/4_Risco.py",        title=n["risco"]),
-    st.Page("pages/3_Dividendos.py",   title=n["dividendos"]),
-    st.Page("pages/5_Noticias.py",     title=n["noticias"]),
-    st.Page("pages/6_Exportar.py",     title=EXPORTAR[lang]),
-])
+CARTEIRA = {
+    "🇵🇹 Português": "📈 Carteira",
+    "🇬🇧 English":   "📈 Portfolio",
+    "🇫🇷 Français":  "📈 Portefeuille",
+    "🇩🇪 Deutsch":   "📈 Portfolio",
+    "🇪🇸 Español":   "📈 Cartera",
+}
+
+SIMULAR = {
+    "🇵🇹 Português": "🧪 Simular e Comparar",
+    "🇬🇧 English":   "🧪 Simulate & Compare",
+    "🇫🇷 Français":  "🧪 Simuler et Comparer",
+    "🇩🇪 Deutsch":   "🧪 Simulieren & Vergleichen",
+    "🇪🇸 Español":   "🧪 Simular y Comparar",
+}
+
+LEGAL = {
+    "🇵🇹 Português": "📜 Termos e Privacidade",
+    "🇬🇧 English":   "📜 Terms & Privacy",
+    "🇫🇷 Français":  "📜 Conditions et Confidentialité",
+    "🇩🇪 Deutsch":   "📜 AGB & Datenschutz",
+    "🇪🇸 Español":   "📜 Términos y Privacidad",
+}
+
+SECOES = {
+    "🇵🇹 Português": ["Começar", "As minhas finanças", "Investir", "Mercado e Relatório"],
+    "🇬🇧 English":   ["Start", "My finances", "Invest", "Market & Report"],
+    "🇫🇷 Français":  ["Démarrer", "Mes finances", "Investir", "Marché et Rapport"],
+    "🇩🇪 Deutsch":   ["Start", "Meine Finanzen", "Investieren", "Markt & Bericht"],
+    "🇪🇸 Español":   ["Empezar", "Mis finanzas", "Invertir", "Mercado e Informe"],
+}[lang]
+
+PAGINAS = {
+    "boasvindas": st.Page("pages/11_BoasVindas.py", title=n["boasvindas"], default=True),
+    "precos":     st.Page("pages/10_Precos.py", title=n["precos"]),
+    "orcamento":  st.Page("pages/8_Orcamento.py", title=n["orcamento"]),
+    "objetivos":  st.Page("pages/9_Objetivos.py", title=n["objetivos"]),
+    "patrimonio": st.Page("pages/7_patrimonio.py", title=PATRIMONIO[lang]),
+    "analise":    st.Page("pages/12_Analise_Acao.py", title=ANALISE_ACAO[lang]),
+    "carteira":   st.Page("pages/13_Carteira.py", title=CARTEIRA[lang]),
+    "simular":    st.Page("pages/14_Simular_Comparar.py", title=SIMULAR[lang]),
+    "noticias":   st.Page("pages/5_Noticias.py", title=n["noticias"]),
+    "exportar":   st.Page("pages/6_Exportar.py", title=EXPORTAR[lang]),
+    "legal":      st.Page("pages/15_Legal.py", title=LEGAL[lang]),
+}
+# Disponível para st.page_link nas outras páginas (ex.: botão "Próximo passo")
+st.session_state["_paginas"] = PAGINAS
+
+P = PAGINAS
+pg = st.navigation({
+    SECOES[0]: [P["boasvindas"], P["precos"]],
+    SECOES[1]: [P["orcamento"], P["objetivos"], P["patrimonio"]],
+    SECOES[2]: [P["analise"], P["carteira"], P["simular"]],
+    SECOES[3]: [P["noticias"], P["exportar"], P["legal"]],
+})
 pg.run()

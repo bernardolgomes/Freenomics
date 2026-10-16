@@ -8,7 +8,8 @@ from datetime import datetime, timedelta
 import requests, sys, os, re
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import show_logo
-from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS
+import auth
+from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS, style_fig
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -323,7 +324,7 @@ st.markdown("---")
 col_add, col_empty = st.columns([2, 3])
 with col_add:
     if len(st.session_state.comp_portfolios) < 6:
-        if st.button(L["btn_add_carteira"], use_container_width=True):
+        if st.button(L["btn_add_carteira"], use_container_width=True, key="comp_add_carteira"):
             st.session_state.comp_portfolios.append(
                 [{"ticker": "", "moeda": "USD", "preco": 0.0, "acoes": 0.0}])
             st.rerun()
@@ -331,12 +332,12 @@ with col_add:
 col_api, col_usd = st.columns([3, 1])
 with col_api:
     api_key = st.text_input(L["api_label"], type="password",
-                             placeholder=L["api_placeholder"], help=L["api_info"])
+                             placeholder=L["api_placeholder"], help=L["api_info"], key="comp_api")
 with col_usd:
     st.markdown("&nbsp;", unsafe_allow_html=True)
-    mostrar_usd = st.toggle(L["mostrar_usd"], value=False)
+    mostrar_usd = st.toggle(L["mostrar_usd"], value=False, key="comp_usd")
 
-comparar = st.button(L["btn_comparar"], type="primary", use_container_width=True)
+comparar = st.button(L["btn_comparar"], type="primary", use_container_width=True, key="comp_comparar")
 
 if not comparar and "comp_resultado" not in st.session_state:
     st.stop()
@@ -449,41 +450,43 @@ melhor = max(resultados, key=lambda x: x["metricas"]["retorno"])
 st.markdown(f"<div class='winner-box'>{L['vencedor']}: {melhor['nome']}</div>",
             unsafe_allow_html=True)
 
-# ── MÉTRICAS COMPARATIVAS ─────────────────────────────────────
-cols_m = st.columns(len(resultados))
-for col, r in zip(cols_m, resultados):
-    m = r["metricas"]
-    with col:
-        st.markdown(f"**{r['nome']}**")
-        st.markdown(cartao(L["retorno"], f"{m['retorno']}%",
-            euros_str="+▲" if m['retorno']>=0 else "-▼",
-            euros_cor=cor(m['retorno'])), unsafe_allow_html=True)
-        st.markdown(cartao(L["vol"], f"{m['vol']}%"), unsafe_allow_html=True)
-        st.markdown(cartao(L["drawdown"], f"{m['dd']}%",
-            euros_str="-▼", euros_cor="#F44336"), unsafe_allow_html=True)
-        st.markdown(cartao(L["sharpe"], f"{m['sharpe']}"), unsafe_allow_html=True)
+_full = auth.has_full_access()
 
-# ── GRÁFICO ───────────────────────────────────────────────────
-st.markdown("---")
-st.subheader(L["grafico"])
-fig = go.Figure()
-for i, r in enumerate(resultados):
-    fig.add_trace(go.Scatter(
-        x=r["retorno"].index,
-        y=(r["retorno"]*100).values.flatten(),
-        name=r["nome_curto"],
-        line=dict(color=PLOT_COLORS[i % len(PLOT_COLORS)], width=2.5)
-    ))
-fig.update_layout(
-    plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title=LX["y"], xaxis_title=LX["x"],
-    hovermode="x unified", height=440,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02))
-st.plotly_chart(fig, use_container_width=True)
-st.caption(L["caption_base100"])
+# ── MÉTRICAS COMPARATIVAS (só para subscritores) ──────────────
+if _full:
+    cols_m = st.columns(len(resultados))
+    for col, r in zip(cols_m, resultados):
+        m = r["metricas"]
+        with col:
+            st.markdown(f"**{r['nome']}**")
+            st.markdown(cartao(L["retorno"], f"{m['retorno']}%",
+                euros_str="+▲" if m['retorno']>=0 else "-▼",
+                euros_cor=cor(m['retorno'])), unsafe_allow_html=True)
+            st.markdown(cartao(L["vol"], f"{m['vol']}%"), unsafe_allow_html=True)
+            st.markdown(cartao(L["drawdown"], f"{m['dd']}%",
+                euros_str="-▼", euros_cor="#F44336"), unsafe_allow_html=True)
+            st.markdown(cartao(L["sharpe"], f"{m['sharpe']}"), unsafe_allow_html=True)
 
-# ── ANÁLISE ───────────────────────────────────────────────────
-st.subheader(L["analise"])
+    # ── GRÁFICO ───────────────────────────────────────────────
+    st.markdown("---")
+    st.subheader(L["grafico"])
+    fig = go.Figure()
+    for i, r in enumerate(resultados):
+        fig.add_trace(go.Scatter(
+            x=r["retorno"].index,
+            y=(r["retorno"]*100).values.flatten(),
+            name=r["nome_curto"],
+            line=dict(color=PLOT_COLORS[i % len(PLOT_COLORS)], width=2.5)
+        ))
+    style_fig(fig, height=460, yaxis_title=LX["y"], xaxis_title=LX["x"], hovermode="x unified")
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(L["caption_base100"])
+else:
+    auth.render_locked_section()
+
+# ── ANÁLISE (só para subscritores) ────────────────────────────
+if _full:
+    st.subheader(L["analise"])
 
 LINGUA_NOME = {
     "🇵🇹 Português": "português europeu", "🇬🇧 English": "English",
@@ -525,24 +528,29 @@ def fallback_comp(lg):
     ]
 
 insight_final = None
+ok, txt = False, None
 if api_key:
     with st.spinner(LX["spinner_ai"]):
         txt, ok = gerar_ai(resultados, periodo_label, lang, api_key)
     if ok and txt:
-        st.markdown(f"<div class='insight-box'>{render(txt).replace(chr(10)+chr(10),'<br><br>')}</div>",
-                    unsafe_allow_html=True)
+        if _full:
+            st.markdown(f"<div class='insight-box'>{render(txt).replace(chr(10)+chr(10),'<br><br>')}</div>",
+                        unsafe_allow_html=True)
         insight_final = txt
     else:
-        st.warning(LX["api_indisp"])
+        if _full:
+            st.warning(LX["api_indisp"])
         fb = fallback_comp(lang)
-        for f in fb:
-            st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
+        if _full:
+            for f in fb:
+                st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
         insight_final = "\n\n".join(fb)
 else:
     fb = fallback_comp(lang)
-    for f in fb:
-        st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
-    st.info(f"💡 {L['api_info']}")
+    if _full:
+        for f in fb:
+            st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
+        st.info(f"💡 {L['api_info']}")
     insight_final = "\n\n".join(fb)
 
 # Para análise automática (sem IA) guardam-se as versões em todas as línguas,

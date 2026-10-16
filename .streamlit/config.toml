@@ -5,3 +5,8 @@ secondaryBackgroundColor = "#1A2F4A"
 textColor = "#FFFFFF"
 primaryColor = "#C29A4B"
 font = "sans serif"
+
+[global]
+# O modo demonstração escreve em session_state valores de widgets com "value=" por defeito;
+# isto evita o aviso amarelo "created with a default value but also had its value set via the Session State API".
+disableWidgetStateDuplicationWarning = true

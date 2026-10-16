@@ -8,7 +8,8 @@ from datetime import datetime, timedelta
 import requests, sys, os, re
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import show_logo
-from translations import T_DASHBOARD, CSS, PLOT_COLORS, FIX_DROPDOWNS_JS
+import auth
+from translations import T_DASHBOARD, CSS, PLOT_COLORS, FIX_DROPDOWNS_JS, style_fig
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -255,7 +256,7 @@ if ativos_para_remover is not None:
     st.session_state.ativos.pop(ativos_para_remover)
     st.rerun()
 
-if st.button(L["btn_add"], use_container_width=False):
+if st.button(L["btn_add"], use_container_width=False, key="dash_add"):
     st.session_state.ativos.append(
         {"ticker": "", "moeda": "USD", "preco": 0.0, "acoes": 0.0})
     st.rerun()
@@ -267,12 +268,12 @@ col_api, col_usd = st.columns([3, 1])
 with col_api:
     api_key = st.text_input(L["api_label"], type="password",
                              placeholder=L["api_placeholder"],
-                             help=L["api_info"])
+                             help=L["api_info"], key="dash_api")
 with col_usd:
     st.markdown("&nbsp;", unsafe_allow_html=True)
-    mostrar_usd = st.toggle(L["mostrar_usd"], value=False)
+    mostrar_usd = st.toggle(L["mostrar_usd"], value=False, key="dash_usd")
 
-analisar = st.button(L["btn_analisar"], type="primary", use_container_width=True)
+analisar = st.button(L["btn_analisar"], type="primary", use_container_width=True, key="dash_analisar")
 
 if not analisar and "freenomics_resultado" not in st.session_state:
     st.stop()
@@ -427,47 +428,44 @@ if ativos_com_dados:
     """, unsafe_allow_html=True)
     st.markdown("---")
 
-# ── GRÁFICO ───────────────────────────────────────────────────
-st.subheader(L["grafico_titulo"])
-fig = go.Figure()
-for i, t in enumerate(tickers):
-    if t not in dados: continue
-    df = dados[t]
-    close = df["Close"]
-    if isinstance(close, pd.DataFrame): close = close.iloc[:, 0]
-    close = close.squeeze()
-    norm = (close / close.iloc[0]) * 100
-    fig.add_trace(go.Scatter(x=df.index, y=norm.values.flatten(),
-        name=t, line=dict(color=PLOT_COLORS[i % len(PLOT_COLORS)], width=2.5)))
+# ── GRÁFICO (só para subscritores) ────────────────────────────
+_full = auth.has_full_access()
+if _full:
+    st.subheader(L["grafico_titulo"])
+    fig = go.Figure()
+    for i, t in enumerate(tickers):
+        if t not in dados: continue
+        df = dados[t]
+        close = df["Close"]
+        if isinstance(close, pd.DataFrame): close = close.iloc[:, 0]
+        close = close.squeeze()
+        norm = (close / close.iloc[0]) * 100
+        fig.add_trace(go.Scatter(x=df.index, y=norm.values.flatten(),
+            name=t, line=dict(color=PLOT_COLORS[i % len(PLOT_COLORS)], width=2.5)))
 
-if "SPY" not in tickers:
-    try:
-        df_spy = carregar_dados("SPY", dias)
-        if not df_spy.empty:
-            c = df_spy["Close"]
-            if isinstance(c, pd.DataFrame): c = c.iloc[:, 0]
-            c = c.squeeze()
-            fig.add_trace(go.Scatter(x=df_spy.index, y=((c/c.iloc[0])*100).values.flatten(),
-                name=LX["benchmark"],
-                line=dict(color="#888888", width=1.5, dash="dash"), opacity=0.7))
-    except Exception:
-        pass
+    if "SPY" not in tickers:
+        try:
+            df_spy = carregar_dados("SPY", dias)
+            if not df_spy.empty:
+                c = df_spy["Close"]
+                if isinstance(c, pd.DataFrame): c = c.iloc[:, 0]
+                c = c.squeeze()
+                fig.add_trace(go.Scatter(x=df_spy.index, y=((c/c.iloc[0])*100).values.flatten(),
+                    name=LX["benchmark"],
+                    line=dict(color="#C8D3DA", width=1.5, dash="dash"), opacity=0.85))
+        except Exception:
+            pass
 
-fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title=T["grafico_y"], xaxis_title=T["grafico_x"],
-    hovermode="x unified", height=440,
-    font=dict(color="#1A1A1A"),
-    xaxis=dict(color="#1A1A1A", tickfont=dict(color="#1A1A1A"),
-        title=dict(font=dict(color="#1A1A1A"))),
-    yaxis=dict(color="#1A1A1A", tickfont=dict(color="#1A1A1A"),
-        title=dict(font=dict(color="#1A1A1A"))),
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, font=dict(color="#1A1A1A")))
-st.plotly_chart(fig, use_container_width=True)
-st.caption(L["caption_base100"])
-st.caption(L["caption_benchmark"])
+    style_fig(fig, height=460, yaxis_title=T["grafico_y"], xaxis_title=T["grafico_x"], hovermode="x unified")
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(L["caption_base100"])
+    st.caption(L["caption_benchmark"])
+else:
+    auth.render_locked_section()
 
 # ── INSIGHTS ──────────────────────────────────────────────────
-st.subheader(L["insights_titulo"])
+if _full:
+    st.subheader(L["insights_titulo"])
 
 LINGUA_NOME = {
     "🇵🇹 Português": "português europeu", "🇬🇧 English": "English",
@@ -522,24 +520,29 @@ def render(texto):
     return re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", texto)
 
 insight_texto_final = None
+ok, texto_ai = False, None
 if api_key:
     with st.spinner(LX["spinner_ai"]):
         texto_ai, ok = gerar_ai(metricas, periodo_label, lang, api_key)
     if ok and texto_ai:
-        st.markdown(f"<div class='insight-box'>{render(texto_ai).replace(chr(10)+chr(10), '<br><br>')}</div>", unsafe_allow_html=True)
-        st.caption("✨ " + L["aviso"])
+        if _full:
+            st.markdown(f"<div class='insight-box'>{render(texto_ai).replace(chr(10)+chr(10), '<br><br>')}</div>", unsafe_allow_html=True)
+            st.caption("✨ " + L["aviso"])
         insight_texto_final = texto_ai
     else:
-        st.warning(LX["api_indisp"])
+        if _full:
+            st.warning(LX["api_indisp"])
         frases = fallback(metricas, periodo_label, L)
-        for f in frases:
-            st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
+        if _full:
+            for f in frases:
+                st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
         insight_texto_final = "\n\n".join(frases)
 else:
     frases = fallback(metricas, periodo_label, L)
-    for f in frases:
-        st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
-    st.info(f"💡 {L['api_info']}")
+    if _full:
+        for f in frases:
+            st.markdown(f"<div class='insight-box'>{render(f)}</div>", unsafe_allow_html=True)
+        st.info(f"💡 {L['api_info']}")
     insight_texto_final = "\n\n".join(frases)
 
 # Guarda o estado atual desta página para a página de Exportar reutilizar

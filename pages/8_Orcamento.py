@@ -9,8 +9,8 @@ import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import show_logo
-from translations import CSS, FIX_DROPDOWNS_JS
+from utils import show_logo, demo_bar, next_step
+from translations import CSS, FIX_DROPDOWNS_JS, PLOT_COLORS, style_fig
 import auth
 
 st.markdown(CSS, unsafe_allow_html=True)
@@ -18,7 +18,7 @@ components.html(FIX_DROPDOWNS_JS, height=0)
 lang = st.session_state.get("lang", "🇵🇹 Português")
 
 CATEGORIAS = ["habitacao", "alimentacao", "transportes", "subscricoes", "lazer", "saude", "outros"]
-CORES = ["#0E2A3D", "#C29A4B", "#6B8E7F", "#A8453E", "#5C6B73", "#8E6BA8", "#B0B0B0"]
+CORES = list(PLOT_COLORS[:7])
 
 LALL = {
     "🇵🇹 Português": {
@@ -137,6 +137,7 @@ L = LALL[lang]
 show_logo()
 st.title(L["titulo"])
 st.caption(L["subtitulo"])
+demo_bar("orcamento")
 
 st.markdown("---")
 
@@ -144,9 +145,9 @@ st.markdown("---")
 st.header(L["sec_rendimento"])
 col_r1, col_r2 = st.columns(2)
 with col_r1:
-    salario = st.number_input(L["salario"], min_value=0.0, value=1500.0, step=50.0)
+    salario = st.number_input(L["salario"], min_value=0.0, value=1500.0, step=50.0, key="orc_salario")
 with col_r2:
-    outras_receitas = st.number_input(L["outras_receitas"], min_value=0.0, value=0.0, step=50.0)
+    outras_receitas = st.number_input(L["outras_receitas"], min_value=0.0, value=0.0, step=50.0, key="orc_outras")
 
 st.markdown("---")
 
@@ -211,9 +212,8 @@ if auth.has_full_access():
     values_pie = [v for v in despesas.values() if v > 0]
     if values_pie:
         fig = go.Figure(go.Pie(labels=labels_pie, values=values_pie,
-            marker=dict(colors=CORES[:len(values_pie)]), textinfo="label+percent", hole=0.4))
-        fig.update_layout(paper_bgcolor="#FAF8F3", showlegend=False, height=340,
-            margin=dict(l=0, r=0, t=10, b=0))
+            marker=dict(colors=CORES[:len(values_pie)]), textinfo="label+percent", hole=0.45, textposition="outside"))
+        style_fig(fig, height=380, legenda=False, margin=dict(l=40, r=40, t=30, b=30))
         st.plotly_chart(fig, use_container_width=True)
 
     # ── INSIGHT (só para subscritores) ───────────────────────────
@@ -238,6 +238,9 @@ st.session_state["export_orcamento"] = {
     # Nomes das categorias em todas as línguas: o relatório usa a língua escolhida ao exportar
     "categorias_por_lang": {_lg: [(_Ll[k], v) for k, v in despesas.items()] for _lg, _Ll in LALL.items()},
 }
+
+st.markdown("---")
+next_step("orcamento")
 
 st.caption(L["aviso"])
 st.markdown("---")

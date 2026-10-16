@@ -8,7 +8,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import show_logo
+from utils import show_logo, demo_bar, kcontainer
 from translations import CSS, FIX_DROPDOWNS_JS
 
 st.markdown(CSS, unsafe_allow_html=True)
@@ -148,9 +148,112 @@ L = {
     },
 }[lang]
 
+INICIO = {
+    "🇵🇹 Português": {
+        "onde_titulo": "🧭 Por onde começar",
+        "onde_sub": "Quatro passos simples, por esta ordem. Em poucos minutos tens o teu plano.",
+        "passos": [
+            ("Orçamento", "Descobre quanto sobra todos os meses para investir.", "🧾 Orçamento"),
+            ("Objetivos", "Define o que queres alcançar e quanto tempo demora.", "🎯 Objetivos"),
+            ("Património", "Regista o que tens e o que deves, e vê o teu ponto de partida.", "💎 Património"),
+            ("Investir", "Analisa ações e acompanha a tua carteira.", None),
+        ],
+        "l_analise": "🔎 Análise de Ação", "l_carteira": "📈 Carteira",
+        "demo_ok": "Exemplo carregado com dados fictícios. Abre o Orçamento, os Objetivos, o Património ou a Carteira: já têm resultados.",
+    },
+    "🇬🇧 English": {
+        "onde_titulo": "🧭 Where to start",
+        "onde_sub": "Four simple steps, in this order. In a few minutes you have your plan.",
+        "passos": [
+            ("Budget", "Find out how much is left each month to invest.", "🧾 Budget"),
+            ("Goals", "Set what you want to achieve and how long it takes.", "🎯 Goals"),
+            ("Net Worth", "Record what you own and owe, and see your starting point.", "💎 Net Worth"),
+            ("Invest", "Analyse stocks and track your portfolio.", None),
+        ],
+        "l_analise": "🔎 Stock Analysis", "l_carteira": "📈 Portfolio",
+        "demo_ok": "Sample loaded with fictional data. Open Budget, Goals, Net Worth or Portfolio: they already show results.",
+    },
+    "🇫🇷 Français": {
+        "onde_titulo": "🧭 Par où commencer",
+        "onde_sub": "Quatre étapes simples, dans cet ordre. En quelques minutes, votre plan est prêt.",
+        "passos": [
+            ("Budget", "Découvrez ce qu'il reste chaque mois pour investir.", "🧾 Budget"),
+            ("Objectifs", "Définissez ce que vous voulez atteindre et en combien de temps.", "🎯 Objectifs"),
+            ("Patrimoine", "Enregistrez ce que vous possédez et devez, et voyez votre point de départ.", "💎 Patrimoine"),
+            ("Investir", "Analysez des actions et suivez votre portefeuille.", None),
+        ],
+        "l_analise": "🔎 Analyse d'Action", "l_carteira": "📈 Portefeuille",
+        "demo_ok": "Exemple chargé avec des données fictives. Ouvrez Budget, Objectifs, Patrimoine ou Portefeuille : les résultats sont déjà là.",
+    },
+    "🇩🇪 Deutsch": {
+        "onde_titulo": "🧭 Wo du anfängst",
+        "onde_sub": "Vier einfache Schritte, in dieser Reihenfolge. In wenigen Minuten steht dein Plan.",
+        "passos": [
+            ("Budget", "Finde heraus, wie viel jeden Monat zum Investieren übrig bleibt.", "🧾 Budget"),
+            ("Ziele", "Lege fest, was du erreichen willst und wie lange es dauert.", "🎯 Ziele"),
+            ("Vermögen", "Erfasse, was du besitzt und schuldest, und sieh deinen Ausgangspunkt.", "💎 Vermögen"),
+            ("Investieren", "Analysiere Aktien und verfolge dein Portfolio.", None),
+        ],
+        "l_analise": "🔎 Aktienanalyse", "l_carteira": "📈 Portfolio",
+        "demo_ok": "Beispiel mit fiktiven Daten geladen. Öffne Budget, Ziele, Vermögen oder Portfolio: Die Ergebnisse sind schon da.",
+    },
+    "🇪🇸 Español": {
+        "onde_titulo": "🧭 Por dónde empezar",
+        "onde_sub": "Cuatro pasos sencillos, en este orden. En pocos minutos tienes tu plan.",
+        "passos": [
+            ("Presupuesto", "Descubre cuánto sobra cada mes para invertir.", "🧾 Presupuesto"),
+            ("Objetivos", "Define qué quieres lograr y cuánto tarda.", "🎯 Objetivos"),
+            ("Patrimonio", "Registra lo que tienes y lo que debes, y mira tu punto de partida.", "💎 Patrimonio"),
+            ("Invertir", "Analiza acciones y sigue tu cartera.", None),
+        ],
+        "l_analise": "🔎 Análisis de Acción", "l_carteira": "📈 Cartera",
+        "demo_ok": "Ejemplo cargado con datos ficticios. Abre Presupuesto, Objetivos, Patrimonio o Cartera: ya muestran resultados.",
+    },
+}[lang]
+
+paginas = st.session_state.get("_paginas") or {}
+
+
+def _link(chave, label):
+    """st.page_link seguro: ignora se a página não estiver registada."""
+    if chave in paginas:
+        try:
+            st.page_link(paginas[chave], label=label, use_container_width=True)
+        except Exception:
+            pass
+
+
 show_logo()
 st.title(L["titulo"])
 st.markdown(f"<p style='font-size:1.15rem;color:#C8D3DA;'>{L['subtitulo']}</p>", unsafe_allow_html=True)
+
+# ── Botão grande "Começar" + modo demonstração ────────────────
+with kcontainer("fn_hero"):
+    _link("orcamento", L["btn_comecar"])
+demo_bar("home")
+if st.session_state.get("demo_ativo"):
+    st.success(INICIO["demo_ok"])
+
+# ── Por onde começar ──────────────────────────────────────────
+st.markdown("---")
+st.markdown(f"#### {INICIO['onde_titulo']}")
+st.caption(INICIO["onde_sub"])
+_chaves = ["orcamento", "objetivos", "patrimonio"]
+cols_p = st.columns(4)
+for n, (col, (tit, txt, lbl)) in enumerate(zip(cols_p, INICIO["passos"]), start=1):
+    with col:
+        st.markdown(f"""
+        <div class="fn-card">
+            <span class="fn-num">{n}</span>
+            <p class="fn-tit">{tit}</p>
+            <p class="fn-txt">{txt}</p>
+        </div>""", unsafe_allow_html=True)
+        if n <= 3:
+            _link(_chaves[n - 1], lbl)
+        else:
+            _link("analise", INICIO["l_analise"])
+            _link("carteira", INICIO["l_carteira"])
+
 st.markdown("---")
 
 col_m, col_v = st.columns(2)

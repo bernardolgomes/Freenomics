@@ -12,8 +12,8 @@ import plotly.graph_objects as go
 import yfinance as yf
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import show_logo
-from translations import CSS, FIX_DROPDOWNS_JS
+from utils import show_logo, demo_bar
+from translations import CSS, FIX_DROPDOWNS_JS, style_fig
 import auth
 
 st.markdown(CSS, unsafe_allow_html=True)
@@ -245,6 +245,10 @@ def carregar_dados(ticker):
 show_logo()
 st.title(L["titulo"])
 st.markdown(f"<p style='color:#C8D3DA;'>{L['subtitulo']}</p>", unsafe_allow_html=True)
+demo_bar("analise")
+
+# O modo demonstração pede para carregar o ticker de exemplo automaticamente
+_auto_carregar = st.session_state.pop("aa_auto_load", False)
 
 col_t, col_b = st.columns([3, 1])
 with col_t:
@@ -252,7 +256,7 @@ with col_t:
 with col_b:
     st.write("")
     st.write("")
-    if st.button(L["btn_carregar"], use_container_width=True, key="aa_carregar"):
+    if st.button(L["btn_carregar"], use_container_width=True, key="aa_carregar") or _auto_carregar:
         st.session_state["aa_ticker"] = ticker
         res = carregar_dados(ticker)
         if res is None:
@@ -377,7 +381,16 @@ pontos = sum(1 for _, ok in checks if ok)
 st.markdown("---")
 st.subheader(L["sec_res"])
 
+st.session_state["export_analise_acao"] = {
+    "ticker": st.session_state.get("aa_ticker", ticker),
+    "retorno_anual": retorno_anual * 100, "preco_atual": preco_atual,
+    "preco_alvo": preco_alvo, "preco_com_margem": preco_com_margem,
+    "pontos": pontos, "total": len(checks),
+}
+
 if not auth.has_full_access():
+    # Amostra gratuita: só o retorno anual esperado
+    st.metric(L["retorno_anual"], f"{retorno_anual*100:.1f}%")
     auth.render_locked_section()
     st.stop()
 
@@ -399,9 +412,8 @@ m4.metric(L["preco_seg"], f"{preco_com_margem:,.2f}", f"{var_ate_margem*100:+.1f
 fig = go.Figure()
 fig.add_bar(x=anos_proj, y=preco_p, name=L["preco_est"], marker_color="#C29A4B")
 fig.add_hline(y=preco_atual, line_dash="dash", line_color="#FAF8F3", annotation_text=L["preco_atual"])
-fig.add_hline(y=preco_com_margem, line_dash="dot", line_color="#6B8E7F", annotation_text=L["preco_seg"])
-fig.update_layout(title=L["grafico"], height=380, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                  font_color="#FAF8F3", showlegend=False, margin=dict(t=50, b=30))
+fig.add_hline(y=preco_com_margem, line_dash="dot", line_color="#4FB8C4", annotation_text=L["preco_seg"])
+style_fig(fig, titulo=L["grafico"], height=400, legenda=False)
 st.plotly_chart(fig, use_container_width=True)
 
 st.subheader(L["sec_veredicto"])

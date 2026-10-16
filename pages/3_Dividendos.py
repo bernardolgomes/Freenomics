@@ -7,7 +7,8 @@ from datetime import datetime
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import show_logo
-from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS
+import auth
+from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS, style_fig
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -156,12 +157,12 @@ if remover is not None:
 
 col_add, col_anos = st.columns([1, 2])
 with col_add:
-    if st.button(L["btn_add"]):
+    if st.button(L["btn_add"], key="div_add"):
         st.session_state.div_tickers.append(""); st.rerun()
 with col_anos:
-    anos_hist = st.slider(L["anos_label"], 1, 10, 5)
+    anos_hist = st.slider(L["anos_label"], 1, 10, 5, key="div_anos")
 
-ver = st.button(L["btn_ver"], type="primary", use_container_width=True)
+ver = st.button(L["btn_ver"], type="primary", use_container_width=True, key="div_ver")
 
 if not ver and "div_resultado" not in st.session_state:
     st.stop()
@@ -219,35 +220,35 @@ for col, (t, dados) in zip(cols, resultados.items()):
         st.markdown(cartao_div(L["yield_label"], f"{y:.2f}%",
             f"${rate:.2f} {L['por_acao']}"), unsafe_allow_html=True)
 
-# ── GRÁFICO ───────────────────────────────────────────────────
-st.subheader(f"{L['historico']} · {anos_hist} {L.get('anos_label','anos')}")
-fig = go.Figure()
-ano_inicio = datetime.today().year - anos_hist
-for i, (t, dados) in enumerate(resultados.items()):
-    df = dados["divs"][dados["divs"].index.year >= ano_inicio]
-    if not df.empty:
-        fig.add_trace(go.Bar(x=df.index, y=df.values.flatten(),
-            name=t, marker_color=PLOT_COLORS[i % len(PLOT_COLORS)], opacity=0.85))
-fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title=L["grafico_y"], xaxis_title=L["col_data"],
-    barmode="group", height=400,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02))
-st.plotly_chart(fig, use_container_width=True)
+if auth.has_full_access():
+    # ── GRÁFICO (só para subscritores) ────────────────────────────
+    st.subheader(f"{L['historico']} · {anos_hist} {L.get('anos_label','anos')}")
+    fig = go.Figure()
+    ano_inicio = datetime.today().year - anos_hist
+    for i, (t, dados) in enumerate(resultados.items()):
+        df = dados["divs"][dados["divs"].index.year >= ano_inicio]
+        if not df.empty:
+            fig.add_trace(go.Bar(x=df.index, y=df.values.flatten(),
+                name=t, marker_color=PLOT_COLORS[i % len(PLOT_COLORS)], opacity=0.85))
+    style_fig(fig, height=420, yaxis_title=L["grafico_y"], xaxis_title=L["col_data"], barmode="group")
+    st.plotly_chart(fig, use_container_width=True)
 
-# ── TABELA ────────────────────────────────────────────────────
-st.subheader(L["ultimos"])
-for t, dados in resultados.items():
-    df = dados["divs"][dados["divs"].index.year >= ano_inicio]
-    if df.empty: continue
-    d = pd.DataFrame({"_data": df.index, "_div": df.values.flatten().round(4)}).sort_values("_data", ascending=False).head(12)
-    # Nomes de colunas só na apresentação (na língua atual)
-    d = pd.DataFrame({L["col_data"]: d["_data"].dt.strftime("%d/%m/%Y").values,
-                      L["col_div"]: d["_div"].values}).set_index(L["col_data"])
-    with st.expander(f"📋 {t} · {len(d)} {L['pagamentos']}"):
-        st.dataframe(d, use_container_width=True)
+    # ── TABELA ────────────────────────────────────────────────────
+    st.subheader(L["ultimos"])
+    for t, dados in resultados.items():
+        df = dados["divs"][dados["divs"].index.year >= ano_inicio]
+        if df.empty: continue
+        d = pd.DataFrame({"_data": df.index, "_div": df.values.flatten().round(4)}).sort_values("_data", ascending=False).head(12)
+        # Nomes de colunas só na apresentação (na língua atual)
+        d = pd.DataFrame({L["col_data"]: d["_data"].dt.strftime("%d/%m/%Y").values,
+                          L["col_div"]: d["_div"].values}).set_index(L["col_data"])
+        with st.expander(f"📋 {t} · {len(d)} {L['pagamentos']}"):
+            st.dataframe(d, use_container_width=True)
 
-st.markdown(f"<div class='info-box'>💡 <strong>{L['nota_titulo']}</strong><br>{L['nota']}</div>",
-    unsafe_allow_html=True)
+    st.markdown(f"<div class='info-box'>💡 <strong>{L['nota_titulo']}</strong><br>{L['nota']}</div>",
+        unsafe_allow_html=True)
+else:
+    auth.render_locked_section()
 
 # Guarda o estado atual desta página para a página de Exportar reutilizar
 st.session_state["export_dividendos"] = {

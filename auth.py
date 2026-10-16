@@ -138,13 +138,21 @@ def _plan_labels():
     return {"free": _t("plan_free"), "premium": _t("plan_premium"), "admin": _t("plan_admin")}
 
 
+def secret(name, default=None):
+    """Lê um secret sem rebentar quando não existe ficheiro secrets.toml."""
+    try:
+        return st.secrets.get(name, default)
+    except Exception:
+        return default
+
+
 @st.cache_resource
 def get_client():
     """Cria (e reutiliza) o cliente Supabase a partir dos secrets. Devolve None se não configurado."""
     if create_client is None:
         return None
-    url = st.secrets.get("SUPABASE_URL")
-    key = st.secrets.get("SUPABASE_ANON_KEY")
+    url = secret("SUPABASE_URL")
+    key = secret("SUPABASE_ANON_KEY")
     if not url or not key:
         return None
     return create_client(url, key)
@@ -212,6 +220,36 @@ def is_logged_in():
 def has_full_access():
     """True se o utilizador tem acesso completo às funcionalidades (premium ou admin)."""
     return current_plan() in ("premium", "admin")
+
+
+def refresh_plan(max_age_s=60):
+    """Volta a ler o plano do Supabase (no máx. 1x por minuto), para apanhar
+    upgrades/cancelamentos feitos pelo webhook da Stripe sem novo login."""
+    import time
+    user = current_user()
+    if not user or not is_configured():
+        return
+    agora = time.time()
+    if agora - st.session_state.get("_plan_checked", 0) < max_age_s:
+        return
+    st.session_state["_plan_checked"] = agora
+    profile = get_profile(user["id"])
+    if profile and profile.get("plan"):
+        st.session_state["user_plan"] = profile["plan"]
+
+
+def checkout_url(kind):
+    """URL do Stripe Payment Link ('monthly' ou 'yearly') com o utilizador associado.
+    Devolve None se não estiver configurado ou se não houver sessão iniciada."""
+    user = current_user()
+    if not user:
+        return None
+    base = secret("STRIPE_LINK_MONTHLY" if kind == "monthly" else "STRIPE_LINK_YEARLY")
+    if not base:
+        return None
+    import urllib.parse
+    q = urllib.parse.urlencode({"client_reference_id": user["id"], "prefilled_email": user["email"]})
+    return f"{base}{'&' if '?' in base else '?'}{q}"
 
 
 def _login_form(suffix):

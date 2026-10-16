@@ -5,8 +5,9 @@ import plotly.graph_objects as go
 from datetime import datetime
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import show_logo
-from translations import CSS, FIX_DROPDOWNS_JS
+from utils import show_logo, demo_bar, next_step
+import auth
+from translations import CSS, FIX_DROPDOWNS_JS, PLOT_COLORS, COR_POSITIVO, COR_NEGATIVO, style_fig
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -209,6 +210,7 @@ LX = EXTRA.get(lang, EXTRA["🇬🇧 English"])
 show_logo()
 st.title(L["titulo"])
 st.caption(L["subtitulo"])
+demo_bar("patrimonio")
 
 # ── INICIALIZAR SESSION STATE ─────────────────────────────────
 cat_keys    = L["cat_keys"]
@@ -227,7 +229,7 @@ def render_categoria(key, titulo, cor_borda="#C29A4B"):
 
     st.markdown(f"""
     <div style="border-left:4px solid {cor_borda};padding-left:12px;margin-bottom:8px;">
-        <p style="color:#0E2A3D;font-size:1.1rem;font-weight:700;margin:0;">{titulo}</p>
+        <p style="color:#FAF8F3;font-size:1.1rem;font-weight:700;margin:0;">{titulo}</p>
     </div>""", unsafe_allow_html=True)
 
     for i, item in enumerate(lista):
@@ -304,7 +306,7 @@ for key, label in zip(cat_keys, cat_labels):
 st.markdown("---")
 
 # Passivos
-render_categoria("passivos", L["passivos"], cor_borda="#F44336")
+render_categoria("passivos", L["passivos"], cor_borda=COR_NEGATIVO)
 st.caption(L["passivos_nota"])
 
 st.markdown("---")
@@ -360,67 +362,77 @@ st.session_state["export_patrimonio"] = {
                             for _lg, _Ll in LALL.items()},
     "data": data_atual,
 }
+# Património líquido para outras páginas (ex.: "Já tens poupado" nos Objetivos)
+st.session_state["patrimonio_total"] = patrimonio
 
-# ── GRÁFICOS ──────────────────────────────────────────────────
-col_pie, col_bar = st.columns(2)
+# ── GRÁFICOS (só para subscritores) ───────────────────────────
+_full = auth.has_full_access()
+if not _full:
+    auth.render_locked_section()
 
-with col_pie:
+col_pie, col_bar = st.columns(2) if _full else (None, None)
+
+if _full:
+  with col_pie:
     st.subheader(L["dist_titulo"])
     labels_pie = [L[k] for k in cat_keys if totais.get(k, 0) > 0]
     values_pie = [totais.get(k, 0) for k in cat_keys if totais.get(k, 0) > 0]
-    cores = ["#0E2A3D", "#C29A4B", "#6B8E7F", "#A8453E", "#5C6B73"]
+    cores = list(PLOT_COLORS[:5])
     if values_pie:
+        # Cada categoria mantém a sua cor mesmo quando alguma está a zero
+        cores_pie = [cores[i] for i, k in enumerate(cat_keys) if totais.get(k, 0) > 0]
         fig_pie = go.Figure(go.Pie(
             labels=labels_pie, values=values_pie,
-            marker=dict(colors=cores[:len(values_pie)]),
-            textinfo="label+percent", hole=0.4))
-        fig_pie.update_layout(
-            paper_bgcolor="#FAF8F3", showlegend=False, height=320,
-            margin=dict(l=0, r=0, t=10, b=0))
+            marker=dict(colors=cores_pie),
+            textinfo="label+percent", hole=0.45, textposition="outside"))
+        style_fig(fig_pie, height=360, legenda=False, margin=dict(l=40, r=40, t=30, b=30))
         st.plotly_chart(fig_pie, use_container_width=True)
 
-with col_bar:
+  with col_bar:
+    cores = list(PLOT_COLORS[:5])
     st.subheader(LX["eur_cat"])
     todas_cats   = cat_labels + [L["passivos"]]
     todas_values = [totais.get(k, 0) for k in cat_keys] + [totais.get("passivos", 0)]
-    todas_cores  = cores[:len(cat_keys)] + ["#F44336"]
+    todas_cores  = cores[:len(cat_keys)] + [COR_NEGATIVO]
     fig_bar = go.Figure(go.Bar(
         x=todas_cats, y=todas_values,
-        marker_color=todas_cores, opacity=0.85))
-    fig_bar.update_layout(
-        plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-        yaxis_title="€", height=320,
-        margin=dict(l=0, r=0, t=10, b=0))
+        marker_color=todas_cores, opacity=0.92,
+        text=[f"€{v:,.0f}" for v in todas_values], textposition="outside", cliponaxis=False))
+    style_fig(fig_bar, height=360, legenda=False, yaxis_title="€",
+              margin=dict(l=12, r=12, t=40, b=12))
+    fig_bar.update_xaxes(tickangle=-25)
     st.plotly_chart(fig_bar, use_container_width=True)
 
-# ── SNAPSHOT: GUARDAR ─────────────────────────────────────────
-st.markdown("---")
-st.subheader(L["snap_titulo"])
-st.caption(L["snap_desc"])
+# ── SNAPSHOT: GUARDAR (só para subscritores) ──────────────────
+uploaded = None
+if _full:
+    st.markdown("---")
+    st.subheader(L["snap_titulo"])
+    st.caption(L["snap_desc"])
 
-snapshot_data = {
-    "data": data_atual,
-    "lingua": lang,
-    "patrimonio_liquido": patrimonio,
-    "total_ativos": total_ativos,
-    "total_passivos": total_passivos,
-    "totais_por_categoria": totais,
-    "items": res.get("items", {}),
-}
+    snapshot_data = {
+        "data": data_atual,
+        "lingua": lang,
+        "patrimonio_liquido": patrimonio,
+        "total_ativos": total_ativos,
+        "total_passivos": total_passivos,
+        "totais_por_categoria": totais,
+        "items": res.get("items", {}),
+    }
 
-nome_ficheiro = f"{L['snapshot_nome']}_{data_atual[:10]}.json"
-st.download_button(
-    label=L["btn_guardar"],
-    data=json.dumps(snapshot_data, ensure_ascii=False, indent=2),
-    file_name=nome_ficheiro,
-    mime="application/json",
-    use_container_width=True,
-)
-st.caption(f"💡 {L['aviso']}")
+    nome_ficheiro = f"{L['snapshot_nome']}_{data_atual[:10]}.json"
+    st.download_button(
+        label=L["btn_guardar"],
+        data=json.dumps(snapshot_data, ensure_ascii=False, indent=2),
+        file_name=nome_ficheiro,
+        mime="application/json",
+        use_container_width=True,
+    )
+    st.caption(f"💡 {L['aviso']}")
 
-# ── SNAPSHOT: COMPARAR ────────────────────────────────────────
-st.markdown("---")
-uploaded = st.file_uploader(L["btn_upload"], type=["json"], label_visibility="visible")
+    # ── SNAPSHOT: COMPARAR ────────────────────────────────────
+    st.markdown("---")
+    uploaded = st.file_uploader(L["btn_upload"], type=["json"], label_visibility="visible")
 
 if uploaded:
     try:
@@ -457,22 +469,23 @@ if uploaded:
             diff    = atual_v - ant_v
             cat_vars.append(diff)
             cat_names.append(label)
-            cat_colors.append("#4CAF50" if diff >= 0 else "#F44336")
+            cat_colors.append(COR_POSITIVO if diff >= 0 else COR_NEGATIVO)
 
         fig_ev = go.Figure(go.Bar(
             x=cat_names, y=cat_vars,
-            marker_color=cat_colors, opacity=0.85,
+            marker_color=cat_colors, opacity=0.92,
             text=[f"€{v:+,.0f}" for v in cat_vars],
-            textposition="outside"))
-        fig_ev.update_layout(
-            plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-            yaxis_title=LX["eur_var"], height=380,
-            margin=dict(l=0, r=0, t=30, b=0))
-        fig_ev.add_hline(y=0, line_color="#888888", line_width=1)
+            textposition="outside", cliponaxis=False))
+        style_fig(fig_ev, height=400, legenda=False, yaxis_title=LX["eur_var"],
+                  margin=dict(l=12, r=12, t=40, b=12))
+        fig_ev.add_hline(y=0, line_color="rgba(250,248,243,0.45)", line_width=1)
         st.plotly_chart(fig_ev, use_container_width=True)
 
     except Exception as e:
         st.error(f"{LX['erro_ficheiro']}: {e}")
+
+st.markdown("---")
+next_step("patrimonio")
 
 st.markdown("---")
 st.caption(L["rodape"])

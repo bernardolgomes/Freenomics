@@ -9,8 +9,9 @@ import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import show_logo
-from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS
+from utils import show_logo, demo_bar, next_step, capacidade_mensal, patrimonio_total
+import auth
+from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS, style_fig
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -149,8 +150,10 @@ L = {
 show_logo()
 st.title(L["titulo"])
 st.caption(L["subtitulo"])
+demo_bar("objetivos")
 
-capacidade = st.session_state.get("capacidade_mensal")
+capacidade = capacidade_mensal()
+patrimonio_guardado = patrimonio_total()
 if capacidade is not None:
     st.info(L["capacidade_info"](capacidade))
 else:
@@ -159,12 +162,38 @@ else:
 st.markdown("---")
 
 # ── LISTA DE OBJETIVOS ────────────────────────────────────────
+# Valores iniciais por defeito: alocação = capacidade de investir do Orçamento (se existir)
+# e "Já tens poupado" = património líquido da página Património (se existir).
+_aloc_defeito = float(round(capacidade)) if capacidade else 100.0
 if "objetivos" not in st.session_state:
+    _at_defeito = float(round(patrimonio_guardado)) if patrimonio_guardado and patrimonio_guardado > 0 else 0.0
     st.session_state.objetivos = [
-        {"nome": "", "valor_objetivo": 10000.0, "valor_atual": 0.0, "alocacao": 100.0},
+        {"nome": "", "valor_objetivo": 10000.0, "valor_atual": _at_defeito, "alocacao": _aloc_defeito,
+         "_s_at": _at_defeito, "_s_al": _aloc_defeito},
     ]
+else:
+    # Objetivo inicial ainda por mexer (sem nome): atualiza os valores por defeito se entretanto
+    # o utilizador preencheu o Orçamento ou o Património.
+    _objs = st.session_state.objetivos
+    if len(_objs) == 1 and not _objs[0]["nome"]:
+        _o = _objs[0]
+        if _o["alocacao"] in (100.0, _o.get("_s_al")) and capacidade:
+            _o["alocacao"] = _o["_s_al"] = float(round(capacidade))
+        if _o["valor_atual"] in (0.0, _o.get("_s_at")) and patrimonio_guardado and patrimonio_guardado > 0:
+            _o["valor_atual"] = _o["_s_at"] = float(round(patrimonio_guardado))
 
 st.header(L["sec_config"])
+_PAT_INFO = {
+    "🇵🇹 Português": lambda v: f"💎 Usámos o teu património líquido (€{v:,.0f}) como valor já poupado no primeiro objetivo. Ajusta se só parte for para ele.",
+    "🇬🇧 English": lambda v: f"💎 We used your net worth (€{v:,.0f}) as the amount already saved in the first goal. Adjust it if only part of it is for this goal.",
+    "🇫🇷 Français": lambda v: f"💎 Nous avons utilisé votre patrimoine net (€{v:,.0f}) comme montant déjà épargné pour le premier objectif. Ajustez si seule une partie lui est destinée.",
+    "🇩🇪 Deutsch": lambda v: f"💎 Wir haben dein Nettovermögen (€{v:,.0f}) als bereits gespartes Geld für das erste Ziel übernommen. Passe es an, wenn nur ein Teil dafür gedacht ist.",
+    "🇪🇸 Español": lambda v: f"💎 Hemos usado tu patrimonio neto (€{v:,.0f}) como importe ya ahorrado en el primer objetivo. Ajústalo si solo una parte es para él.",
+}
+if (patrimonio_guardado and patrimonio_guardado > 0 and len(st.session_state.objetivos) == 1
+        and not st.session_state.objetivos[0]["nome"]
+        and st.session_state.objetivos[0]["valor_atual"] == st.session_state.objetivos[0].get("_s_at")):
+    st.caption(_PAT_INFO[lang](patrimonio_guardado))
 remover = None
 for i, obj in enumerate(st.session_state.objetivos):
     c1, c2, c3, c4, c5 = st.columns([2.5, 2, 2, 2, 0.4])
@@ -194,8 +223,13 @@ if remover is not None:
     st.rerun()
 
 if st.button(L["btn_add"]):
+    # Nova alocação por defeito: o que ainda sobra da capacidade de investir (se existir)
+    _novo_aloc = 100.0
+    if capacidade:
+        _sobra = capacidade - sum(o["alocacao"] for o in st.session_state.objetivos)
+        _novo_aloc = float(round(_sobra)) if _sobra > 0 else 0.0
     st.session_state.objetivos.append(
-        {"nome": "", "valor_objetivo": 10000.0, "valor_atual": 0.0, "alocacao": 100.0})
+        {"nome": "", "valor_objetivo": 10000.0, "valor_atual": 0.0, "alocacao": _novo_aloc})
     st.rerun()
 
 total_alocado = sum(o["alocacao"] for o in st.session_state.objetivos)
@@ -242,6 +276,7 @@ def formatar_tempo(meses):
     return anos, resto
 
 export_objetivos = []
+_full = auth.has_full_access()
 
 for obj in objetivos_calc:
     nome = obj["nome"]
@@ -260,8 +295,14 @@ for obj in objetivos_calc:
         meses = meses_ate_objetivo(valor_atual, valor_objetivo, alocacao, taxa)
         tempos[taxa] = meses  # chave interna = taxa
 
-    cols_c = st.columns(len(TAXAS))
-    for col, (taxa_c, meses) in zip(cols_c, tempos.items()):
+    # Cenário de referência "Moderado" (ou o primeiro disponível se não existir)
+    taxa_ref = 0.06 if 0.06 in tempos else list(tempos.keys())[0]
+    meses_ref = tempos[taxa_ref]
+
+    # Amostra gratuita: só o cenário de referência; os 4 cenários completos são para subscritores
+    taxas_mostrar = tempos if _full else {taxa_ref: tempos[taxa_ref]}
+    cols_c = st.columns(len(taxas_mostrar))
+    for col, (taxa_c, meses) in zip(cols_c, taxas_mostrar.items()):
         with col:
             st.markdown(f"**{NOME_CENARIO[taxa_c]}**")
             if meses is None:
@@ -276,10 +317,8 @@ for obj in objetivos_calc:
                     <p style="color:#FAF8F3;font-size:1.3rem;font-weight:700;margin:0;">{anos} {L['anos_label']}, {resto} {L['meses_label']}</p>
                 </div>""", unsafe_allow_html=True)
 
-    # Insight com o cenário "Moderado" (ou o primeiro disponível se não existir)
-    taxa_ref = 0.06 if 0.06 in tempos else list(tempos.keys())[0]
-    meses_ref = tempos[taxa_ref]
-    if meses_ref and meses_ref > 0:
+    # Insight (só para subscritores)
+    if _full and meses_ref and meses_ref > 0:
         anos_r, resto_r = formatar_tempo(meses_ref)
         st.markdown(f"<div class='insight-box'>{L['insight'](nome, NOME_CENARIO[taxa_ref], anos_r, resto_r, alocacao).replace('**','')}</div>",
                     unsafe_allow_html=True)
@@ -289,19 +328,20 @@ for obj in objetivos_calc:
         "alocacao": alocacao, "tempos_meses": tempos,
     })
 
-# ── GRÁFICO COMPARATIVO (apenas se houver mais de um objetivo) ─
-if len(objetivos_calc) > 1:
-    st.markdown("---")
-    st.subheader(L["cenarios_titulo"])
-    fig = go.Figure()
-    for i, obj in enumerate(export_objetivos):
-        y_vals = [obj["tempos_meses"][c] / 12 if obj["tempos_meses"][c] is not None else None for c in TAXAS]
-        fig.add_trace(go.Bar(x=[NOME_CENARIO[c] for c in TAXAS], y=y_vals, name=obj["nome"],
-                              marker_color=PLOT_COLORS[i % len(PLOT_COLORS)], opacity=0.85))
-    fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-        yaxis_title=L["anos_label"], barmode="group", height=380,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02))
-    st.plotly_chart(fig, use_container_width=True)
+st.markdown("---")
+if _full:
+    # ── GRÁFICO COMPARATIVO (apenas se houver mais de um objetivo) ─
+    if len(objetivos_calc) > 1:
+        st.subheader(L["cenarios_titulo"])
+        fig = go.Figure()
+        for i, obj in enumerate(export_objetivos):
+            y_vals = [obj["tempos_meses"][c] / 12 if obj["tempos_meses"][c] is not None else None for c in TAXAS]
+            fig.add_trace(go.Bar(x=[NOME_CENARIO[c] for c in TAXAS], y=y_vals, name=obj["nome"],
+                                  marker_color=PLOT_COLORS[i % len(PLOT_COLORS)], opacity=0.85))
+        style_fig(fig, height=400, yaxis_title=L["anos_label"], barmode="group")
+        st.plotly_chart(fig, use_container_width=True)
+else:
+    auth.render_locked_section()
 
 # Guarda o estado desta página para a página de Exportar reutilizar
 st.session_state["export_objetivos"] = {
@@ -309,6 +349,9 @@ st.session_state["export_objetivos"] = {
     # nomes dos cenários por língua (chave = taxa anual); o relatório usa a língua escolhida ao exportar
     "cenarios_por_lang": CENARIOS_POR_LANG,
 }
+
+st.markdown("---")
+next_step("objetivos")
 
 st.caption(L["aviso"])
 st.markdown("---")

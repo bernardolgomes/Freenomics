@@ -13,6 +13,7 @@ import os
 from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import show_logo
+import auth
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
@@ -794,7 +795,10 @@ def gerar_excel_completo(secoes):
     return buffer
 
 # ── BOTÃO GERAR ──────────────────────────────────────────────
-if st.button(T["btn_gerar"], use_container_width=True, type="primary"):
+if not auth.has_full_access():
+    # Utilizador gratuito: pode escolher as secções, mas gerar/descarregar fica bloqueado
+    auth.render_locked_section()
+elif st.button(T["btn_gerar"], use_container_width=True, type="primary"):
     if not selecionadas:
         st.error(T["seleciona_uma"])
         st.stop()

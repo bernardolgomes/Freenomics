@@ -4,8 +4,9 @@ import numpy as np
 import plotly.graph_objects as go
 import sys, os, re
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import show_logo
-from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS
+from utils import show_logo, capacidade_mensal
+import auth
+from translations import CSS, PLOT_COLORS, FIX_DROPDOWNS_JS, style_fig
 
 st.markdown(CSS, unsafe_allow_html=True)
 components.html(FIX_DROPDOWNS_JS, height=0)
@@ -112,17 +113,31 @@ st.caption(L["subtitulo"])
 # ── FORMULÁRIO ────────────────────────────────────────────────
 st.header(L["sec_config"])
 
+# Fio condutor: a contribuição mensal começa na capacidade de investir calculada no Orçamento
+_cap_orc = capacidade_mensal()
+if _cap_orc and "sim_contrib" not in st.session_state:
+    st.session_state["sim_contrib"] = int(round(_cap_orc))
+if _cap_orc:
+    _CAP_TXT = {
+        "🇵🇹 Português": f"💡 A contribuição mensal começa nos €{_cap_orc:,.0f} que calculaste no Orçamento. Podes alterar.",
+        "🇬🇧 English": f"💡 The monthly contribution starts at the €{_cap_orc:,.0f} you calculated in the Budget. You can change it.",
+        "🇫🇷 Français": f"💡 La contribution mensuelle part des €{_cap_orc:,.0f} calculés dans le Budget. Vous pouvez la modifier.",
+        "🇩🇪 Deutsch": f"💡 Der monatliche Beitrag startet bei den €{_cap_orc:,.0f}, die du im Budget berechnet hast. Du kannst ihn ändern.",
+        "🇪🇸 Español": f"💡 La contribución mensual parte de los €{_cap_orc:,.0f} que calculaste en el Presupuesto. Puedes cambiarla.",
+    }
+    st.caption(_CAP_TXT.get(lang, _CAP_TXT["🇬🇧 English"]))
+
 col1, col2 = st.columns(2)
 with col1:
-    inv_inicial = st.number_input(L["inv_inicial"], value=1000, step=100, min_value=0)
-    contrib     = st.number_input(L["contrib"],     value=200,  step=50,  min_value=0)
-    anos        = st.slider(L["anos"], 1, 40, 10)
+    inv_inicial = st.number_input(L["inv_inicial"], value=1000, step=100, min_value=0, key="sim_inv_inicial")
+    contrib     = st.number_input(L["contrib"],     value=200,  step=50,  min_value=0, key="sim_contrib")
+    anos        = st.slider(L["anos"], 1, 40, 10, key="sim_anos")
 with col2:
-    retorno  = st.slider(L["retorno"],  1.0, 20.0, 8.0, step=0.5)
-    inflacao = st.slider(L["inflacao"], 0.0, 6.0,  2.5, step=0.5)
+    retorno  = st.slider(L["retorno"],  1.0, 20.0, 8.0, step=0.5, key="sim_retorno")
+    inflacao = st.slider(L["inflacao"], 0.0, 6.0,  2.5, step=0.5, key="sim_inflacao")
     st.caption(L["dica"])
 
-simular = st.button(L["btn_simular"], type="primary", use_container_width=True)
+simular = st.button(L["btn_simular"], type="primary", use_container_width=True, key="sim_btn")
 
 if not simular and "sim_resultado" not in st.session_state:
     st.stop()
@@ -165,39 +180,44 @@ def cartao(label, valor_str, sub_str=None, sub_cor="#C29A4B"):
     html += '</div>'
     return html
 
+_full = auth.has_full_access()
+
 c1, c2, c3, c4 = st.columns(4)
+# Amostra gratuita: só o valor final nominal; o resto é para subscritores
 with c1: st.markdown(cartao(L["valor_final"], f"€{vf:,.0f}", f"+€{ganho:,.0f}", "#4CAF50"), unsafe_allow_html=True)
-with c2: st.markdown(cartao(L["valor_real"],  f"€{vreal:,.0f}", L["adj"]), unsafe_allow_html=True)
-with c3: st.markdown(cartao(L["total_inv"],   f"€{tinv:,.0f}"), unsafe_allow_html=True)
-with c4: st.markdown(cartao(L["multiplicador"], f"{mult:.1f}x", f"{retorno}%/{L['anos_label']}"), unsafe_allow_html=True)
+if _full:
+    with c2: st.markdown(cartao(L["valor_real"],  f"€{vreal:,.0f}", L["adj"]), unsafe_allow_html=True)
+    with c3: st.markdown(cartao(L["total_inv"],   f"€{tinv:,.0f}"), unsafe_allow_html=True)
+    with c4: st.markdown(cartao(L["multiplicador"], f"{mult:.1f}x", f"{retorno}%/{L['anos_label']}"), unsafe_allow_html=True)
 
-# ── GRÁFICO ───────────────────────────────────────────────────
-st.subheader(L["grafico"])
-labels = [m/12 for m in range(1, meses+1)]
-fig = go.Figure()
-fig.add_trace(go.Scatter(x=labels, y=vn, name=L["capital_nominal"], line=dict(color=PLOT_COLORS[0], width=2.5)))
-fig.add_trace(go.Scatter(x=labels, y=ti, name=L["total_investido"],  line=dict(color=PLOT_COLORS[1], width=2, dash="dash")))
-fig.add_trace(go.Scatter(x=labels, y=vr, name=L["capital_real"],     line=dict(color=PLOT_COLORS[2], width=1.5, dash="dot")))
-fig.update_layout(plot_bgcolor="#FAF8F3", paper_bgcolor="#FAF8F3",
-    yaxis_title=f"€", xaxis_title=L["anos_label"],
-    hovermode="x unified", height=430,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02))
-st.plotly_chart(fig, use_container_width=True)
-
-# ── MARCOS ────────────────────────────────────────────────────
-st.subheader(L["marcos"])
-marcos = [m for m in [5, 10, 15, 20, 25, 30] if m <= anos]
-if marcos:
-    cols = st.columns(len(marcos))
-    for col, ano in zip(cols, marcos):
-        idx = ano*12-1
-        col.markdown(cartao(f"{ano} {L['anos_label']}", f"€{vn[idx]:,.0f}",
-            f"{L['investido_label']}: €{ti[idx]:,.0f}"), unsafe_allow_html=True)
-
-# ── INSIGHT ───────────────────────────────────────────────────
 def render(t): return re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", t)
 txt = L["insight"](contrib, anos, retorno, tinv, vf, ganho, inflacao, vreal)
-st.markdown(f"<div class='insight-box'>{render(txt)}</div>", unsafe_allow_html=True)
+
+if _full:
+    # ── GRÁFICO ───────────────────────────────────────────────
+    st.subheader(L["grafico"])
+    labels = [m/12 for m in range(1, meses+1)]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=labels, y=vn, name=L["capital_nominal"], line=dict(color=PLOT_COLORS[0], width=2.5)))
+    fig.add_trace(go.Scatter(x=labels, y=ti, name=L["total_investido"],  line=dict(color=PLOT_COLORS[1], width=2, dash="dash")))
+    fig.add_trace(go.Scatter(x=labels, y=vr, name=L["capital_real"],     line=dict(color=PLOT_COLORS[2], width=1.5, dash="dot")))
+    style_fig(fig, height=450, yaxis_title="€", xaxis_title=L["anos_label"], hovermode="x unified")
+    st.plotly_chart(fig, use_container_width=True)
+
+    # ── MARCOS ────────────────────────────────────────────────
+    st.subheader(L["marcos"])
+    marcos = [m for m in [5, 10, 15, 20, 25, 30] if m <= anos]
+    if marcos:
+        cols = st.columns(len(marcos))
+        for col, ano in zip(cols, marcos):
+            idx = ano*12-1
+            col.markdown(cartao(f"{ano} {L['anos_label']}", f"€{vn[idx]:,.0f}",
+                f"{L['investido_label']}: €{ti[idx]:,.0f}"), unsafe_allow_html=True)
+
+    # ── INSIGHT ───────────────────────────────────────────────
+    st.markdown(f"<div class='insight-box'>{render(txt)}</div>", unsafe_allow_html=True)
+else:
+    auth.render_locked_section()
 
 # Guarda o estado atual desta página para a página de Exportar reutilizar
 st.session_state["export_simulador"] = {
